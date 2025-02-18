@@ -1,0 +1,88 @@
+/* Establecer el estilo de la caja en toda la página */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Centrar todo el contenido dentro del contenedor principal */
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: #f8f9fa;
+  margin: 0; /* Asegúrate de que no haya márgenes adicionales */
+  padding: 0;
+}
+
+/* Estilo para el contenedor principal */
+.container {
+  width: 100%;
+  padding: 20px;
+  margin-top: 100px;
+  min-height: 100vh; /* Asegura que el contenedor ocupe al menos el 100% de la altura de la ventana */
+}
+
+/* Estilo para el card */
+.card {
+  width: 100%;
+  margin: auto;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-height: 80vh; /* Asegura que el card tenga una altura mínima */
+  overflow: hidden; /* Evita que el contenido se desborde */
+}
+
+/* Contenedor de la tabla */
+.table-container {
+  max-height: 60vh; /* Altura máxima para la tabla */
+  overflow-y: auto; /* Permite el desplazamiento vertical si el contenido es demasiado grande */
+}
+
+/* Asegurar que las tablas ocupen el 100% del ancho disponible */
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Centrar el texto de los encabezados */
+th, td {
+  text-align: center;
+}
+
+/* Agregar un poco de espacio entre las celdas de la tabla */
+th, td {
+  padding: 10px;
+}
+
+/* Ajuste de diseño en el contenedor de las pestañas */
+.nav-tabs .nav-item {
+  margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+  border-radius: 0;
+  padding: 10px 20px;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Reducir el margen superior en la clase personalizada */
+.card-spacing {
+  margin-top: 10px; /* Ajusta el espacio entre el nav y el card */
+}
+
+.custom-header {
+  background-color: red;
+}
+
+/* styles.css */
+.custom-thead {
+  background-color: red !important; /* Forzar el fondo rojo */
+  color: white !important; /* Forzar el color del texto a blanco */
+}
