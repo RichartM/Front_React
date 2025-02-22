@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import { Container, Row, Col, Card, Table, Modal, Button } from 'react-bootstrap';
 import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
 import Swal from 'sweetalert2';
-import BootstrapPagination from '../BootstrapPagination';
+import BootstrapPagination from '../../components/common/BootstrapPagination';
 import { createGlobalStyle } from "styled-components";
-import FiltroBuscador from '../FILTROS/FiltroBuscador.JSX';
+import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
 
 const CustomTableHeader = styled.thead`
   background-color: #018180;
@@ -318,35 +318,10 @@ export default function Servicios() {
         setEditModal(true);
     };
 
-    // Función para guardar los cambios de un servicio editado
-    const handleSaveChanges = () => {
-        if (validateFields()) {
-            const updatedServicios = servicios.map((servicio) =>
-                servicio.id === selectedItem.id ? { ...servicio, ...editedData } : servicio
-            );
-            setservicios(updatedServicios);
-            setFilteredServicios(updatedServicios); // Actualiza la lista filtrada
-            setEditModal(false);
-            Swal.fire("¡Guardado!", "Los cambios han sido guardados con éxito.", "success");
-        }
-    };
-
-    // Función para agregar un nuevo servicio
-    const agregarservicio = (nuevoServicio) => {
-        if (validateFields()) {
-            const newServicio = { ...nuevoServicio, id: servicios.length + 1 };
-            const updatedServicios = [...servicios, newServicio];
-            setservicios(updatedServicios);
-            setFilteredServicios(updatedServicios); // Actualiza la lista filtrada
-            setShowservicioModal(false);
-            Swal.fire("¡Agregado!", "El servicio ha sido agregado con éxito.", "success");
-        }
-    };
-
-    // Función para validar los campos del formulario
+    // Función para validar los campos del formulario con validaciones adicionales
     const validateFields = () => {
         const { identificador, nombreServicio, precio, periodo } = editedData;
-        if (!identificador || !nombreServicio || !precio || !periodo) {
+        if (!identificador.trim() || !nombreServicio.trim() || !precio.trim() || !periodo.trim()) {
             Swal.fire({
                 title: "Error",
                 text: "Todos los campos son obligatorios.",
@@ -360,7 +335,100 @@ export default function Servicios() {
             });
             return false;
         }
+        if (identificador.trim().length < 3) {
+            Swal.fire({
+                title: "Error",
+                text: "El identificador debe tener al menos 3 caracteres.",
+                icon: "error",
+                confirmButtonText: "Entendido",
+                customClass: {
+                    popup: 'swal2-popup',
+                    confirmButton: 'btn-swal-confirmar',
+                },
+                buttonsStyling: false,
+            });
+            return false;
+        }
+        if (nombreServicio.trim().length < 3) {
+            Swal.fire({
+                title: "Error",
+                text: "El nombre del servicio debe tener al menos 3 caracteres.",
+                icon: "error",
+                confirmButtonText: "Entendido",
+                customClass: {
+                    popup: 'swal2-popup',
+                    confirmButton: 'btn-swal-confirmar',
+                },
+                buttonsStyling: false,
+            });
+            return false;
+        }
+        if (isNaN(precio)) {
+            Swal.fire({
+                title: "Error",
+                text: "El precio debe ser un número.",
+                icon: "error",
+                confirmButtonText: "Entendido",
+                customClass: {
+                    popup: 'swal2-popup',
+                    confirmButton: 'btn-swal-confirmar',
+                },
+                buttonsStyling: false,
+            });
+            return false;
+        }
+        if (Number(precio) <= 0) {
+            Swal.fire({
+                title: "Error",
+                text: "El precio debe ser mayor que 0.",
+                icon: "error",
+                confirmButtonText: "Entendido",
+                customClass: {
+                    popup: 'swal2-popup',
+                    confirmButton: 'btn-swal-confirmar',
+                },
+                buttonsStyling: false,
+            });
+            return false;
+        }
         return true;
+    };
+
+    // Función para guardar los cambios de un servicio editado
+    const handleSaveChanges = () => {
+        if (validateFields()) {
+            const updatedServicios = servicios.map((servicio) =>
+                servicio.id === selectedItem.id ? { ...servicio, ...editedData } : servicio
+            );
+            setservicios(updatedServicios);
+            setFilteredServicios(updatedServicios); // Actualiza la lista filtrada
+            setEditModal(false);
+            Swal.fire({
+                title: "¡Guardado!",
+                text: "Los cambios han sido guardados con éxito.",
+                icon: "success",
+                confirmButtonColor: "#018180",
+                customClass: { confirmButton: 'btn-swal-confirmar' }
+            });
+        }
+    };
+
+    // Función para agregar un nuevo servicio
+    const agregarservicio = (nuevoServicio) => {
+        if (validateFields()) {
+            const newServicio = { ...nuevoServicio, id: servicios.length + 1 };
+            const updatedServicios = [...servicios, newServicio];
+            setservicios(updatedServicios);
+            setFilteredServicios(updatedServicios); // Actualiza la lista filtrada
+            setShowservicioModal(false);
+            Swal.fire({
+                title: "¡Agregado!",
+                text: "El servicio ha sido agregado con éxito.",
+                icon: "success",
+                confirmButtonColor: "#018180",
+                customClass: { confirmButton: 'btn-swal-confirmar' }
+            });
+        }
     };
 
     // Función para activar/desactivar un servicio
@@ -406,7 +474,7 @@ export default function Servicios() {
                 <Card>
                     <Row className="mb-3">
                         <Col className="d-flex justify-content-end">
-                            <FiltroBuscador  onSearch={handleSearch}  placeholder="Buscar servicio..."  />
+                            <FiltroBuscador onSearch={handleSearch} placeholder="Buscar servicio..." />
                         </Col>
                     </Row>
                     <Row className="mb-1">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import bgImage from '../img/EsteBueno.avif';
+import bgImage from '../../img/EsteBueno.avif';
 
 const Form = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -10,7 +10,6 @@ const Form = ({ onLogin }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-
     // Simulación de autenticación
     if (email === 'gerente' && password === 'gerente') {
       onLogin('gerente'); // Asigna el rol de gerente
@@ -27,7 +26,7 @@ const Form = ({ onLogin }) => {
         <StyledForm onSubmit={handleLogin}>
           <Input 
             type="text" 
-            placeholder="Usuario" 
+            placeholder="Correo" 
             required 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -43,13 +42,12 @@ const Form = ({ onLogin }) => {
           <FormButton type="submit">Iniciar sesión</FormButton>
         </StyledForm>
         <SignUpLabel>
-          Aun no estas registrado? <SignUpLink>Registrate</SignUpLink>
+          Aun no estas registrado? <SignUpLink onClick={() => navigate('/register')}>Registrate</SignUpLink>
         </SignUpLabel>
       </FormContainer>
     </BackgroundContainer>
   );
 };
-
 
 const FormContainer = styled.div`
   width: 350px;
@@ -124,38 +122,17 @@ const SignUpLink = styled.span`
   text-decoration: underline;
 `;
 
-const ButtonsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
-`;
-
-const SocialButton = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 20px;
-  padding: 10px 15px;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
-  cursor: pointer;
-  font-size: 11px;
-  gap: 5px;
-  
-`;
 const BackgroundContainer = styled.div`
   width: 100vw;
   height: 100vh;
-  position: fixed; /* Fija el fondo en la pantalla */
+  position: fixed;
   top: 0;
   left: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; /* Evita barras de desplazamiento */
-  z-index: 0; /* Asegura que el fondo esté detrás del contenido */
-
-  /* Crea un pseudo-elemento para aplicar el fondo */
+  overflow: hidden;
+  z-index: 0;
   ::before {
     content: '';
     position: absolute;
@@ -167,10 +144,9 @@ const BackgroundContainer = styled.div`
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    filter: blur(4px); /* Aplica el desenfoque solo a la imagen */
-    z-index: -1; /* Asegura que el fondo se quede detrás del contenido */
+    filter: blur(4px);
+    z-index: -1;
   }
 `;
-
 
 export default Form;

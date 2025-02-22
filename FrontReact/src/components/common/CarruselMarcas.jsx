@@ -65,10 +65,10 @@ const StyledWrapper = styled.div`
 `;
 
 // Asegúrate de que las rutas de las imágenes sean correctas
-import toyota from "../img/CARROS/LogoToyota.png";
-import mazda from "../img/CARROS/MAZDA.png";
-import honda from "../img/CARROS/HONDA.png";
-import ford from "../img/CARROS/FORD.png";
+import toyota from "../../img/CARROS/LogoToyota.png";
+import mazda from "../../img/CARROS/MAZDA.png";
+import honda from "../../img/CARROS/HONDA.png";
+import ford from "../../img/CARROS/FORD.png";
 
 const brands = [
   { name: "Toyota", img: toyota, route: "/catalogo/toyota" },

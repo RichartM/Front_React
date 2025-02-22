@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Row, Col } from "react-bootstrap";
-import CarruselMarcas from "./CarruselMarcas";
-import bgImage from '../img/EsteBueno.avif';
-import Ruben from '../img/RUBEN.png';
-import FormRegistro from "./FormRegistro";
-import Footer from "./Footer";
+import CarruselMarcas from '../../components/common/CarruselMarcas';
+import bgImage from '../../img/EsteBueno.avif';
+import Ruben from '../../img/RUBEN.png';
+import FormRegistro from '../Auth/FormRegistro';
+import Footer from "../../components/common/Footer";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 

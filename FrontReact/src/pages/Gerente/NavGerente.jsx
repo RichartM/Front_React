@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
-import homeIcon from "../img/home.png";
+import homeIcon from '../../img/home.png';
 import styled from 'styled-components';
 
 // Estilos para la línea debajo del enlace al hacer hover
