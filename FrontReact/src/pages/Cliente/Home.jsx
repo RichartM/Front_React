@@ -35,6 +35,8 @@ const Home = () => {
     };
   }, []);
 
+  
+
   return (
     <>
       {/* Hero Section */}
@@ -117,23 +119,26 @@ const Home = () => {
 
       {/* Contact Section */}
       <div className="text-center mt-5 mb-5" data-aos="fade-up">
-        <Row className="justify-content-center">
-          <Col md={5} className="d-flex align-items-center justify-content-center">
-            <div>
-              <img
-                src={Ruben}
-                alt="Imagen representativa"
-                className="img-fluid mb-3"
-                style={{ width: "70%", maxWidth: "400px" }}
-              />
-              <h4>¿TE INTERESA ALGO?</h4>
-              <p className="text-primary">SÉ UNO DE NUESTROS CLIENTES</p>
-            </div>
-          </Col>
-          <Col md={5}>
-            <FormRegistro />
-          </Col>
-        </Row>
+      <Row className="justify-content-center">
+  <Col md={5} className="d-flex align-items-center justify-content-center">
+    <div>
+      <img
+        src={Ruben}
+        alt="Imagen representativa"
+        className="img-fluid mb-3"
+        style={{ width: "70%", maxWidth: "400px" }}
+      />
+      <h4>¿TE INTERESA ALGO?</h4>
+      <p className="text-primary">SÉ UNO DE NUESTROS CLIENTES</p>
+    </div>
+  </Col>
+  <Col md={5} id="registro"> {/* Aquí agregamos el ID "registro" */}
+    <FormRegistro />
+  </Col>
+</Row>
+
+
+
       </div>
 
       {/* Footer Section */}

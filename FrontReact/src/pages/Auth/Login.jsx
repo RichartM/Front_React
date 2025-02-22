@@ -24,26 +24,53 @@ const Form = ({ onLogin }) => {
       <FormContainer>
         <Title>Bienvenido</Title>
         <StyledForm onSubmit={handleLogin}>
-          <Input 
-            type="text" 
-            placeholder="Correo" 
-            required 
+          <Input
+            type="text"
+            placeholder="Correo"
+            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Input 
-            type="password" 
-            placeholder="Contraseña" 
-            required 
+          <Input
+            type="password"
+            placeholder="Contraseña"
+            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <PageLink>Olvidaste tu contraseña?</PageLink>
+          <PageLink onClick={() => navigate('/recuperar-contraseña')}>
+            Olvidaste tu contraseña?
+          </PageLink>
           <FormButton type="submit">Iniciar sesión</FormButton>
         </StyledForm>
         <SignUpLabel>
-          Aun no estas registrado? <SignUpLink onClick={() => navigate('/register')}>Registrate</SignUpLink>
+          Aun no estas registrado?{" "}
+          <SignUpLink
+            onClick={() => {
+              navigate('/home'); // Navega a la página donde está el formulario
+              setTimeout(() => {
+                const registroSection = document.getElementById("registro");
+                if (registroSection) {
+                  const offset = -100; // Ajusta el desplazamiento para que quede más arriba
+                  const bodyRect = document.body.getBoundingClientRect().top;
+                  const elementRect = registroSection.getBoundingClientRect().top;
+                  const elementPosition = elementRect - bodyRect;
+                  const offsetPosition = elementPosition + offset;
+
+                  window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth",
+                  });
+                }
+              }, 300); // Espera un poco para que la navegación se complete antes de hacer scroll
+            }}
+          >
+            Registrate
+          </SignUpLink>
         </SignUpLabel>
+
+
+
       </FormContainer>
     </BackgroundContainer>
   );

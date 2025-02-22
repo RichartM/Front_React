@@ -480,9 +480,21 @@ export default function Servicios() {
                     <Row className="mb-1">
                         <Col>
                             <Nav variant="tabs" defaultActiveKey="/servicios">
-                                <Nav.Item>
-                                    <Nav.Link eventKey="/servicios">Servicios</Nav.Link>
-                                </Nav.Item>
+                            <Nav.Item>
+        <Nav.Link
+          eventKey="/servicios"
+          style={{
+            backgroundColor: '#018180', // Fondo gris claro
+            border: '1px solidrgb(89, 104, 104)', // Borde con el color de acento
+            borderRadius: '5px',         // Bordes redondeados
+            boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)', // Sombra sutil para dar profundidad
+          }}
+          
+        >
+          Servicios
+        </Nav.Link>
+      </Nav.Item>
+                                
                                 <Nav.Link
                                     className="text-dark ms-auto"
                                     onClick={(e) => {

@@ -4,7 +4,6 @@ import { Routes, Route } from 'react-router-dom';
 
 // Rutas públicas (se recomienda mover estos componentes a src/pages/Auth)
 import Login from '../pages/Auth/Login';
-import FormRegistro from '../pages/Auth/FormRegistro';
 
 // Rutas protegidas para el rol Gerente
 import GerenteLayout from '../layouts/GerenteLayout';
@@ -13,13 +12,15 @@ import CarTable from '../pages/Gerente/GerenteMarcaModelo';
 import AgenteVentas from '../pages/Gerente/AgenteVentas';
 import Servicios from '../pages/Gerente/Servicios';
 import EditPerfil from '../pages/Gerente/EditPerfil';
+import RecuperarContraseña from "../pages/Auth/RecuperarContraseña"; // Importar el nuevo componente
+
 
 const AppRoutes = () => {
   return (
     <Routes>
       {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<FormRegistro />} />
+      <Route path="/recuperar-contraseña" element={<RecuperarContraseña />} /> {/* Nueva ruta */}
 
       {/* Rutas protegidas dentro del layout de Gerente */}
       <Route path="/" element={<GerenteLayout />}>

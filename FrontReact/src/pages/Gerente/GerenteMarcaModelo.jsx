@@ -492,26 +492,81 @@ const useAgregarModelo = (modelos, setModelos, setShowModelosModal) => {
           </Row>
 
           <Row className="mb-1">
-            <Col>
-              <Nav variant="tabs" activeKey={activeTab} onSelect={(selectedKey) => setActiveTab(selectedKey)}>
-                <Nav.Item>
-                  <Nav.Link eventKey="/home">Marcas</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="link-1">Modelos</Nav.Link>
-                </Nav.Item>
-                <Nav.Link
-                  className="text-dark ms-auto"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleOpenModal();
-                  }}
-                >
-                  <i className="bi bi-plus-circle fs-2"></i>
-                </Nav.Link>
-              </Nav>
-            </Col>
-          </Row>
+  <Col>
+    <Nav
+      variant="tabs"
+      activeKey={activeTab}
+      onSelect={(selectedKey) => setActiveTab(selectedKey)}
+    >
+      <Nav.Item>
+        <Nav.Link
+          eventKey="/home"
+          style={
+            activeTab === "/home"
+              ? {
+                  backgroundColor: '#026c6c', // Fondo más oscuro para la pestaña activa
+                  border: '1px solid rgb(89, 104, 104)',
+                  borderRadius: '5px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
+                  color: 'white', // Texto blanco
+                  margin: '0 5px',
+                  fontWeight: 'bold', // Opcional: enfatiza la pestaña activa
+                }
+              : {
+                  backgroundColor: '#018180',
+                  border: '1px solid rgb(89, 104, 104)',
+                  borderRadius: '5px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
+                  color: 'white',
+                  margin: '0 5px',
+                  padding: '5px 10px'
+                }
+          }
+        >
+          Marcas
+        </Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link
+          eventKey="link-1"
+          style={
+            activeTab === "link-1"
+              ? {
+                  backgroundColor: '#026c6c',
+                  border: '1px solid rgb(89, 104, 104)',
+                  borderRadius: '3px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
+                  color: 'white',
+                  margin: '0 5px',
+                  fontWeight: 'bold',
+                }
+              : {
+                  backgroundColor: '#018180',
+                  border: '1px solid rgb(89, 104, 104)',
+                  borderRadius: '3px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
+                  color: 'white',
+                  margin: '0 5px',
+                  padding: '5px 10px'
+                }
+          }
+        >
+          Modelos
+        </Nav.Link>
+      </Nav.Item>
+      <Nav.Link
+        className="text-dark ms-auto"
+        onClick={(e) => {
+          e.preventDefault();
+          handleOpenModal();
+        }}
+      >
+        <i className="bi bi-plus-circle fs-2"></i>
+      </Nav.Link>
+    </Nav>
+  </Col>
+</Row>
+
 
           {/* Modal para Marcas */}
           <Modal show={showMarcasModal} onHide={() => setShowMarcasModal(false)} centered>

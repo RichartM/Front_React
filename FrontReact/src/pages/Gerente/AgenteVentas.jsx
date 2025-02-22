@@ -559,7 +559,14 @@ function AgenteVentas() {
             <Col>
               <Nav variant="tabs" defaultActiveKey="/agentes">
                 <Nav.Item>
-                  <Nav.Link eventKey="/agentes">Agentes de Ventas</Nav.Link>
+                  <Nav.Link eventKey="/agentes"
+                  style={{
+                    backgroundColor: '#018180', // Fondo gris claro
+                    border: '1px solidrgb(89, 104, 104)', // Borde con el color de acento
+                    borderRadius: '5px',         // Bordes redondeados
+                    boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)', // Sombra sutil para dar profundidad
+                  }}
+                  >Agentes de Ventas</Nav.Link>
                 </Nav.Item>
                 <Nav.Link
                   className="text-dark ms-auto"

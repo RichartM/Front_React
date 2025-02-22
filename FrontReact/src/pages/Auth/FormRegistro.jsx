@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Swal from "sweetalert2";
+import FondoCarrro from '../../img/AutosRegistro.jpg';
+
 
 const FormRegistro = () => {
   const [formData, setFormData] = useState({
