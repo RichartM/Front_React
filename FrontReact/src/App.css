@@ -15,6 +15,10 @@ body {
   margin: 0; /* Asegúrate de que no haya márgenes adicionales */
   padding: 0;
 }
+img, video, iframe, .carousel, .row, .col {
+  max-width: 100%;
+  height: auto;
+}
 
 /* Estilo para el contenedor principal */
 .container {
@@ -81,8 +85,52 @@ th, td {
   background-color: red;
 }
 
-/* styles.css */
-.custom-thead {
-  background-color: red !important; /* Forzar el fondo rojo */
-  color: white !important; /* Forzar el color del texto a blanco */
+
+/* Estilos para la flecha */
+.arrow-down {
+  position: absolute; /* Cambiado a absolute */
+  bottom: 40px; /* Distancia desde la parte inferior de la sección */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+  animation: pulse 2s infinite; /* Animación de palpitar */
+  transition: opacity 0.5s ease; /* Transición para desaparecer */
+}
+
+.arrow-down::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-left: 4px solid rgba(255, 255, 255, 0.8); /* Flecha más gruesa */
+  border-bottom: 4px solid rgba(255, 255, 255, 0.8); /* Flecha más gruesa */
+  transform: rotate(-45deg); /* Gira la flecha para que apunte hacia abajo */
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); /* Difuminado */
+}
+
+/* Animación de palpitar */
+@keyframes pulse {
+  0% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Clase para ocultar la flecha */
+.arrow-down.hidden {
+  opacity: 0;
+  pointer-events: none; /* Desactiva los clics cuando está oculta */
 }

@@ -49,6 +49,7 @@ const PasswordStrengthBar = styled(ProgressBar)`
 export default function EditPerfil() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
+  const [passwordActual, setPasswordActual] = useState("")
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -118,6 +119,15 @@ export default function EditPerfil() {
             placeholder="Ingresa tu email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="contraActual">
+          <Form.Label>Contraseña Actual</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Ingresa tu contraseña actual"
+            value={passwordActual}
+            onChange={(e) => setPasswordActual(e.target.value)}
           />
         </Form.Group>
 

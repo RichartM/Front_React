@@ -1,25 +1,91 @@
 import { useState, useEffect } from 'react';
-import { Form } from 'react-bootstrap';
 import Nav from 'react-bootstrap/Nav';
-import { Container, Row, Col, Card, Table, Modal, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Modal, Button, Form } from 'react-bootstrap';
 import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
 import styled from 'styled-components';
 import Swal from 'sweetalert2';
-import BootstrapPagination from './BootstrapPagination';
+import BootstrapPagination from './BootstrapPagination'; // Importación del componente
+import { createGlobalStyle } from "styled-components";
+import FiltroBuscador from './FILTROS/FiltroBuscador.JSX';
 
+
+// Estilos globales
+const GlobalStyle = createGlobalStyle`
+  body {
+    overflow: hidden;
+  }
+
+  .swal2-popup {
+    background-color: rgb(255, 255, 255);
+    color: black;
+    border-radius: 10px;
+  }
+
+  .btn-swal-confirmar {
+    background-color: #018180;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .btn-swal-confirmar:hover {
+    background-color: rgb(5, 110, 110);
+  }
+
+  .btn-swal-cancelar {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .btn-swal-cancelar:hover {
+    background-color: #c82333;
+  }
+`;
+
+// Estilos para el encabezado de la tabla
 const CustomTableHeader = styled.thead`
-  background-color: red;
+  background-color: #018180;
   color: white;
+
+  th {
+    background-color: #018180;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid rgb(255, 255, 255);
+  }
 `;
 
-const PaginateButton = styled(Button)`
-  font-weight: bold;
-  padding: 5px 10px;
-  border-radius: 50%;
-  margin: 0 5px;
-`;
-
+// Estilos para el contenido del modal
 const StyledModalContent = styled.div`
+  .scrollable-table {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #018180 #f1f1f1;
+  }
+
+  .scrollable-table::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollable-table::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+  }
+
+  .scrollable-table::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+  }
+
   .form {
     display: flex;
     flex-direction: column;
@@ -37,11 +103,9 @@ const StyledModalContent = styled.div`
     margin: 0;
   }
 
-  align-items: center;
-
- .title {
+  .title {
     font-size: 28px;
-    color:rgb(55, 159, 152);
+    color: rgb(55, 159, 152);
     font-weight: 600;
     letter-spacing: -1px;
     position: relative;
@@ -140,22 +204,21 @@ const StyledModalContent = styled.div`
   .submit {
     border: none;
     outline: none;
-    background-color:#018180;
+    background-color: #018180;
     padding: 10px;
     border-radius: 10px;
     color: #fff;
     font-size: 16px;
     transform: 0.3s ease;
-    transition : 0.5s;
+    transition: 0.5s;
   }
 
   .submit:hover {
-    background-color: rgb(255,255,255);
+    background-color: rgb(255, 255, 255);
     color: #018180;
     border-width: 1px;
     border-style: solid;
     border-color: #018180;
-
   }
 
   @keyframes pulse {
@@ -172,11 +235,8 @@ const StyledModalContent = styled.div`
 `;
 
 function CarTable() {
-    // Bloquear el desplazamiento cuando el componente se monta
     useEffect(() => {
         document.body.style.overflow = 'hidden';
-
-        // Restaurar el desplazamiento cuando el componente se desmonta
         return () => {
             document.body.style.overflow = 'auto';
         };
@@ -188,39 +248,64 @@ function CarTable() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [editModal, setEditModal] = useState(false);
     const [editedData, setEditedData] = useState({ nombre: '', estado: '' });
+    const [errors, setErrors] = useState({});
+
     const [marcas, setMarcas] = useState([
         { id: 1, nombre: "Chevrolet", estado: "ACTIVO" },
         { id: 2, nombre: "Toyota", estado: "INACTIVO" },
-        // Más marcas...
     ]);
+
     const [modelos, setModelos] = useState([
-        { id: 1, identificador: "CCL-10001-M", nombre: "Cambio llantas", precio: "$50000", periodo: "Única Aplicación", estado: "Activo" },
-        { id: 2, identificador: "CCL-10002-M", nombre: "Alineación", precio: "$30000", periodo: "Mensual", estado: "Activo" },
-        // Más modelos...
+        { id: 1, identificador: "CCL-10001-M 1", nombre: "Cambio llantas", precio: "$50000", periodo: "Única Aplicación", estado: "Activo" },
+        { id: 2, identificador: "CCL-10002-M 2", nombre: "Alineación", precio: "$30000", periodo: "Mensual", estado: "Activo" },
+        { id: 3, identificador: "CCL-10003-M 3", nombre: "Balanceo", precio: "$25000", periodo: "Mensual", estado: "Activo" },
+        { id: 4, identificador: "CCL-10004-M 4", nombre: "Cambio de aceite", precio: "$40000", periodo: "Trimestral", estado: "Activo" },
+        { id: 5, identificador: "CCL-10005-M 5", nombre: "Cambio de frenos", precio: "$70000", periodo: "Semestral", estado: "Activo" },
+        { id: 6, identificador: "CCL-10006-M 6", nombre: "Cambio de batería", precio: "$90000", periodo: "Bienal", estado: "Activo" },
+        { id: 7, identificador: "CCL-10007-M 7", nombre: "Cambio de bujías", precio: "$35000", periodo: "Anual", estado: "Activo" },
+        { id: 8, identificador: "CCL-10008-M 8", nombre: "Cambio de filtro de aire", precio: "$20000", periodo: "Semestral", estado: "Activo" },
+        { id: 9, identificador: "CCL-10009-M 9", nombre: "Revisión de motor", precio: "$80000", periodo: "Anual", estado: "Activo" },
+        { id: 10, identificador: "CCL-10010-M 10", nombre: "Cambio de transmisión", precio: "$120000", periodo: "Única Aplicación", estado: "Activo" },
+        { id: 11, identificador: "CCL-10011-M 11", nombre: "Cambio de radiador", precio: "$110000", periodo: "Bienal", estado: "Activo" },
+        { id: 12, identificador: "CCL-10012-M 12", nombre: "Revisión eléctrica", precio: "$45000", periodo: "Anual", estado: "Activo" },
+        { id: 13, identificador: "CCL-10013-M 13", nombre: "Cambio de suspensión", precio: "$95000", periodo: "Bienal", estado: "Activo" },
+        { id: 14, identificador: "CCL-10014-M 14", nombre: "Escaneo computarizado", precio: "$50000", periodo: "Única Aplicación", estado: "Activo" },
+        { id: 15, identificador: "CCL-10015-M 15", nombre: "Cambio de luces", precio: "$15000", periodo: "Única Aplicación", estado: "Activo" },
+        { id: 16, identificador: "CCL-10016-M 16", nombre: "Cambio de filtro de combustible", precio: "$28000", periodo: "Anual", estado: "Activo" },
+        { id: 17, identificador: "CCL-10017-M 17", nombre: "Cambio de correa de tiempo", precio: "$75000", periodo: "Bienal", estado: "Activo" },
+        { id: 18, identificador: "CCL-10018-M 18", nombre: "Cambio de termostato", precio: "$30000", periodo: "Única Aplicación", estado: "Activo" },
+        { id: 19, identificador: "CCL-10019-M 19", nombre: "Cambio de alternador", precio: "$85000", periodo: "Única Aplicación", estado: "Activo" },
+        { id: 20, identificador: "CCL-10020-M 20", nombre: "Cambio de catalizador", precio: "$100000", periodo: "Única Aplicación", estado: "Activo" },
+        { id: 21, identificador: "CCL-10021-M 21", nombre: "Cambio de bomba de gasolina", precio: "$65000", periodo: "Única Aplicación", estado: "Activo" },
+        { id: 22, identificador: "CCL-10022-M 22", nombre: "Inspección general", precio: "$55000", periodo: "Anual", estado: "Activo" }
     ]);
 
-    // Paginación
-    const [currentPage, setCurrentPage] = useState(1);
-    const recordsPerPage = 15;
+    const [searchTermMarcas, setSearchTermMarcas] = useState('');
+    const [searchTermModelos, setSearchTermModelos] = useState('');
 
-    // Calcular total de páginas
-    const totalPagesMarcas = Math.ceil(marcas.length / recordsPerPage);
-    const totalPagesModelos = Math.ceil(modelos.length / recordsPerPage);
+    const filteredMarcas = marcas.filter(marca =>
+        marca.nombre.toLowerCase().includes(searchTermMarcas.toLowerCase())
+    );
 
-    // Filtrar registros para la paginación
-    const currentMarcas = marcas.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage);
-    const currentModelos = modelos.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage);
+    const filteredModelos = modelos.filter(modelo =>
+        modelo.nombre.toLowerCase().includes(searchTermModelos.toLowerCase())
+    );
 
-    // Cambiar de página
-    const paginate = (page) => {
-        if (page === "prev" && currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        } else if (page === "next" && currentPage < (activeTab === "/home" ? totalPagesMarcas : totalPagesModelos)) {
-            setCurrentPage(currentPage + 1);
-        } else if (typeof page === "number") {
-            setCurrentPage(page);
-        }
-    };
+    // Paginación para Marcas
+    const [currentPageMarcas, setCurrentPageMarcas] = useState(1);
+    const recordsPerPageMarcas = 10;
+    const currentMarcas = filteredMarcas.slice(
+        (currentPageMarcas - 1) * recordsPerPageMarcas,
+        currentPageMarcas * recordsPerPageMarcas
+    );
+
+    // Paginación para Modelos
+    const [currentPageModelos, setCurrentPageModelos] = useState(1);
+    const recordsPerPageModelos = 10;
+    const currentModelos = filteredModelos.slice(
+        (currentPageModelos - 1) * recordsPerPageModelos,
+        currentPageModelos * recordsPerPageModelos
+    );
 
     const handleOpenModal = () => {
         if (activeTab === "/home") {
@@ -241,7 +326,7 @@ function CarTable() {
     };
 
     const handleEdit = (item, isMarca) => {
-        setSelectedItem(item);
+        setSelectedItem({ ...item, isMarca });
         setEditedData({
             identificador: item.identificador || "",
             nombre: item.nombre || "",
@@ -253,8 +338,8 @@ function CarTable() {
     };
 
     const handleSaveChanges = () => {
-        if (selectedItem) {
-            if (activeTab === "/home") {
+        if (validateFields(editedData, selectedItem.isMarca)) {
+            if (selectedItem.isMarca) {
                 setMarcas(marcas.map(m => m.id === selectedItem.id ? { ...m, ...editedData } : m));
             } else {
                 setModelos(modelos.map(m => m.id === selectedItem.id ? { ...m, ...editedData } : m));
@@ -272,7 +357,13 @@ function CarTable() {
             showCancelButton: true,
             confirmButtonText: "Sí, confirmar",
             cancelButtonText: "Cancelar",
-            reverseButtons: true
+            reverseButtons: true,
+            customClass: {
+                popup: 'swal2-popup',
+                confirmButton: 'btn-swal-confirmar',
+                cancelButton: 'btn-swal-cancelar',
+            },
+            buttonsStyling: false,
         }).then((result) => {
             if (result.isConfirmed) {
                 const updatedItem = { ...item, estado: item.estado === 'ACTIVO' || item.estado === 'Activo' ? 'INACTIVO' : 'ACTIVO' };
@@ -281,304 +372,408 @@ function CarTable() {
                 } else {
                     setModelos(modelos.map(m => m.id === item.id ? updatedItem : m));
                 }
-                Swal.fire(
-                    "¡Hecho!",
-                    `El estado de ${item.nombre} ha sido cambiado.`,
-                    "success"
-                );
+                Swal.fire({
+                    title: "¡Hecho!",
+                    text: `El estado de ${item.nombre} ha sido cambiado.`,
+                    icon: "success",
+                    customClass: {
+                        popup: 'swal2-popup',
+                        confirmButton: 'btn-swal-confirmar',
+                    },
+                    buttonsStyling: false,
+                });
             }
         });
     };
 
+    const validateFields = (data, isMarca) => {
+        const newErrors = {};
+        if (!data.nombre) newErrors.nombre = "El nombre es obligatorio.";
+        if (!isMarca) {
+            if (!data.identificador) newErrors.identificador = "El identificador es obligatorio.";
+            if (!data.precio) newErrors.precio = "El precio es obligatorio.";
+            if (!data.periodo) newErrors.periodo = "El periodo es obligatorio.";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     return (
-        <Container>
-            <Card>
-                <Row className="mb-1">
-                    <Col>
-                        <Nav variant="tabs" activeKey={activeTab} onSelect={(selectedKey) => setActiveTab(selectedKey)}>
-                            <Nav.Item>
-                                <Nav.Link eventKey="/home">Marcas</Nav.Link>
-                            </Nav.Item>
-                            <Nav.Item>
-                                <Nav.Link eventKey="link-1">Modelos</Nav.Link>
-                            </Nav.Item>
-                            <Nav.Link
-                                className="text-dark ms-auto"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    handleOpenModal();
-                                }}
-                            >
-                                <i className="bi bi-plus-circle fs-2"></i>
-                            </Nav.Link>
-                        </Nav>
-                    </Col>
-                </Row>
+        <>
+            <GlobalStyle />
 
-                {/* Modal para Marcas */}
-                <Modal show={showMarcasModal} onHide={() => setShowMarcasModal(false)} centered>
-                    <StyledModalContent>
-                        <Modal.Header closeButton>
-                            <Modal.Title className="title">Agregar Marca</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Form onSubmit={(e) => {
-                                e.preventDefault();
-                                agregarMarca({ nombre: e.target.nombre.value, estado: 'ACTIVO' });
-                            }}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Nombre</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="nombre"
-                                        className="input"
-                                        required
-                                    />
-                                </Form.Group>
-                                <Button type="submit" className="submit">Agregar</Button>
-                            </Form>
-                        </Modal.Body>
-                    </StyledModalContent>
-                </Modal>
+            <Container>
+                <Card>
+                    <Row className="mb-3">
 
-                {/* Modal para Modelos */}
-                <Modal show={showModelosModal} onHide={() => setShowModelosModal(false)} centered>
-                    <StyledModalContent>
-                        <Modal.Header closeButton>
-                            <Modal.Title className="title" >Agregar Modelo</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Form onSubmit={(e) => {
-                                e.preventDefault();
-                                agregarModelo({
-                                    identificador: e.target.identificador.value,
-                                    nombre: e.target.nombre.value,
-                                    precio: e.target.precio.value,
-                                    periodo: e.target.periodo.value,
-                                    estado: 'Activo'
-                                });
-                            }}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Identificador</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="identificador"
-                                        className="input"
-                                        required
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Nombre</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="nombre"
-                                        className="input"
-                                        required
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Precio</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        step="0.01"
-                                        name="precio"
-                                        className="input"
-                                        required
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Periodo</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="periodo"
-                                        className="input"
-                                        required
-                                    />
-                                </Form.Group>
-                                <Button type="submit" className="submit">Agregar</Button>
-                            </Form>
-                        </Modal.Body>
-                    </StyledModalContent>
-                </Modal>
+                        <Col className="d-flex justify-content-end">
+                            {/* Filtro de búsqueda para Modelos */}
+                            {activeTab === "link-1" && (
+                                <FiltroBuscador
+                                    onSearch={setSearchTermModelos}
+                                    placeholder="Buscar modelos..."
+                                />
+                            )}
+                            {/* Filtro de búsqueda para Marcas */}
+                            {activeTab === "/home" && (
+                                <FiltroBuscador
+                                    onSearch={setSearchTermMarcas}
+                                    placeholder="Buscar marcas..."
+                                />
+                            )}
+                        </Col>
+                    </Row>
 
-                {/* Modal de Edición */}
-                <Modal show={editModal} onHide={() => setEditModal(false)} centered>
-                    <StyledModalContent>
-                        <Modal.Header closeButton>
-                            <Modal.Title className="title" >Editar {selectedItem?.nombre}</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Form>
-                                {selectedItem?.identificador && (
+                    <Row className="mb-1">
+                        <Col>
+                            <Nav variant="tabs" activeKey={activeTab} onSelect={(selectedKey) => setActiveTab(selectedKey)}>
+                                <Nav.Item>
+                                    <Nav.Link eventKey="/home">Marcas</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item>
+                                    <Nav.Link eventKey="link-1">Modelos</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Link
+                                    className="text-dark ms-auto"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleOpenModal();
+                                    }}
+                                >
+                                    <i className="bi bi-plus-circle fs-2"></i>
+                                </Nav.Link>
+                            </Nav>
+                        </Col>
+                    </Row>
+
+
+
+
+
+                    {/* Modal para Marcas */}
+                    <Modal show={showMarcasModal} onHide={() => setShowMarcasModal(false)} centered>
+                        <StyledModalContent>
+                            <Modal.Header closeButton>
+                                <Modal.Title className="title">Agregar Marca</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const nombre = e.target.nombre.value;
+                                        if (validateFields({ nombre }, true)) {
+                                            agregarMarca({ nombre, estado: 'ACTIVO' });
+                                        }
+                                    }}
+                                >
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Nombre</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="nombre"
+                                            className="input"
+                                            isInvalid={!!errors.nombre}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.nombre}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                    <Modal.Footer>
+                                        <Button className="submit btn btn-primary" variant="secondary" onClick={() => setShowMarcasModal(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button type="submit" className="submit">Agregar</Button>
+                                    </Modal.Footer>
+                                </Form>
+                            </Modal.Body>
+                        </StyledModalContent>
+                    </Modal>
+
+                    {/* Modal para Modelos */}
+                    <Modal show={showModelosModal} onHide={() => setShowModelosModal(false)} centered>
+                        <StyledModalContent>
+                            <Modal.Header closeButton>
+                                <Modal.Title className="title">Agregar Modelo</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const data = {
+                                            identificador: e.target.identificador.value,
+                                            nombre: e.target.nombre.value,
+                                            precio: e.target.precio.value,
+                                            periodo: e.target.periodo.value,
+                                        };
+                                        if (validateFields(data, false)) {
+                                            agregarModelo({ ...data, estado: 'Activo' });
+                                        }
+                                    }}
+                                >
                                     <Form.Group className="mb-3">
                                         <Form.Label>Identificador</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={editedData.identificador}
-                                            onChange={(e) => setEditedData({ ...editedData, identificador: e.target.value })}
+                                            name="identificador"
                                             className="input"
+                                            isInvalid={!!errors.identificador}
                                         />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.identificador}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
-                                )}
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Nombre</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={editedData.nombre}
-                                        onChange={(e) => setEditedData({ ...editedData, nombre: e.target.value })}
-                                        className="input"
-                                    />
-                                </Form.Group>
-
-                                {selectedItem?.precio !== undefined && (
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Nombre</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="nombre"
+                                            className="input"
+                                            isInvalid={!!errors.nombre}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.nombre}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Precio</Form.Label>
                                         <Form.Control
                                             type="number"
                                             step="0.01"
-                                            value={editedData.precio}
-                                            onChange={(e) => setEditedData({ ...editedData, precio: e.target.value })}
+                                            name="precio"
                                             className="input"
+                                            isInvalid={!!errors.precio}
                                         />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.precio}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
-                                )}
-
-                                {selectedItem?.periodo && (
                                     <Form.Group className="mb-3">
                                         <Form.Label>Periodo</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={editedData.periodo}
-                                            onChange={(e) => setEditedData({ ...editedData, periodo: e.target.value })}
+                                            name="periodo"
                                             className="input"
+                                            isInvalid={!!errors.periodo}
                                         />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.periodo}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
-                                )}
+                                    <Modal.Footer>
+                                        <Button className="submit btn btn-primary" variant="secondary" onClick={() => setShowModelosModal(false)}>
+                                            Cancelar
+                                        </Button>
+                                        <Button type="submit" className="submit">Agregar</Button>
+                                    </Modal.Footer>
+                                </Form>
+                            </Modal.Body>
+                        </StyledModalContent>
+                    </Modal>
 
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Estado</Form.Label>
-                                    <Form.Select
-                                        value={editedData.estado}
-                                        onChange={(e) => setEditedData({ ...editedData, estado: e.target.value })}
-                                        className="input"
-                                    >
-                                        <option value="ACTIVO">ACTIVO</option>
-                                        <option value="INACTIVO">INACTIVO</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Form>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button className="submit btn btn-primary" variant="secondary" onClick={() => setEditModal(false)}>Cancelar</Button>
-                            <Button variant="primary" onClick={handleSaveChanges} className="submit">Guardar cambios</Button>
-                        </Modal.Footer>
+                    {/* Modal de Edición */}
+                    <Modal show={editModal} onHide={() => { setEditModal(false); setErrors({}); }} centered>
+                        <StyledModalContent>
+                            <Modal.Header closeButton>
+                                <Modal.Title className="title">Editar {selectedItem?.nombre}</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Form>
+                                    {!selectedItem?.isMarca && (
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Identificador</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={editedData.identificador}
+                                                onChange={(e) => setEditedData({ ...editedData, identificador: e.target.value })}
+                                                className="input"
+                                                isInvalid={!!errors.identificador}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.identificador}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    )}
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Nombre</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={editedData.nombre}
+                                            onChange={(e) => setEditedData({ ...editedData, nombre: e.target.value })}
+                                            className="input"
+                                            isInvalid={!!errors.nombre}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.nombre}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    {!selectedItem?.isMarca && (
+                                        <>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Precio</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={editedData.precio}
+                                                    onChange={(e) => setEditedData({ ...editedData, precio: e.target.value })}
+                                                    className="input"
+                                                    isInvalid={!!errors.precio}
+                                                />
+                                                <Form.Control.Feedback type="invalid">
+                                                    {errors.precio}
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Periodo</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    value={editedData.periodo}
+                                                    onChange={(e) => setEditedData({ ...editedData, periodo: e.target.value })}
+                                                    className="input"
+                                                    isInvalid={!!errors.periodo}
+                                                />
+                                                <Form.Control.Feedback type="invalid">
+                                                    {errors.periodo}
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+                                        </>
+                                    )}
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Estado</Form.Label>
+                                        <Form.Select
+                                            value={editedData.estado}
+                                            onChange={(e) => setEditedData({ ...editedData, estado: e.target.value })}
+                                            className="input"
+                                        >
+                                            <option value="ACTIVO">ACTIVO</option>
+                                            <option value="INACTIVO">INACTIVO</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Form>
+                            </Modal.Body>
+
+                            <Modal.Footer>
+                                <Button className="submit btn btn-primary" variant="secondary" onClick={() => { setEditModal(false); setErrors({}); }}>
+                                    Cancelar
+                                </Button>
+                                <Button variant="primary" onClick={handleSaveChanges} className="submit">Guardar cambios</Button>
+                            </Modal.Footer>
+                        </StyledModalContent>
+                    </Modal>
+
+
+                    {/* Tabla de Marcas */}
+                    <StyledModalContent>
+                        {activeTab === "/home" && (
+                            <div className="scrollable-table">
+                                <Table striped bordered hover className="mt-2">
+                                    <CustomTableHeader>
+                                        <tr>
+                                            <th>Marca</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </CustomTableHeader>
+                                    <tbody>
+                                        {currentMarcas.map((marca) => (
+                                            <tr key={marca.id}>
+                                                <td>{marca.nombre}</td>
+                                                <td>{marca.estado}</td>
+                                                <td>
+                                                    <BsPencilSquare
+                                                        className="text-primary me-5 fs-2"
+                                                        style={{ cursor: "pointer" }}
+                                                        onClick={() => handleEdit(marca, true)}
+                                                    />
+                                                    {marca.estado === "ACTIVO" ? (
+                                                        <BsToggleOn
+                                                            className="text-success fs-1"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => handleToggleStatus(marca, true)}
+                                                        />
+                                                    ) : (
+                                                        <BsToggleOff
+                                                            className="text-danger fs-1"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => handleToggleStatus(marca, true)}
+                                                        />
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                                {/* Paginador para Marcas */}
+                                <BootstrapPagination
+                                    currentPage={currentPageMarcas}
+                                    totalPages={Math.ceil(filteredMarcas.length / recordsPerPageMarcas)}
+                                    onPageChange={(page) => setCurrentPageMarcas(page)}
+                                />
+                            </div>
+                        )}
                     </StyledModalContent>
-                </Modal>
 
-                {/* Tabla de Marcas */}
-                {activeTab === "/home" && (
-                    <div className="text-center mt-2">
-                        <Table striped bordered hover className="mt-2">
-                            <CustomTableHeader>
-                                <tr>
-                                    <th>Marca</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </CustomTableHeader>
-                            <tbody>
-                                {currentMarcas.map((marca) => (
-                                    <tr key={marca.id}>
-                                        <td>{marca.nombre}</td>
-                                        <td>{marca.estado}</td>
-                                        <td>
-                                            <BsPencilSquare
-                                                className="text-primary me-5 fs-2"
-                                                style={{ cursor: "pointer" }}
-                                                onClick={() => handleEdit(marca, true)}
-                                            />
-                                            {marca.estado === "ACTIVO" ? (
-                                                <BsToggleOn
-                                                    className="text-success fs-1"
-                                                    style={{ cursor: "pointer" }}
-                                                    onClick={() => handleToggleStatus(marca, true)}
-                                                />
-                                            ) : (
-                                                <BsToggleOff
-                                                    className="text-danger fs-1"
-                                                    style={{ cursor: "pointer" }}
-                                                    onClick={() => handleToggleStatus(marca, true)}
-                                                />
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                        <BootstrapPagination
-                            currentPage={currentPage}
-                            totalPages={totalPagesMarcas}
-                            onPageChange={(page) => paginate(page)}
-                        />
-                    </div>
-                )}
-
-                {/* Tabla de Modelos */}
-                {activeTab === "link-1" && (
-                    <div className="text-center mt-2">
-                        <Table striped bordered hover className="mt-2">
-                            <CustomTableHeader>
-                                <tr>
-                                    <th>Identificador</th>
-                                    <th>Nombre del servicio</th>
-                                    <th>Precio</th>
-                                    <th>Periodo</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </CustomTableHeader>
-                            <tbody>
-                                {currentModelos.map((modelo) => (
-                                    <tr key={modelo.id}>
-                                        <td>{modelo.identificador}</td>
-                                        <td>{modelo.nombre}</td>
-                                        <td>{modelo.precio}</td>
-                                        <td>{modelo.periodo}</td>
-                                        <td>{modelo.estado}</td>
-                                        <td>
-                                            <BsPencilSquare
-                                                className="text-primary me-5 fs-2"
-                                                style={{ cursor: "pointer" }}
-                                                onClick={() => handleEdit(modelo, false)}
-                                            />
-                                            {modelo.estado === "Activo" ? (
-                                                <BsToggleOn
-                                                    className="text-success fs-1"
-                                                    style={{ cursor: "pointer" }}
-                                                    onClick={() => handleToggleStatus(modelo, false)}
-                                                />
-                                            ) : (
-                                                <BsToggleOff
-                                                    className="text-danger fs-1"
-                                                    style={{ cursor: "pointer" }}
-                                                    onClick={() => handleToggleStatus(modelo, false)}
-                                                />
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                        <BootstrapPagination
-                            currentPage={currentPage}
-                            totalPages={totalPagesModelos}
-                            onPageChange={(page) => paginate(page)}
-                        />
-                    </div>
-                )}
-            </Card>
-        </Container>
+                    {/* Tabla de Modelos */}
+                    <StyledModalContent>
+                        {activeTab === "link-1" && (
+                            <div className="scrollable-table" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                <Table striped bordered hover className="mt-2">
+                                    <CustomTableHeader>
+                                        <tr>
+                                            <th>Identificador</th>
+                                            <th>Nombre del servicio</th>
+                                            <th>Precio</th>
+                                            <th>Periodo</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </CustomTableHeader>
+                                    <tbody>
+                                        {currentModelos.map((modelo) => (
+                                            <tr key={modelo.id}>
+                                                <td>{modelo.identificador}</td>
+                                                <td>{modelo.nombre}</td>
+                                                <td>{modelo.precio}</td>
+                                                <td>{modelo.periodo}</td>
+                                                <td>{modelo.estado}</td>
+                                                <td>
+                                                    <BsPencilSquare
+                                                        className="text-primary me-5 fs-2"
+                                                        style={{ cursor: "pointer" }}
+                                                        onClick={() => handleEdit(modelo, false)}
+                                                    />
+                                                    {modelo.estado === "Activo" ? (
+                                                        <BsToggleOn
+                                                            className="text-success fs-1"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => handleToggleStatus(modelo, false)}
+                                                        />
+                                                    ) : (
+                                                        <BsToggleOff
+                                                            className="text-danger fs-1"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => handleToggleStatus(modelo, false)}
+                                                        />
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                                {/* Paginador para Modelos */}
+                                <BootstrapPagination
+                                    currentPage={currentPageModelos}
+                                    totalPages={Math.ceil(filteredModelos.length / recordsPerPageModelos)}
+                                    onPageChange={(page) => setCurrentPageModelos(page)}
+                                />
+                            </div>
+                        )}
+                    </StyledModalContent>
+                </Card>
+            </Container>
+        </>
     );
 }
 

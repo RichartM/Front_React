@@ -3,13 +3,13 @@ import './App.css';
 import Login from './components/Login';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import Home from './components/Home';
 import NavPrincipal from './components/NavPrincipal';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CarTable from './components/CarTable';
-import AgenteVentas from '../GERENTE/components/AgenteVentas';
-import Servicios from '../GERENTE/components/Servicios';
-import EditPerfil from '../GERENTE/components/EditPerfil'
+import AgenteVentas from './components/GERENTE/AgenteVentas';
+import Servicios  from './components/GERENTE/Servicios';
+import EditPerfil from './components/GERENTE/EditPerfil'
+import Home from './components/Home'
 function App() {
   const [marcas, setMarcas] = useState([]); 
   const [modelo, setModelos] = useState([]);
@@ -22,7 +22,9 @@ function App() {
 
   return (
     <BrowserRouter>
+
       <NavPrincipal />
+      
       <div style={{ marginTop: '60px' }}> {/* Ajusta el margen superior */}
         <Routes>
           <Route path="/" element={<Home />} />
@@ -31,6 +33,8 @@ function App() {
           <Route path="/agenteVentas" element={<AgenteVentas />} />
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/editPerfil" element={<EditPerfil />} />
+          <Route path="/home" element={<Home />} />
+
         </Routes>
       </div>
     </BrowserRouter>
