@@ -60,8 +60,8 @@ const NavPrincipal = () => {
       style={{ zIndex: 1050 }} // Asegura que el navbar esté siempre encima
     >
       <Container fluid>
-        {/* Imagen fuera del toggle para que no colapse */}
-        <Navbar.Brand href="/home">
+        {/* Imagen fuera del toggle para que no colapse  href="/NoDefinido" */ }
+        <Navbar.Brand >
           <img src={homeIcon} alt="home" style={{ width: "80px", height: "40px" }} />
         </Navbar.Brand>
 
@@ -70,13 +70,13 @@ const NavPrincipal = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Item>
-              <StyledNavLink href="/agenteVentas">Agentes de venta</StyledNavLink>
+              <StyledNavLink href="/gerente/agenteVentas">Agentes de venta</StyledNavLink>
             </Nav.Item>
             <Nav.Item>
-              <StyledNavLink href="/cartable">Marcas</StyledNavLink>
+              <StyledNavLink href="/gerente/cartable">Marcas</StyledNavLink>
             </Nav.Item>
             <Nav.Item>
-              <StyledNavLink href="/servicios">Servicio</StyledNavLink>
+              <StyledNavLink href="/gerente/servicios">Servicio</StyledNavLink>
             </Nav.Item>
           </Nav>
 
@@ -89,7 +89,7 @@ const NavPrincipal = () => {
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu align="end">
-                  <Dropdown.Item href="/editPerfil"><i class="bi bi-person-gear fs-6 "></i> Editar perfil</Dropdown.Item>
+                  <Dropdown.Item href="/gerente/editPerfil"><i class="bi bi-person-gear fs-6 "></i> Editar perfil</Dropdown.Item>
                   <Dropdown.Item href="#/edditPerfil"><i class="bi bi-box-arrow-left fs-6"></i> Cerrar sesión</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>

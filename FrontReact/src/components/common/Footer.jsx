@@ -24,11 +24,11 @@ const Footer = () => {
       <p>Contacto: info@sega.com | Teléfono: +123 456 789</p>
        {/* Contenedor de imágenes en una sola línea */}
        <div style={{ display: "flex", gap: "20px", justifyContent: "center", marginBottom: "10px" }}>
-       <img src={Mercedes} alt="Ford Logo" style={{ width: "200px" }} />
+       <img src={Mercedes} alt="Mercedes Logo" style={{ width: "200px" }} />
         <img src={Ford} alt="Ford Logo" style={{ width: "100px" }} />
         <img src={Chevrolet} alt="Chevrolet Logo" style={{ width: "100px" }} />
-        <img src={Honda} alt="Chevrolet Logo" style={{ width: "100px" }} />
-        <img src={BMW} alt="Chevrolet Logo" style={{ width: "100px" }} />
+        <img src={Honda} alt="Honda Logo" style={{ width: "100px" }} />
+        <img src={BMW} alt="BMW Logo" style={{ width: "100px" }} />
 
       </div>
 

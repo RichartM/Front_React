@@ -2,10 +2,8 @@ import React from "react";
 import { Navbar, Nav, Container, Dropdown } from "react-bootstrap";
 import homeIcon from "../../img/home.png";
 import styled from "styled-components";
-import MarcasDropdown from "./MarcasDropdown"; // Importamos el componente de marcas
-import ServiciosDropdown from "./ServiciosDropdown"; // Importamos el componente de servicios
+import MarcasDropdown from "../Cliente/MarcasDropdown";
 
-// Estilos personalizados para los enlaces del navbar
 const StyledNavLink = styled(Nav.Link)`
   color: #000 !important;
   position: relative;
@@ -39,7 +37,6 @@ const StyledNavLink = styled(Nav.Link)`
   }
 `;
 
-// Componente para el toggle del Dropdown
 const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   <StyledNavLink
     href=""
@@ -53,7 +50,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   </StyledNavLink>
 ));
 
-const NavCliente = () => {
+const NavLandingPage = () => {
   return (
     <Navbar
       bg="light"
@@ -62,7 +59,8 @@ const NavCliente = () => {
       style={{ zIndex: 1050 }}
     >
       <Container fluid>
-        <Navbar.Brand href="/cliente/landing">
+        {/* Enlace que apunta a /landing */}
+        <Navbar.Brand href="/landing">
           <img
             src={homeIcon}
             alt="LandingPage"
@@ -76,19 +74,14 @@ const NavCliente = () => {
           <Nav className="me-auto">
             {/* Menú desplegable de Marcas */}
             <MarcasDropdown />
-            
-            {/* Menú desplegable de Servicios */}
-            <ServiciosDropdown />
           </Nav>
 
-          {/* Ícono de usuario con opciones */}
           <Nav>
             <Nav.Item>
               <Dropdown>
                 <Dropdown.Toggle as={CustomToggle}>
                   <i className="bi bi-person-circle fs-2"></i>
                 </Dropdown.Toggle>
-
                 <Dropdown.Menu align="end">
                   <Dropdown.Item href="/editPerfil">
                     <i className="bi bi-person-gear fs-6"></i> Editar perfil
@@ -106,4 +99,4 @@ const NavCliente = () => {
   );
 };
 
-export default NavCliente;
+export default NavLandingPage;
