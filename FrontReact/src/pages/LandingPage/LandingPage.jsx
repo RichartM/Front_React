@@ -30,6 +30,7 @@ const LandingPage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+
   return (
     <>
       {/* Nav de Landing Page */}
@@ -42,7 +43,7 @@ const LandingPage = () => {
           className="text-center"
           style={{
             position: "relative",
-            height: "80vh",
+            height: "90vh",
             width: "100%",
             overflow: "hidden",
           }}
@@ -81,19 +82,19 @@ const LandingPage = () => {
             }}
           >
             <h1>¿BUSCAS UN AUTO?</h1>
-            <p className="text-primary">REVISA NUESTRO CATÁLOGO Y BENEFÍCIATE CON NUESTROS SERVICIOS</p>
+            <p className="text" style={{color: '#018180' , fontWeight: 'bold'}}>REVISA NUESTRO CATÁLOGO Y BENEFÍCIATE CON NUESTROS SERVICIOS</p>
           </div>
           <div
             className={`arrow-down ${isArrowVisible ? "" : "hidden"}`}
-            onClick={() => window.scrollTo({ top: window.innerHeight * 0.8, behavior: "smooth" })}
+            onClick={() => window.scrollTo({ top: window.innerHeight * 0.9, behavior: "smooth" })}
             style={{ bottom: "40px" }}
           ></div>
         </div>
 
         {/* Sección de marcas */}
         <div className="text-center p-5" style={{ backgroundColor: "#f8f9fa" }} data-aos="fade-up">
-          <h3 className="mb-4" style={{ fontSize: "2rem" }}>¿Tienes una marca en mente?</h3>
-          <p className="text-primary text-center" style={{ fontSize: "1.2rem", textAlign: "justify" }}>
+          <h3 className="mb-4" style={{ fontSize: "2rem", color: "#018180" }}>¿Tienes una marca en mente?</h3>
+          <p className="text text-center" style={{ fontSize: "1.2rem", textAlign: "justify" }}>
             Descubre una amplia selección de marcas en un solo lugar. En nuestra agencia, trabajamos con diversas marcas
             reconocidas para ofrecerte productos de calidad, garantía y estilo. ¡Explora nuestras opciones y elige la que más te guste!
           </p>
@@ -102,18 +103,18 @@ const LandingPage = () => {
 
         {/* Services Section */}
         <div className="text-center p-5" data-aos="fade-up">
-          <h4 className="text-primary mb-4">SERVICIOS PARA TU AUTO</h4>
+          <h4 className="text mb-4" style={{color: '#018180'}}>SERVICIOS PARA TU AUTO</h4>
           <p className="mb-4">No solo basta con tener un auto, debes darle mantenimiento:</p>
           <ul className="text-start d-inline-block mb-4">
             <li>Aplicación única – Para quienes buscan un servicio puntual.</li>
             <li>Plan mensual – Ideal para quienes desean mantenimiento recurrente.</li>
             <li>Plan anual – La opción más conveniente.</li>
           </ul>
-          <h6 className="text-primary mb-4">Explora nuestros servicios y elige la opción que mejor se adapte a ti. ¡Tu auto merece lo mejor!</h6>
+          <h6 className="text mb-4" style={{color: '#018180'}}>Explora nuestros servicios y elige la opción que mejor se adapte a ti. ¡Tu auto merece lo mejor!</h6>
         </div>
 
         {/* Contact Section */}
-        <div className="text-center mt-5 mb-5" data-aos="fade-up">
+        <div className="text-center mt-2 mb-2" data-aos="fade-up">
           <Row className="justify-content-center">
             <Col md={5} className="d-flex align-items-center justify-content-center">
               <div>

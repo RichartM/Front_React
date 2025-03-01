@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Swal from "sweetalert2";
-import FondoCarrro from '../../img/AutosRegistro.jpg';
-
+import AuthServiceRegister from '../../services/AuthServiceRegister';
 
 const FormRegistro = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +10,7 @@ const FormRegistro = () => {
     firstSurname: "",
     secondSurname: "",
     phone: "",
-    email: ""
+    email: "",
   });
 
   const handleChange = (e) => {
@@ -19,27 +18,45 @@ const FormRegistro = () => {
     setFormData({ ...formData, [id]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí se podría realizar la lógica de registro o enviar datos a la API
 
-    Swal.fire({
-      title: "Registro Exitoso",
-      text: "Se le ha enviado un correo con su contraseña.",
-      icon: "success",
-      confirmButtonColor: "#018180",
-      customClass: { confirmButton: "btn-swal-confirmar" },
-      buttonsStyling: false
-    }).then(() => {
-      setFormData({
-        firstName: "",
-        secondName: "",
-        firstSurname: "",
-        secondSurname: "",
-        phone: "",
-        email: ""
-      });
-    });
+    try {
+        const clienteData = {
+            name: formData.firstName,
+            surname: formData.secondName,
+            lastname: formData.firstSurname,
+            username: formData.email, // ✅ Usamos el email como username
+            email: formData.email,
+            password: formData.firstName, // ✅ La contraseña será el nombre
+        };
+
+        await AuthServiceRegister.registerCliente(clienteData);
+
+        Swal.fire({
+            title: "Registro Exitoso",
+            text: "Se ha registrado correctamente el cliente. Su contraseña es su nombre.",
+            icon: "success",
+            confirmButtonColor: "#018180",
+        }).then(() => {
+            setFormData({
+                firstName: "",
+                secondName: "",
+                firstSurname: "",
+                secondSurname: "",
+                phone: "",
+                email: "",
+            });
+        });
+    } catch (error) {
+        console.error("Error en el registro:", error);
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo completar el registro. Inténtalo de nuevo.",
+            icon: "error",
+            confirmButtonColor: "#d33",
+        });
+    }
   };
 
   return (
@@ -123,14 +140,18 @@ const FormRegistro = () => {
           />
           <span>Email</span>
         </label>
-        <button className="submit" type="submit">Registrar</button>
+        <button className="submit" type="submit">
+          Registrar
+        </button>
         <p className="signin">
-          Ya tienes cuenta? <a href='/login'>Iniciar sesión</a>
+          Ya tienes cuenta? <a href="/login">Iniciar sesión</a>
         </p>
       </form>
     </StyledWrapper>
   );
 };
+
+
 
 const StyledWrapper = styled.div`
   display: flex;

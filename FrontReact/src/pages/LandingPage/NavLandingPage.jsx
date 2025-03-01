@@ -83,11 +83,8 @@ const NavLandingPage = () => {
                   <i className="bi bi-person-circle fs-2"></i>
                 </Dropdown.Toggle>
                 <Dropdown.Menu align="end">
-                  <Dropdown.Item href="/editPerfil">
-                    <i className="bi bi-person-gear fs-6"></i> Editar perfil
-                  </Dropdown.Item>
-                  <Dropdown.Item href="/logout">
-                    <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
+                  <Dropdown.Item href="/login">
+                  <i class="bi bi-person-raised-hand"></i> Iniciar sesión 
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>

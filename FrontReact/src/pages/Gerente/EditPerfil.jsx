@@ -1,191 +1,80 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { Form, Button, Container, ProgressBar } from "react-bootstrap";
-import Swal from "sweetalert2";
-import zxcvbn from "zxcvbn"; 
+import { Form, Container } from "react-bootstrap";
+import AuthServiceProfile from "../../services/AuthServiceProfile";
+import AuthServiceLogin from "../../services/AuthServiceLogin";
+import { useNavigate } from "react-router-dom";
 
 const StyledContainer = styled(Container)`
   width: 400px;
-  display: flex;
-  flex-direction: column;
-  min-height: auto;
-  align-items: center;
-  justify-content: center;
-  margin-top: 120px; /* Margen superior específico */
-  
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 9px;
+  margin: 100px auto;
+  padding: 20px;
   background: #f8f9fa;
-  border-radius: 8px; 
+  border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
-const StyledButton = styled(Button)`
-  background-color: #018180 !important;
-  border: none;
-  &:hover {
-    background-color: #016b6a !important;
-  }
-`;
 
-const PasswordStrengthBar = styled(ProgressBar)`
-  margin-top: 10px;
-  height: 8px;
+const EditPerfil = () => {
+    const navigate = useNavigate();
+    const [nombre, setNombre] = useState("");
+    const [apellido, setApellido] = useState("");
+    const [email, setEmail] = useState("");
+    const [rol, setRol] = useState("");
+    const [error, setError] = useState(null); // ✅ Agrega estado para manejar errores
 
-  & .progress-bar {
-    background-color: ${(props) =>
-      props.strength === 0
-        ? "#dc3545"
-        : props.strength === 1
-        ? "#ffc107"
-        : props.strength === 2
-        ? "#ffc107"
-        : props.strength === 3
-        ? "#28a745"
-        : "#28a745"};
-  }
-`;
+    useEffect(() => {
+        // Si el token ha expirado, redirigir al login
+        if (AuthServiceLogin.isTokenExpired()) {
+            console.warn("Token expirado. Redirigiendo al login...");
+            AuthServiceLogin.logout();
+            return;
+        }
 
-export default function EditPerfil() {
-  const [nombre, setNombre] = useState("");
-  const [email, setEmail] = useState("");
-  const [passwordActual, setPasswordActual] = useState("")
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+        const loadUserProfile = async () => {
+            try {
+                const userData = await AuthServiceProfile.getUserProfile();
+                setNombre(userData.name || "");
+                setApellido(userData.lastname || "");
+                setEmail(userData.email || "");
+                setRol(AuthServiceLogin.getRoleFromToken());
+            } catch (error) {
+                console.error("Error al cargar perfil:", error);
+                setError("No se pudo cargar el perfil. Intenta nuevamente.");
+            }
+        };
 
-  // Medir la fortaleza de la contraseña
-  const passwordStrength = password ? zxcvbn(password).score : 0;
+        loadUserProfile();
+    }, []);
 
-  // Validar si las contraseñas coinciden
-  const passwordsMatch = password === confirmPassword && password !== "";
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!nombre || !email || !password || !confirmPassword) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Todos los campos son obligatorios!",
-      });
-      return;
+    // Si hay un error, mostrar mensaje en vez de cerrar sesión directamente
+    if (error) {
+        return (
+            <StyledContainer>
+                <h2 className="text-center mb-4">Editar Perfil</h2>
+                <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+            </StyledContainer>
+        );
     }
 
-    if (!passwordsMatch) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Las contraseñas no coinciden!",
-      });
-      return;
-    }
+    return (
+        <StyledContainer>
+            <h2 className="text-center mb-4">Editar Perfil ({rol})</h2>
+            <Form>
+                <Form.Group className="mb-3" controlId="nombre">
+                    <Form.Label>Nombre</Form.Label>
+                    <Form.Control type="text" value={nombre} disabled />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="apellido">
+                    <Form.Label>Apellido</Form.Label>
+                    <Form.Control type="text" value={apellido} disabled />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="email">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control type="email" value={email} disabled />
+                </Form.Group>
+            </Form>
+        </StyledContainer>
+    );
+};
 
-    Swal.fire({
-      icon: "success",
-      title: "¡Cambios guardados!",
-      text: "Tu perfil ha sido actualizado correctamente.",
-    }).then(() => {
-      console.log({ nombre, email, password });
-    });
-  };
-
-  const handleRecoverPassword = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Recuperar contraseña",
-      text: "Se enviará un enlace de recuperación a tu correo electrónico.",
-    });
-  };
-
-  return (
-    <div style={{ marginTop: '100px' }}> {/* Margen superior específico */}
-    <StyledContainer className="edit-perfil-container">
-      <h2 className="text-center mb-4">Editar Perfil</h2>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3" controlId="nombre">
-          <Form.Label>Nombre</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Ingresa tu nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="email">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            placeholder="Ingresa tu email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="contraActual">
-          <Form.Label>Contraseña Actual</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Ingresa tu contraseña actual"
-            value={passwordActual}
-            onChange={(e) => setPasswordActual(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="password">
-          <Form.Label>Contraseña</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Nueva contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="off"
-          />
-          <PasswordStrengthBar
-            now={(passwordStrength + 1) * 25}
-            strength={passwordStrength}
-          />
-          <small>
-            Fortaleza:{" "}
-            {passwordStrength === 0
-              ? "Muy débil"
-              : passwordStrength === 1
-              ? "Débil"
-              : passwordStrength === 2
-              ? "Regular"
-              : passwordStrength === 3
-              ? "Fuerte"
-              : "Muy fuerte"}
-          </small>
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="confirmPassword">
-          <Form.Label>Confirmar Contraseña</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Confirma tu contraseña"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="off"
-          />
-          <small style={{ color: passwordsMatch ? "#28a745" : "#dc3545" }}>
-            {passwordsMatch
-              ? "Las contraseñas coinciden"
-              : "Las contraseñas no coinciden"}
-          </small>
-        </Form.Group>
-
-        <div className="text-center">
-          <StyledButton type="submit">Guardar Cambios</StyledButton>
-        </div>
-      </Form>
-
-      <div className="text-center mt-3">
-        <Button variant="link" onClick={handleRecoverPassword}>
-          ¿Olvidaste tu contraseña?
-        </Button>
-      </div>
-    </StyledContainer>
-    </div>
-
-  );
-}
+export default EditPerfil;

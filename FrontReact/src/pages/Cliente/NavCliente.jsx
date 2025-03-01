@@ -62,7 +62,7 @@ const NavCliente = () => {
       style={{ zIndex: 1050 }}
     >
       <Container fluid>
-        <Navbar.Brand href="/cliente/landing">
+        <Navbar.Brand>
           <img
             src={homeIcon}
             alt="LandingPage"
@@ -75,10 +75,8 @@ const NavCliente = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             {/* Menú desplegable de Marcas */}
-            <MarcasDropdown />
+            <MarcasDropdown  /> 
             
-            {/* Menú desplegable de Servicios */}
-            <ServiciosDropdown />
           </Nav>
 
           {/* Ícono de usuario con opciones */}
@@ -90,7 +88,7 @@ const NavCliente = () => {
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu align="end">
-                  <Dropdown.Item href="/editPerfil">
+                  <Dropdown.Item href="/cliente/editPerfil">
                     <i className="bi bi-person-gear fs-6"></i> Editar perfil
                   </Dropdown.Item>
                   <Dropdown.Item href="/logout">

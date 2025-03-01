@@ -2,77 +2,98 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../../img/EsteBueno.avif';
+import NavLandingPage from '../LandingPage/NavLandingPage';
+import AuthServiceLogin from '../../services/AuthServiceLogin';
 
-const Form = ({ onLogin }) => {
+const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Simulación de autenticación
-    if (email === 'gerente' && password === 'gerente') {
-      onLogin('gerente'); // Asigna el rol de gerente
-      navigate('/gerente'); // Redirige al dashboard del gerente
-    } else {
-      alert('Credenciales incorrectas');
+    setMessage('');
+
+    try {
+        const token = await AuthServiceLogin.login(email, password);
+        if (token) {
+            const role = AuthServiceLogin.getRoleFromToken(); // Obtener el rol del usuario
+
+            // Redirigir según el rol
+            if (role === 'GERENTE') {
+                navigate('/gerente/agenteVentas');
+            } else if (role === 'AGENTE') {
+                navigate('/agente');
+            } else if (role === 'CLIENTE') {
+                navigate('/cliente');
+            } else {
+                setMessage('Rol desconocido, contacta con soporte.');
+            }
+        } else {
+            setMessage('No se recibió token.');
+        }
+    } catch (error) {
+        console.error('Error de autenticación:', error);
+        setMessage('Credenciales incorrectas o error en el servidor.');
     }
-  };
+};
+
 
   return (
-    <BackgroundContainer>
-      <FormContainer>
-        <Title>Bienvenido</Title>
-        <StyledForm onSubmit={handleLogin}>
-          <Input
-            type="text"
-            placeholder="Correo"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Contraseña"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <PageLink onClick={() => navigate('/recuperar-contraseña')}>
-            Olvidaste tu contraseña?
-          </PageLink>
-          <FormButton type="submit">Iniciar sesión</FormButton>
-        </StyledForm>
-        <SignUpLabel>
-          Aun no estas registrado?{" "}
-          <SignUpLink
-            onClick={() => {
-              navigate('/home'); // Navega a la página donde está el formulario
-              setTimeout(() => {
-                const registroSection = document.getElementById("registro");
-                if (registroSection) {
-                  const offset = -100; // Ajusta el desplazamiento para que quede más arriba
-                  const bodyRect = document.body.getBoundingClientRect().top;
-                  const elementRect = registroSection.getBoundingClientRect().top;
-                  const elementPosition = elementRect - bodyRect;
-                  const offsetPosition = elementPosition + offset;
-
-                  window.scrollTo({
-                    top: offsetPosition,
-                    behavior: "smooth",
-                  });
-                }
-              }, 300); // Espera un poco para que la navegación se complete antes de hacer scroll
-            }}
-          >
-            Registrate
-          </SignUpLink>
-        </SignUpLabel>
-
-
-
-      </FormContainer>
-    </BackgroundContainer>
+    <>
+      <NavLandingPage />
+      <BackgroundContainer>
+        <FormContainer>
+          <Title>Bienvenido</Title>
+          {message && <ErrorMessage>{message}</ErrorMessage>}
+          <StyledForm onSubmit={handleLogin}>
+            <Input
+              type="text"
+              placeholder="Correo"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              type="password"
+              placeholder="Contraseña"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <PageLink onClick={() => navigate('/recuperar-contraseña')}>
+              Olvidaste tu contraseña?
+            </PageLink>
+            <FormButton type="submit">Iniciar sesión</FormButton>
+          </StyledForm>
+          <SignUpLabel>
+            Aun no estás registrado?{" "}
+            <SignUpLink
+              onClick={() => {
+                navigate('/landing');
+                setTimeout(() => {
+                  const registroSection = document.getElementById("registro");
+                  if (registroSection) {
+                    const offset = -100;
+                    const bodyRect = document.body.getBoundingClientRect().top;
+                    const elementRect = registroSection.getBoundingClientRect().top;
+                    const elementPosition = elementRect - bodyRect;
+                    const offsetPosition = elementPosition + offset;
+                    window.scrollTo({
+                      top: offsetPosition,
+                      behavior: "smooth",
+                    });
+                  }
+                }, 300);
+              }}
+            >
+              Registrate
+            </SignUpLink>
+          </SignUpLabel>
+        </FormContainer>
+      </BackgroundContainer>
+    </>
   );
 };
 
@@ -143,7 +164,6 @@ const SignUpLabel = styled.p`
 `;
 
 const SignUpLink = styled.span`
-  color: teal;
   font-weight: 800;
   cursor: pointer;
   text-decoration: underline;
@@ -173,7 +193,15 @@ const BackgroundContainer = styled.div`
     background-repeat: no-repeat;
     filter: blur(4px);
     z-index: -1;
+    pointer-events: none; /*Evita que la imagen capture clics */
+
   }
 `;
 
-export default Form;
+const ErrorMessage = styled.p`
+  color: red;
+  text-align: center;
+  margin-bottom: 10px;
+`;
+
+export default Login;

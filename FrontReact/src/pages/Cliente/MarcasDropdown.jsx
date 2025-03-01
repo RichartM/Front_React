@@ -1,38 +1,11 @@
-import React, { useState } from "react";
-import { Dropdown } from "react-bootstrap";
+import React, { useContext } from "react";
 import styled from "styled-components";
-
-// Lista de marcas disponibles
-const marcas = ["Toyota", "Ford", "Chevrolet", "Honda", "Mazda", "Nissan"];
-
-// Estilización del menú desplegable horizontal
-const DropdownMenuHorizontal = styled.div`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  display: flex;
-  flex-direction: row;
-  gap: 15px;
-  padding: 10px;
-  min-width: 400px;
-  background: white;
-  border-radius: 5px;
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 8px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  transform: translateY(10px);
-`;
+import { BrandsContext } from "../../context/BrandsContext";
+import { useNavigate } from "react-router-dom";
 
 const DropdownContainer = styled.div`
   position: relative;
   display: inline-block;
-
-  &:hover ${DropdownMenuHorizontal} {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
 `;
 
 const StyledDropdownToggle = styled.span`
@@ -42,9 +15,10 @@ const StyledDropdownToggle = styled.span`
   display: inline-block;
   position: relative;
   transition: color 0.3s ease;
+  color: #000;
 
   &:hover {
-    color: #018180 !important;
+    color: #018180;
   }
 
   &::after {
@@ -63,25 +37,66 @@ const StyledDropdownToggle = styled.span`
   }
 `;
 
+const DropdownMenuHorizontal = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  padding: 10px;
+  min-width: 300px;
+  background: white;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(10px);
+`;
+
 const StyledDropdownItem = styled.span`
   cursor: pointer;
   padding: 10px 15px;
-  color: black !important;
+  color: #000;
   transition: color 0.3s ease;
 
   &:hover {
-    color: #018180 !important;
+    color: #018180;
   }
 `;
 
 const MarcasDropdown = () => {
+  const { brands } = useContext(BrandsContext);
+  const navigate = useNavigate();
+
   return (
-    <DropdownContainer>
-      <StyledDropdownToggle>Marcas</StyledDropdownToggle>
+    <DropdownContainer
+      onMouseEnter={(e) => {
+        const menu = e.currentTarget.querySelector("div");
+        if (menu) {
+          menu.style.opacity = 1;
+          menu.style.visibility = "visible";
+          menu.style.transform = "translateY(0)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        const menu = e.currentTarget.querySelector("div");
+        if (menu) {
+          menu.style.opacity = 0;
+          menu.style.visibility = "hidden";
+          menu.style.transform = "translateY(10px)";
+        }
+      }}
+    >
+      <StyledDropdownToggle>Marcas <i class="bi bi-caret-down-fill"></i></StyledDropdownToggle>
       <DropdownMenuHorizontal>
-        {marcas.map((marca, index) => (
-          <StyledDropdownItem key={index} onClick={() => console.log(`Seleccionaste ${marca}`)}>
-            {marca}
+        {brands.map((brand) => (
+          <StyledDropdownItem
+            key={brand.id}
+            onClick={() => navigate(`/cliente/marca/${brand.id}`)}
+          >
+            {brand.name}
           </StyledDropdownItem>
         ))}
       </DropdownMenuHorizontal>
