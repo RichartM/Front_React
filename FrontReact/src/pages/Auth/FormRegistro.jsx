@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Swal from "sweetalert2";
 import AuthServiceRegister from '../../services/AuthServiceRegister';
 
+
 const FormRegistro = () => {
   const [formData, setFormData] = useState({
     firstName: "",
