@@ -15,6 +15,15 @@ const GlobalStyle = createGlobalStyle`
     padding: 12px;
     border: 1px solid white;
   }
+
+  @media (max-width: 768px) {
+    .table-header th {
+      padding: 1%;
+    }
+    .table-td {
+      padding: 1%;
+    }
+  }
 `;
 
 const StyledWrapper = styled.div`
@@ -24,6 +33,7 @@ const StyledWrapper = styled.div`
     scrollbar-width: thin;
     scrollbar-color: #018180 #f1f1f1;
   }
+
 `;
 
 const ClienteHistorial = () => {

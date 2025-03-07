@@ -51,11 +51,26 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   </StyledNavLink>
 ));
 
+
 const NavPrincipal = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    window.history.pushState(null, "", window.location.href);
+    window.history.replaceState(null, "", "/login");
+
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 100);
+  };
+
   return (
-    <Navbar 
-      bg="light" 
-      expand="lg" 
+    <Navbar
+      bg="light"
+      expand="lg"
       className="w-100 position-fixed top-0 start-0 shadow-sm px-2"
       style={{ zIndex: 1050 }} // Asegura que el navbar esté siempre encima
     >
@@ -64,10 +79,10 @@ const NavPrincipal = () => {
           <img src={homeIcon} alt="home" style={{ width: "80px", height: "40px" }} />
         </Navbar.Brand>
 
-        {/* ✅ Botón de hamburguesa que abre el menú lateral en móviles */}
+        {/* Botón de hamburguesa que abre el menú lateral en móviles */}
         <Navbar.Toggle aria-controls="offcanvasNavbar" />
 
-        {/* ✅ Offcanvas solo en móviles (se despliega de derecha a izquierda) */}
+        {/* Offcanvas solo en móviles (se despliega de derecha a izquierda) */}
         <Navbar.Offcanvas
           id="offcanvasNavbar"
           aria-labelledby="offcanvasNavbarLabel"
@@ -80,14 +95,32 @@ const NavPrincipal = () => {
           </Offcanvas.Header>
           <Offcanvas.Body>
             <Nav className="d-flex flex-column align-items-start gap-2 w-100">
-              <StyledNavLink href="/gerente/agenteVentas">Agentes de venta</StyledNavLink>
-              <StyledNavLink href="/gerente/cartable">Marcas</StyledNavLink>
-              <StyledNavLink href="/gerente/servicios">Servicio</StyledNavLink>
+              <Nav.Item>
+                <Dropdown>
+                  <Dropdown.Toggle as={CustomToggle} className="d-flex align-items-center text-center">
+                    <i className="bi bi-person-circle fs-2 me-2"></i>
+                    Perfil
+                  </Dropdown.Toggle>
+
+
+                  <Dropdown.Menu align="end">
+                    <Dropdown.Item href="/gerente/editPerfil">
+                      <i className="bi bi-person-gear fs-6"></i> Editar perfil
+                    </Dropdown.Item>
+                    <Dropdown.Item  onClick={handleLogout}>
+                      <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Nav.Item>
+              <StyledNavLink href="/gerente/agenteVentas"> <i className="bi bi-people-fill"></i> Agentes de venta</StyledNavLink>
+              <StyledNavLink href="/gerente/cartable"><i className="bi bi-collection-fill"></i> Marcas</StyledNavLink>
+              <StyledNavLink href="/gerente/servicios"><i className="bi bi-clipboard-fill"></i> Servicio</StyledNavLink>
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>
 
-        {/* ✅ Navbar normal en PC */}
+        {/*  Navbar normal en PC */}
         <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
           <Nav className="me-auto">
             <StyledNavLink href="/gerente/agenteVentas">Agentes de venta</StyledNavLink>
@@ -106,7 +139,7 @@ const NavPrincipal = () => {
                   <Dropdown.Item href="/gerente/editPerfil">
                     <i className="bi bi-person-gear fs-6"></i> Editar perfil
                   </Dropdown.Item>
-                  <Dropdown.Item href="#/logout">
+                  <Dropdown.Item onClick={handleLogout}>
                     <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
                   </Dropdown.Item>
                 </Dropdown.Menu>

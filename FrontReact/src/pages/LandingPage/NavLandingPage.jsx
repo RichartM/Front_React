@@ -84,7 +84,7 @@ const NavLandingPage = () => {
                 </Dropdown.Toggle>
                 <Dropdown.Menu align="end">
                   <Dropdown.Item href="/login">
-                  <i class="bi bi-person-raised-hand"></i> Iniciar sesión 
+                  <i className="bi bi-person-raised-hand"></i> Iniciar sesión 
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
