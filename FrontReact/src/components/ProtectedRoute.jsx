@@ -1,22 +1,35 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import AuthService from '../services/AuthService';
-import { useEffect, useState } from 'react';
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-const ProtectedRoute = ({ allowedRoles }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(AuthService.isAuthenticated());
+const ProtectedRoute = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
+    const location = useLocation(); // Detecta cambios en la URL
 
     useEffect(() => {
         const checkAuth = () => {
-            if (!AuthService.isAuthenticated()) {
-                console.warn("Token expirado o eliminado. Redirigiendo al login...");
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.warn("Token eliminado. Redirigiendo al login...");
                 setIsAuthenticated(false);
+                setTimeout(() => {
+                    window.location.href = "/login"; // Redirigir y recargar si el token fue eliminado
+                }, 100);
             }
         };
 
-        const interval = setInterval(checkAuth, 5000); // Verifica cada 5 segundos
+        checkAuth(); //Verificar autenticación al cargar la página
 
-        return () => clearInterval(interval); // Limpia el intervalo al desmontar el componente
-    }, []);
+        // Detectar si el usuario eliminó el token en otra pestaña
+        window.addEventListener("storage", checkAuth);
+
+        // Detectar si el usuario usa "atrás" en el navegador
+        window.addEventListener("popstate", checkAuth);
+
+        return () => {
+            window.removeEventListener("storage", checkAuth);
+            window.removeEventListener("popstate", checkAuth);
+        };
+    }, [location]); // Se ejecuta cada vez que cambia la URL
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;

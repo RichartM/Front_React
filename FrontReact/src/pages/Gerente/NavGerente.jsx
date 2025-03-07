@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container, Dropdown, Offcanvas } from 'react-bootstrap';
 import homeIcon from '../../img/home.png';
 import styled from 'styled-components';
 
@@ -60,27 +60,41 @@ const NavPrincipal = () => {
       style={{ zIndex: 1050 }} // Asegura que el navbar esté siempre encima
     >
       <Container fluid>
-        {/* Imagen fuera del toggle para que no colapse  href="/NoDefinido" */ }
-        <Navbar.Brand >
+        <Navbar.Brand>
           <img src={homeIcon} alt="home" style={{ width: "80px", height: "40px" }} />
         </Navbar.Brand>
 
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        {/* ✅ Botón de hamburguesa que abre el menú lateral en móviles */}
+        <Navbar.Toggle aria-controls="offcanvasNavbar" />
 
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Item>
+        {/* ✅ Offcanvas solo en móviles (se despliega de derecha a izquierda) */}
+        <Navbar.Offcanvas
+          id="offcanvasNavbar"
+          aria-labelledby="offcanvasNavbarLabel"
+          placement="end"
+          style={{ maxWidth: "280px" }}
+          className="d-lg-none"
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title id="offcanvasNavbarLabel">Menú</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <Nav className="d-flex flex-column align-items-start gap-2 w-100">
               <StyledNavLink href="/gerente/agenteVentas">Agentes de venta</StyledNavLink>
-            </Nav.Item>
-            <Nav.Item>
               <StyledNavLink href="/gerente/cartable">Marcas</StyledNavLink>
-            </Nav.Item>
-            <Nav.Item>
               <StyledNavLink href="/gerente/servicios">Servicio</StyledNavLink>
-            </Nav.Item>
+            </Nav>
+          </Offcanvas.Body>
+        </Navbar.Offcanvas>
+
+        {/* ✅ Navbar normal en PC */}
+        <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
+          <Nav className="me-auto">
+            <StyledNavLink href="/gerente/agenteVentas">Agentes de venta</StyledNavLink>
+            <StyledNavLink href="/gerente/cartable">Marcas</StyledNavLink>
+            <StyledNavLink href="/gerente/servicios">Servicio</StyledNavLink>
           </Nav>
 
-          {/* Ícono alineado a la derecha con menú desplegable */}
           <Nav>
             <Nav.Item>
               <Dropdown>
@@ -89,8 +103,12 @@ const NavPrincipal = () => {
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu align="end">
-                  <Dropdown.Item href="/gerente/editPerfil"><i class="bi bi-person-gear fs-6 "></i> Editar perfil</Dropdown.Item>
-                  <Dropdown.Item href="#/edditPerfil"><i class="bi bi-box-arrow-left fs-6"></i> Cerrar sesión</Dropdown.Item>
+                  <Dropdown.Item href="/gerente/editPerfil">
+                    <i className="bi bi-person-gear fs-6"></i> Editar perfil
+                  </Dropdown.Item>
+                  <Dropdown.Item href="#/logout">
+                    <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </Nav.Item>

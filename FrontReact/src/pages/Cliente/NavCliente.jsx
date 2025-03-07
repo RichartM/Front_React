@@ -1,13 +1,14 @@
 import React from "react";
-import { Navbar, Nav, Container, Dropdown } from "react-bootstrap";
+import { Navbar, Nav, Container, Dropdown, Offcanvas } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import homeIcon from "../../img/home.png";
 import styled from "styled-components";
-import MarcasDropdown from "./MarcasDropdown"; // Importamos el componente de marcas
-import ServiciosDropdown from "./ServiciosDropdown"; // Importamos el componente de servicios
+import MarcasDropdown from "./MarcasDropdown";
 
 // Estilos personalizados para los enlaces del navbar
 const StyledNavLink = styled(Nav.Link)`
   color: #000 !important;
+  font-weight: bold;
   position: relative;
   transition: color 0.3s ease;
 
@@ -39,7 +40,6 @@ const StyledNavLink = styled(Nav.Link)`
   }
 `;
 
-// Componente para el toggle del Dropdown
 const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   <StyledNavLink
     href=""
@@ -54,6 +54,20 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const NavCliente = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    window.history.pushState(null, "", window.location.href);
+    window.history.replaceState(null, "", "/login");
+
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 100);
+  };
+
   return (
     <Navbar
       bg="light"
@@ -63,23 +77,57 @@ const NavCliente = () => {
     >
       <Container fluid>
         <Navbar.Brand>
-          <img
-            src={homeIcon}
-            alt="LandingPage"
-            style={{ width: "80px", height: "40px" }}
-          />
+          <img src={homeIcon} alt="LandingPage" style={{ width: "80px", height: "40px" }} />
         </Navbar.Brand>
 
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Toggle aria-controls="offcanvasNavbar" />
 
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            {/* Menú desplegable de Marcas */}
-            <MarcasDropdown  /> 
-            
+        {/* ✅ Offcanvas solo en móviles */}
+        <Navbar.Offcanvas id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel" placement="end" style={{ maxWidth: "280px" }} className="d-lg-none">
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title id="offcanvasNavbarLabel">Menú</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <Nav className="d-flex flex-column align-items-start gap-2 w-100">
+              
+              {/* Dropdown del usuario - PRIMERO */}
+              <Nav.Item className="w-100">
+                <Dropdown className="w-100">
+                  <Dropdown.Toggle as={CustomToggle} className="w-100">
+                    <i className="bi bi-person-circle fs-2"></i> Perfil
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="w-100">
+                    <Dropdown.Item href="/cliente/editPerfil">
+                      <i className="bi bi-person-gear fs-6"></i> Editar perfil
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={handleLogout}>
+                      <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Nav.Item>
+
+              {/* Historial de compras - SEGUNDO */}
+              <StyledNavLink href="/cliente">
+                <i className="bi bi-clock-history fs-5"></i> Historial de compras
+              </StyledNavLink>
+
+              {/* Menú de Marcas - ÚLTIMO */}
+              <div className="w-100">
+                <MarcasDropdown />
+              </div>
+
+            </Nav>
+          </Offcanvas.Body>
+        </Navbar.Offcanvas>
+
+        {/* ✅ Navbar normal en PC */}
+        <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
+          <Nav className="me-auto d-flex align-items-center">
+            <StyledNavLink href="/cliente">Historial de compras</StyledNavLink>
+            <MarcasDropdown />
           </Nav>
 
-          {/* Ícono de usuario con opciones */}
           <Nav>
             <Nav.Item>
               <Dropdown>
@@ -91,7 +139,7 @@ const NavCliente = () => {
                   <Dropdown.Item href="/cliente/editPerfil">
                     <i className="bi bi-person-gear fs-6"></i> Editar perfil
                   </Dropdown.Item>
-                  <Dropdown.Item href="/logout">
+                  <Dropdown.Item onClick={handleLogout}> 
                     <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
                   </Dropdown.Item>
                 </Dropdown.Menu>
