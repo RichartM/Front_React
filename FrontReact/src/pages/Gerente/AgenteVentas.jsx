@@ -9,6 +9,7 @@
   import { createGlobalStyle } from "styled-components";
   import FiltroServicios from '../../components/Filtros/FiltroBuscador';
   import ClientePNG from '../../img/cliente.png';
+  import axios from "axios"
 
   // Estilos globales
   const GlobalStyle = createGlobalStyle`
@@ -285,11 +286,12 @@
     const [selectedItem, setSelectedItem] = useState(null);
     const [editModal, setEditModal] = useState(false);
     const [editedData, setEditedData] = useState({
-      nombre: '',
-      apellidos: '',
-      correo: '',
-      telefono: '',
-      estado: 'ACTIVO', // Por defecto, activo
+      email: '',
+      lastname: '',
+      name: '',
+      password: '',
+      state: true, // Por defecto, activo
+      surname: '',
     });
     const [errors, setErrors] = useState({});
 
@@ -366,31 +368,31 @@
     const handleEdit = (agente) => {
       setSelectedItem(agente);
       setEditedData({
-        nombre: agente.nombre,
-        apellidos: agente.apellidos,
-        correo: agente.correo,
-        telefono: agente.telefono,
-        estado: "ACTIVO", // Siempre activo
+        email: agente.email,
+        lastname: agente.lastname,
+        name: agente.name,
+        password: agente.password,
+        state: agente.state, // Siempre activo lo cambio por la el valor del objeto, pero podemos dejarlo comoestaba en caso de que falle
+        surname : agente.surname,
+
       });
       setEditModal(true);
     };
 
     const validateFields = () => {
       const newErrors = {};
-      if (!editedData.nombre.trim()) {
+      if (!editedData.name.trim()) {
         newErrors.nombre = "El nombre es obligatorio.";
       }
-      if (!editedData.apellidos.trim()) {
+      if (!editedData.lastname.trim()) {
         newErrors.apellidos = "Los apellidos son obligatorios.";
       }
-      if (!editedData.correo.trim()) {
+      if (!editedData.email.trim()) {
         newErrors.correo = "El correo es obligatorio.";
-      } else if (!/\S+@\S+\.\S+/.test(editedData.correo)) {
+      } else if (!/\S+@\S+\.\S+/.test(editedData.email)) {
         newErrors.correo = "El correo no es válido.";
       }
-      if (!editedData.telefono.trim()) {
-        newErrors.telefono = "El teléfono es obligatorio.";
-      }
+      
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
     };
@@ -399,6 +401,7 @@
       if (validateFields()) {
         if (selectedItem) {
           setAgentes(agentes.map(a => a.id === selectedItem.id ? { ...a, ...editedData } : a));
+          console.log("datosssssssss a registrar: "+a.name)
           setEditModal(false);
           Swal.fire({
             title: "¡Guardado!",
@@ -424,8 +427,27 @@
     const handleAddAgente = () => {
       if (validateFields()) {
         agregarAgente(editedData);
+        console.log("datosssssssss a registrar: "+editedData.name)
+        console.log("datosssssssss a registrar: "+editedData)
+
+
+
+        //const token = localStorage.getItem('token');  // Obtener el token del localStorage
+        axios.post('http://localhost:8080/api/auth/registerAgente', editedData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => console.log('Agente registrado:', response.data))
+        .catch(error => console.error('Error al registrar el agente:', error));
+        
+
+
+
+
         setShowAgenteModal(false);
-        setEditedData({ nombre: '', apellidos: '', correo: '', telefono: '', estado: 'ACTIVO' });
+        setEditedData({ email: '', lastname: '', name: '', password: '', state: '',surname:'' });
         Swal.fire({
           title: "¡Agregado!",
           text: "El agente ha sido agregado con éxito.",
@@ -448,7 +470,7 @@
 
     const handleToggleStatus = (agente) => {
       Swal.fire({
-        title: `¿Estás seguro de ${agente.estado === 'ACTIVO' ? 'desactivar' : 'activar'} a ${agente.nombre}?`,
+        title: `¿Estás seguro de ${agente.state === true ? 'desactivar' : 'activar'} a ${agente.name}?`,
         text: "Esta acción cambiará su estado.",
         icon: "warning",
         showCancelButton: true,
@@ -463,8 +485,10 @@
         buttonsStyling: false,
       }).then((result) => {
         if (result.isConfirmed) {
-          const updatedAgente = { ...agente, estado: agente.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO' };
+          const updatedAgente = { ...agente, state: agente.state === true ? false : true };
+          console.log("datos del modificado "+agente.name)
           setAgentes(agentes.map(a => a.id === agente.id ? updatedAgente : a));
+
           Swal.fire({
             title: "¡Hecho!",
             text: `El estado de ${agente.nombre} ha sido cambiado.`,
@@ -543,6 +567,30 @@
         buttonsStyling: false
       });
     };
+    
+    const [agentesData,setAgentesData] = useState([])
+    useEffect(() => {
+      console.log("get the useEffect")
+      const token = localStorage.getItem('token');  // Obtener el token del localStorage
+      console.log("token: "+token)
+  
+      if (token) {
+        axios.get('http://localhost:8080/api/auth/fullAgentes', {
+          headers: {
+            Authorization: `Bearer ${token}`  // Usar el token en el encabezado
+          }
+        })
+        .then(response => {
+          setAgentesData(response.data);
+          console.log(response.data)
+        })
+        .catch(error => {
+          console.error('Error al obtener los datos:', error);
+        });
+      } else {
+        console.log('No se encontró el token');
+      }
+    }, []);
 
     
     return (
@@ -594,8 +642,8 @@
                       <Form.Label>Nombre</Form.Label>
                       <Form.Control
                         type="text"
-                        value={editedData.nombre}
-                        onChange={(e) => setEditedData({ ...editedData, nombre: e.target.value })}
+                        value={editedData.name}
+                        onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
                         className="input"
                         isInvalid={!!errors.nombre}
                       />
@@ -606,11 +654,26 @@
 
                     {/* Campo Apellidos */}
                     <Form.Group className="mb-3">
-                      <Form.Label>Apellidos</Form.Label>
+                      <Form.Label>Apellido paterno:</Form.Label>
                       <Form.Control
                         type="text"
-                        value={editedData.apellidos}
-                        onChange={(e) => setEditedData({ ...editedData, apellidos: e.target.value })}
+                        value={editedData.lastname}
+                        onChange={(e) => setEditedData({ ...editedData, lastname: e.target.value })}
+                        className="input"
+                        isInvalid={!!errors.apellidos}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.apellidos}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                    
+                    {/* Campo Apellidos */}
+                    <Form.Group className="mb-3">
+                      <Form.Label>Apellido materno:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={editedData.surname}
+                        onChange={(e) => setEditedData({ ...editedData, surname: e.target.value })}
                         className="input"
                         isInvalid={!!errors.apellidos}
                       />
@@ -624,8 +687,8 @@
                       <Form.Label>Correo</Form.Label>
                       <Form.Control
                         type="email"
-                        value={editedData.correo}
-                        onChange={(e) => setEditedData({ ...editedData, correo: e.target.value })}
+                        value={editedData.email}
+                        onChange={(e) => setEditedData({ ...editedData, email: e.target.value })}
                         className="input"
                         isInvalid={!!errors.correo}
                       />
@@ -649,20 +712,12 @@
                       </Form.Control.Feedback>
                     </Form.Group>
 
-                    {/* Mostrar Total de Clientes (solo en edición, si el agente ya tiene clientes; en agregar será 0) */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Total de clientes</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={selectedItem && selectedItem.clientes ? selectedItem.clientes.length : 0}
-                        readOnly
-                      />
-                    </Form.Group>
+                    
                   </Form>
                 </Modal.Body>
                 <Modal.Footer>
                   <CustomButton
-                    className="submit btn btn-primary"
+                    className="submit btn btn-primary"s
                     variant="secondary"
                     onClick={() => { setShowAgenteModal(false); setEditModal(false); }}
                   >
@@ -674,12 +729,16 @@
                     className="submit"
                   >
                     {editModal ? "Guardar cambios" : "Agregar"}
+
                   </CustomButton>
+                  
                 </Modal.Footer>
               </StyledWrapper>
             </Modal>
-
-            {/* Tabla de Agentes de Ventas */}
+          
+          
+          
+            {/* Tabla de Agentes de Ventas ----------------------------------------------------------------------------------------------------------------------------------------------*/}
             <StyledWrapper>
               <div className="scrollable-table">
                 <Table striped bordered hover className="mt-2">
@@ -688,26 +747,26 @@
                       <th>Nombre</th>
                       <th>Apellidos</th>
                       <th>Correo</th>
-                      <th>Teléfono</th>
+                      
                       <th>Estado</th>
                       <th>Acciones</th>
                     </tr>
                   </CustomTableHeader>
                   <tbody>
-                    {currentAgentes.map((agente) => (
+                    {agentesData.map((agente) => (
                       <tr key={agente.id}>
-                        <td>{agente.nombre}</td>
-                        <td>{agente.apellidos}</td>
-                        <td>{agente.correo}</td>
-                        <td>{agente.telefono}</td>
-                        <td>{agente.estado}</td>
+                        <td>{agente.name}</td>
+                        <td>{agente.lastname +" "+agente.surname}</td>
+                        <td>{agente.email}</td>
+                        
+                        <td>{(agente.state) ? "Activo" : "Inactivo"}</td>
                         <td>
                           <BsPencilSquare
                             className="text-primary me-2 fs-2"
                             style={{ cursor: "pointer" }}
                             onClick={() => handleEdit(agente)}
                           />
-                          {agente.estado === "ACTIVO" ? (
+                          {agente.state === true ? (
                             <BsToggleOn
                               className="text-success fs-1"
                               style={{ cursor: "pointer" }}
