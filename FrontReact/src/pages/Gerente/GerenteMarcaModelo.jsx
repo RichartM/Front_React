@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import TablaMarcas from './TablaMarcas';
 import TablaModelos from './TablaModelos';
 import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
+import axios from 'axios';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -295,6 +296,61 @@ function GerenteMarcaModelo() {
     return Object.keys(newErrors).length === 0;
   };
 
+
+
+  ///OBTENIENDO LAS MARCAS DE LA BASE DE DARTO
+  const [marcasReales,setMarcasREales] = useState([])
+
+ useEffect(() => {
+       console.log("get the useEffect")
+       const token = localStorage.getItem('token');  // Obtener el token del localStorage
+       console.log("token: "+token)
+   
+       if (token) {
+         axios.get('http://localhost:8080/servicios/obtener', {
+           headers: {
+             Authorization: `Bearer ${token}`  // Usar el token en el encabezado
+           }
+         })
+         .then(response => {
+          setMarcasREales(response.data);
+           console.log(response.data)
+         })
+         .catch(error => {
+           console.error('Error al obtener los datos:', error);
+         });
+       } else {
+         console.log('No se encontró el token');
+       }
+     }, []);
+
+       ///OBTENIENDO LOS MODELOS DE LA BASE DE DARTO
+  const [modelosReales,setModelosREales] = useState([])
+
+  useEffect(() => {
+        console.log("get the useEffect")
+        const token = localStorage.getItem('token');  // Obtener el token del localStorage
+        console.log("token: "+token)
+    
+        if (token) {
+          axios.get('http://localhost:8080/vehiculo/obtener', {
+            headers: {
+              Authorization: `Bearer ${token}`  // Usar el token en el encabezado
+            }
+          })
+          .then(response => {
+            setModelosREales(response.data);
+            console.log(response.data)
+          })
+          .catch(error => {
+            console.error('Error al obtener los datos:', error);
+          });
+        } else {
+          console.log('No se encontró el token');
+        }
+      }, []);
+
+
   return (
     <>
       <GlobalStyle />
@@ -356,11 +412,14 @@ function GerenteMarcaModelo() {
               recordsPerPage={recordsPerPageMarcas}
               onEdit={handleEdit}
               onToggleStatus={handleToggleStatus}
+              
+
+
             />
           )}
           {activeTab === "link-1" && (
             <TablaModelos
-              modelos={modelos}
+              modelos={modelosReales}
               searchTerm={searchTermModelos}
               setSearchTerm={setSearchTermModelos}
               currentPage={currentPageModelos}

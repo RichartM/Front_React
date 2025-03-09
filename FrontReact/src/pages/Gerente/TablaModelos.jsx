@@ -81,7 +81,7 @@ const TablaModelos = ({
                             <tr key={item.id}>
                                 <td>{item.modelo}</td>
                                 <td>{item.marca}</td>
-                                <td>{item.placa}</td>
+                                <td>{item.matricula}</td>
                                 <td>{item.precio}</td>
                                 <td>{item.año}</td>
                                 <td>{item.color}</td>

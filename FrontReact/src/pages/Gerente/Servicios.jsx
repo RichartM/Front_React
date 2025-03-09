@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import BootstrapPagination from '../../components/common/BootstrapPagination';
 import { createGlobalStyle } from "styled-components";
 import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
+import axios from "axios"
 
 const CustomTableHeader = styled.thead`
   background-color: #018180;
@@ -273,7 +274,46 @@ export default function Servicios() {
         { id: 25, identificador: "FF-025", nombreServicio: "Cambio Filtro de Combustible", precio: "30", periodo: "Anual", estado: "ACTIVO" }
     ]);
 
-    const [filteredServicios, setFilteredServicios] = useState(servicios);
+    const [serviciosReales, setServiciosReales] = useState([]);
+    const [loading, setLoading] = useState(true); // Estado para indicar si sigue cargando
+    
+    useEffect(() => {
+      console.log("get the useEffect");
+      const token = localStorage.getItem("token"); 
+      console.log("token: " + token);
+    
+      if (token) {
+        axios
+          .get("http://localhost:8080/servicios/obtener", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((response) => {
+            setServiciosReales(response.data);
+            console.log(response.data);
+          })
+          .catch((error) => {
+            console.error("Error al obtener los datos:", error);
+          })
+          .finally(() => {
+            setLoading(false); // Indicar que la carga terminó
+          });
+      } else {
+        console.log("No se encontró el token");
+        setLoading(false);
+      }
+    }, []);
+    
+    useEffect(() => {
+        // Cuando serviciosReales se actualiza, actualizamos filteredServicios
+        setFilteredServicios(serviciosReales);
+      }, [serviciosReales]); 
+
+    //console.log("datos en el useState: "+serviciosReales[0].name)
+    
+
+    const [filteredServicios, setFilteredServicios] = useState(serviciosReales); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     const [currentPage, setCurrentPage] = useState(1);
     const recordsPerPage = 10;
     const totalPages = Math.ceil(filteredServicios.length / recordsPerPage);
@@ -281,10 +321,12 @@ export default function Servicios() {
         (currentPage - 1) * recordsPerPage,
         currentPage * recordsPerPage
     );
+    console.log("servicios actuiales: "+currentServicios)
+    console.log("servicios actuiales filter: "+filteredServicios)
 
     // Función para manejar la búsqueda en tiempo real
     const handleSearch = (searchTerm) => {
-        const filtered = servicios.filter((servicio) =>
+        const filtered = serviciosReales.filter((serviciosReales) =>
             servicio.identificador.toLowerCase().includes(searchTerm.toLowerCase()) ||
             servicio.nombreServicio.toLowerCase().includes(searchTerm.toLowerCase()) ||
             servicio.precio.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -394,10 +436,10 @@ export default function Servicios() {
         return true;
     };
 
-    // Función para guardar los cambios de un servicio editado
+    // Función para guardar los cambios de un servicio editado UPDATE//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////aqui hayq eu hacer un cachibache para update
     const handleSaveChanges = () => {
         if (validateFields()) {
-            const updatedServicios = servicios.map((servicio) =>
+            const updatedServicios = serviciosReales.map((servicio) =>
                 servicio.id === selectedItem.id ? { ...servicio, ...editedData } : servicio
             );
             setservicios(updatedServicios);
@@ -413,11 +455,11 @@ export default function Servicios() {
         }
     };
 
-    // Función para agregar un nuevo servicio
+    // Función para agregar un nuevo servicio   PARA REVERTIR ESTA PARTE SOLO CAMBIA SERVICIOSREALES POR Servicios
     const agregarservicio = (nuevoServicio) => {
         if (validateFields()) {
             const newServicio = { ...nuevoServicio, id: servicios.length + 1 };
-            const updatedServicios = [...servicios, newServicio];
+            const updatedServicios = [...serviciosReales, newServicio];
             setservicios(updatedServicios);
             setFilteredServicios(updatedServicios); // Actualiza la lista filtrada
             setShowservicioModal(false);
@@ -434,7 +476,7 @@ export default function Servicios() {
     // Función para activar/desactivar un servicio
     const handleToggleStatus = (servicio) => {
         Swal.fire({
-            title: `¿Estás seguro de ${servicio.estado === 'ACTIVO' ? 'desactivar' : 'activar'} a ${servicio.identificador}?`,
+            title: `¿Estás seguro de ${servicio.estate === true ? 'desactivar' : 'activar'} a ${servicio.name}?`,
             text: "Esta acción cambiará su estado.",
             icon: "warning",
             showCancelButton: true,
@@ -450,12 +492,12 @@ export default function Servicios() {
         }).then((result) => {
             if (result.isConfirmed) {
                 const updatedServicio = { ...servicio, estado: servicio.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO' };
-                const updatedServicios = servicios.map((s) => (s.id === servicio.id ? updatedServicio : s));
+                const updatedServicios = serviciosReales.map((s) => (s.id === servicio.id ? updatedServicio : s));
                 setservicios(updatedServicios);
                 setFilteredServicios(updatedServicios); // Actualiza la lista filtrada
                 Swal.fire({
                     title: "¡Hecho!",
-                    text: `El estado de ${servicio.identificador} ha sido cambiado.`,
+                    text: `El estado de ${servicio.name} ha sido cambiado.`,
                     icon: "success",
                     customClass: {
                         popup: 'swal2-popup',
@@ -594,7 +636,7 @@ export default function Servicios() {
                                         <th>Identificador</th>
                                         <th>Nombre de Servicio</th>
                                         <th>Precio</th>
-                                        <th>Periodo</th>
+                                        <th>descripcioón</th>
                                         <th>Estado</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -603,17 +645,17 @@ export default function Servicios() {
                                     {currentServicios.map((servicio) => (
                                         <tr key={servicio.id}>
                                             <td>{servicio.identificador}</td>
-                                            <td>{servicio.nombreServicio}</td>
-                                            <td>{servicio.precio}</td>
-                                            <td>{servicio.periodo}</td>
-                                            <td>{servicio.estado}</td>
+                                            <td>{servicio.name}</td>
+                                            <td>{servicio.price}</td>
+                                            <td>{servicio.description}</td>
+                                            <td>{(servicio.estate) ? "Activo" : "Desactivado"}</td>
                                             <td>
                                                 <BsPencilSquare
                                                     className="text-primary me-5 fs-2"
                                                     style={{ cursor: "pointer" }}
                                                     onClick={() => handleEdit(servicio)}
                                                 />
-                                                {servicio.estado === "ACTIVO" ? (
+                                                {servicio.estate === true ? (
                                                     <BsToggleOn
                                                         className="text-success fs-1"
                                                         style={{ cursor: "pointer" }}

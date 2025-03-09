@@ -292,6 +292,7 @@
       password: '',
       state: true, // Por defecto, activo
       surname: '',
+      username :''
     });
     const [errors, setErrors] = useState({});
 
@@ -367,15 +368,26 @@
 
     const handleEdit = (agente) => {
       setSelectedItem(agente);
-      setEditedData({
+      /*setEditedData({
         email: agente.email,
         lastname: agente.lastname,
         name: agente.name,
-        password: agente.password,
+        password: agente.name,
         state: agente.state, // Siempre activo lo cambio por la el valor del objeto, pero podemos dejarlo comoestaba en caso de que falle
         surname : agente.surname,
-
-      });
+        username : agente.name
+      });*/
+      setEditedData(prevState => ({
+        ...prevState,
+        email: agente.email,
+        lastname: agente.lastname,
+        name: agente.name,
+        password: agente.name,
+        state: agente.state,
+        surname: agente.surname,
+        username: agente.name
+    }));
+    
       setEditModal(true);
     };
 
@@ -427,8 +439,18 @@
     const handleAddAgente = () => {
       if (validateFields()) {
         agregarAgente(editedData);
-        console.log("datosssssssss a registrar: "+editedData.name)
-        console.log("datosssssssss a registrar: "+editedData)
+        console.log("datosssssssss a registrar email: "+editedData.email)
+        console.log("datosssssssss a registrar lastname: "+editedData.lastname)
+        console.log("datosssssssss a registrar name: "+editedData.name)
+        editedData.password = editedData.name;
+        console.log("datosssssssss a registrar pass: "+editedData.password)
+        console.log("datosssssssss a registrar state: "+editedData.state)
+        console.log("datosssssssss a registrar surname: "+editedData.surname)
+        editedData.username = editedData.name;
+        console.log("datosssssssss a registrar username: "+editedData.username)
+
+
+
 
 
 
@@ -447,7 +469,7 @@
 
 
         setShowAgenteModal(false);
-        setEditedData({ email: '', lastname: '', name: '', password: '', state: '',surname:'' });
+        setEditedData({ email: '', lastname: '', name: '', password: '', state: '',surname:'',username:'' });
         Swal.fire({
           title: "¡Agregado!",
           text: "El agente ha sido agregado con éxito.",
