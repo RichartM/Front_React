@@ -414,6 +414,8 @@ function AgenteVentas() {
           confirmButtonColor: "#018180",
           customClass: { confirmButton: 'btn-swal-confirmar' },
           buttonsStyling: false
+        }).then(()=>{
+          window.location.reload();
         });
       })
       .catch(error => {
@@ -427,6 +429,8 @@ function AgenteVentas() {
           confirmButtonColor: "#018180",
           customClass: { confirmButton: 'btn-swal-confirmar' },
           buttonsStyling: false
+        }).then(()=>{
+          window.location.reload()
         });
       });
     } else {
