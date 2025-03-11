@@ -324,17 +324,19 @@ export default function Servicios() {
     console.log("servicios actuiales: "+currentServicios)
     console.log("servicios actuiales filter: "+filteredServicios)
 
-    // Función para manejar la búsqueda en tiempo real
-    const handleSearch = (searchTerm) => {
-        const filtered = serviciosReales.filter((serviciosReales) =>
-            servicio.identificador.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            servicio.nombreServicio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            servicio.precio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            servicio.periodo.toLowerCase().includes(searchTerm.toLowerCase())
+    // Función para manejar la búsqueda en tiempo real en todos los campos del objeto servicio
+const handleSearch = (searchTerm) => {
+    const filtered = serviciosReales.filter((servicio) => {
+        return Object.values(servicio).some((value) =>
+            value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         );
-        setFilteredServicios(filtered);
-        setCurrentPage(1); // Reinicia la paginación al realizar una búsqueda
-    };
+    });
+
+    setFilteredServicios(filtered);
+    setCurrentPage(1); // Reinicia la paginación al realizar una búsqueda
+};
+
+    
 
     // Función para manejar la paginación
     const paginate = (page) => {
@@ -509,6 +511,7 @@ export default function Servicios() {
         });
     };
 
+    
     return (
         <>
             <GlobalStyle />
@@ -516,7 +519,7 @@ export default function Servicios() {
                 <Card>
                     <Row className="mb-3">
                         <Col className="d-flex justify-content-end">
-                            <FiltroBuscador onSearch={handleSearch} placeholder="Buscar servicio..." />
+                        <FiltroBuscador onSearch={handleSearch} placeholder="Buscar servicio..." />
                         </Col>
                     </Row>
                     <Row className="mb-1">

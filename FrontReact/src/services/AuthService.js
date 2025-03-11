@@ -29,7 +29,7 @@ const getUserProfile = async () => {
 const login = async (email, password) => {
     try {
         const response = await axios.post(API_URL + 'Login', { email, password });
-
+        
         if (response.data) {
             localStorage.setItem('token', response.data); // Guardar el token en localStorage
             return response.data;

@@ -351,6 +351,17 @@ function GerenteMarcaModelo() {
       }, []);
 
 
+      const handleSearchMarcas = (term) => {
+        setSearchTermMarcas(term);
+        setCurrentPageMarcas(1); // Reinicia la paginación a la primera página al buscar
+    };
+    
+    const handleSearchModelos = (term) => {
+        setSearchTermModelos(term);
+        setCurrentPageModelos(1); // Reinicia la paginación a la primera página al buscar
+    };
+    
+
   return (
     <>
       <GlobalStyle />
@@ -387,10 +398,11 @@ function GerenteMarcaModelo() {
               </Nav>
             </Col>
             <Col xs={4} className="d-flex justify-content-end align-items-center">
-              <FiltroBuscador
-                onSearch={activeTab === '/home' ? setSearchTermMarcas : setSearchTermModelos}
-                placeholder={activeTab === '/home' ? "Buscar marcas..." : "Buscar modelos..."}
-              />
+            <FiltroBuscador
+    onSearch={activeTab === '/home' ? handleSearchMarcas : handleSearchModelos}
+    placeholder={activeTab === '/home' ? "Buscar marcas..." : "Buscar modelos..."}
+/>
+
 
             </Col>
             <p></p>

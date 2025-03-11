@@ -311,7 +311,9 @@ function AgenteVentas() {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-  };
+    setCurrentPage(1); // Reinicia la paginación a la primera página al buscar
+};
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
