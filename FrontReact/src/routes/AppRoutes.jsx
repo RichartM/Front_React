@@ -1,7 +1,7 @@
-import React from 'react'; 
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute.jsx'; // ✅ Proteger rutas
-import RequirePasswordChange from '../components/RequirePasswordChange'; 
+import RequirePasswordChange from '../components/RequirePasswordChange';
 
 // Páginas públicas
 import Login from '../pages/Auth/Login';
@@ -13,6 +13,8 @@ import LandingPage from '../pages/LandingPage/LandingPage';
 // Layouts protegidos
 import GerenteLayout from '../layouts/GerenteLayout';
 import ClienteLayout from '../layouts/ClienteLayout';
+import AgenteVentaLayout from '../layouts/AgenteVentaLayout';
+
 
 // Gerente
 import CarTable from '../pages/Gerente/GerenteMarcaModelo';
@@ -23,7 +25,10 @@ import EditPerfil from '../pages/Gerente/EditPerfil';
 // Cliente
 import ClienteHome from '../pages/Cliente/ClienteHome';
 import CarrosPorMarca from '../pages/Cliente/CarrosPorMarca';
-import DetallesCoche from '../pages/DetallesCoche'; 
+import DetallesCoche from '../pages/DetallesCoche';
+
+//Agente
+import TablaCliente from '../pages/AgenteVenta/TablaCliente.jsx';
 
 const AppRoutes = () => {
   return (
@@ -44,6 +49,15 @@ const AppRoutes = () => {
           <Route path="editPerfil" element={<EditPerfil />} />
         </Route>
       </Route>
+
+      <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
+        <Route path="/agente" element={<AgenteVentaLayout />}>
+        <Route path= "tablaCliente" element ={<TablaCliente/>}/>
+
+          {/* 🔹 Aquí puedes agregar más subrutas para el agente */}
+        </Route>
+      </Route>
+
 
       <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
         <Route path="/cliente" element={<ClienteLayout />}>

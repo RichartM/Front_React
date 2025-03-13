@@ -5,85 +5,62 @@ const Loader = () => {
   return (
     <StyledWrapper>
       <div className="loader">
-        <div className="loader-square" />
-        <div className="loader-square" />
-        <div className="loader-square" />
+        <li className="ball" />
+        <li className="ball" />
+        <li className="ball" />
       </div>
+      <p></p>
     </StyledWrapper>
   );
 }
 
 const StyledWrapper = styled.div`
-  /* Container for loader */
   .loader {
+    width: 60px;
     display: flex;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-    height: 60px;
+    justify-content: space-evenly;
   }
 
-  /* Individual squares */
-  .loader-square {
-    width: 22px;
-    height: 22px;
-    background-color: rgb(0, 247, 255);
-    border-radius: 4px;
-    box-shadow: 0 0 12px #018180;
-    animation: scaleBounce 1.2s infinite ease-in-out;
-    position: relative;
-  }
-
-  /* Splash effect */
-  .loader-square::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: #018180;
+  .ball {
+    list-style: none;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    opacity: 0;
-    transform: scale(1);
-    animation: splash 1.2s infinite ease-in-out;
+    background-color: #fff;
   }
 
-  /* Animations for each square */
-  .loader-square:nth-child(1) {
-    animation-delay: -0.4s;
-  }
-  .loader-square:nth-child(2) {
-    animation-delay: -0.2s;
-  }
-  .loader-square:nth-child(3) {
-    animation-delay: 0s;
+  .ball:nth-child(1) {
+    animation: bounce-1 1s ease-in-out infinite;
   }
 
-  @keyframes scaleBounce {
-    0%,
-    80%,
-    100% {
-      transform: scale(0.5);
-      opacity: 0.6;
-    }
-    40% {
-      transform: scale(1.2);
-      opacity: 1;
-    }
-  }
-
-  @keyframes splash {
-    0% {
-      opacity: 0.6;
-      transform: scale(1);
-    }
+  @keyframes bounce-1 {
     50% {
-      opacity: 0;
-      transform: scale(2);
+      transform: translateY(-12px);
+      background-color: aqua;
     }
-    100% {
-      opacity: 0;
-      transform: scale(2.5);
+  }
+
+  .ball:nth-child(2) {
+    animation: bounce-2 1s ease-in-out 0.2s infinite;
+  }
+
+  @keyframes bounce-2 {
+    50% {
+      transform: translateY(-12px);
+      background-color: aqua;
     }
-  }`;
+  }
+
+  .ball:nth-child(3) {
+    animation: bounce-3 1s ease-in-out 0.4s infinite;
+  }
+
+  @keyframes bounce-3 {
+    50% {
+      transform: translateY(-12px);
+      background-color: aqua;
+    }
+  }
+`;
 
 export default Loader;

@@ -62,7 +62,7 @@ const GlobalStyle = createGlobalStyle`
 const StyledWrapper = styled.div`
   .scrollable-table {
     max-height: 400px;
-    overflow-y: auto;
+    overflow-y: auto;  /* 🔹 Permite el desplazamiento solo en la tabla */
     scrollbar-width: thin;
     scrollbar-color: #018180 #f1f1f1;
   }

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import bgImage from '../../img/EsteBueno.avif';
 import NavLandingPage from '../LandingPage/NavLandingPage';
 import AuthServiceLogin from '../../services/AuthServiceLogin';
+import Loader from '../../components/Loader'
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,87 +12,87 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setMessage('');
 
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setMessage('');
+  setLoading(true); // 🔹 Activar el Loader antes de simular la espera
+
+  setTimeout(async () => {
     try {
-        const token = await AuthServiceLogin.login(email, password);
-        if (token) {
-            const role = AuthServiceLogin.getRoleFromToken(); // Obtener el rol del usuario
-
-            // Redirigir según el rol
-            if (role === 'GERENTE') {
-                navigate('/gerente/agenteVentas');
-            } else if (role === 'AGENTE') {
-                navigate('/agente');
-            } else if (role === 'CLIENTE') {
-                navigate('/cliente');
-            } else {
-                setMessage('Rol desconocido, contacta con soporte.');
-            }
+      const token = await AuthServiceLogin.login(email, password);
+      if (token) {
+        const role = AuthServiceLogin.getRoleFromToken();
+        if (role === 'GERENTE') {
+          navigate('/gerente/agenteVentas');
+        } else if (role === 'AGENTE') {
+          navigate('/agente/tablaCliente');
+        } else if (role === 'CLIENTE') {
+          navigate('/cliente');
         } else {
-            setMessage('No se recibió token.');
+          setMessage('Rol desconocido, contacta con soporte.');
         }
+      } else {
+        setMessage('No se recibió token.');
+      }
     } catch (error) {
-        console.error('Error de autenticación:', error);
-        setMessage('Credenciales incorrectas o error en el servidor.');
+      console.error('Error de autenticación:', error);
+      setMessage('Credenciales incorrectas o error en el servidor.');
+    } finally {
+      setLoading(false); // 🔹 Desactivar el Loader después del tiempo de espera
     }
+  }, 2000); // 🔹 Simular tiempo de espera de 3 segundos
 };
+
+
+const [loading, setLoading] = useState(false); // Agregar este estado
 
 
   return (
     <>
       <NavLandingPage />
       <BackgroundContainer>
-        <FormContainer>
-          <Title>Bienvenido</Title>
-          {message && <ErrorMessage>{message}</ErrorMessage>}
-          <StyledForm onSubmit={handleLogin}>
-            <Input
-              type="text"
-              placeholder="Correo"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Contraseña"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <PageLink onClick={() => navigate('/recuperar-contraseña')}>
-              Olvidaste tu contraseña?
-            </PageLink>
-            <FormButton type="submit">Iniciar sesión</FormButton>
-          </StyledForm>
-          <SignUpLabel>
-            Aun no estás registrado?{" "}
-            <SignUpLink
-              onClick={() => {
-                navigate('/landing');
-                setTimeout(() => {
-                  const registroSection = document.getElementById("registro");
-                  if (registroSection) {
-                    const offset = -100;
-                    const bodyRect = document.body.getBoundingClientRect().top;
-                    const elementRect = registroSection.getBoundingClientRect().top;
-                    const elementPosition = elementRect - bodyRect;
-                    const offsetPosition = elementPosition + offset;
-                    window.scrollTo({
-                      top: offsetPosition,
-                      behavior: "smooth",
-                    });
-                  }
-                }, 300);
-              }}
-            >
-              Registrate
-            </SignUpLink>
-          </SignUpLabel>
-        </FormContainer>
+
+      <FormContainer>
+  <Title>Bienvenido</Title>
+
+  {loading && <Loader />} {/* 🔹 Mostrar el Loader mientras carga */}
+
+  {message && <ErrorMessage>{message}</ErrorMessage>}
+
+  <StyledForm onSubmit={handleLogin}>
+    <Input
+      type="text"
+      placeholder="Correo"
+      required
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      disabled={loading} // 🔹 Deshabilitar campo mientras carga
+    />
+    <Input
+      type="password"
+      placeholder="Contraseña"
+      required
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      disabled={loading} // 🔹 Deshabilitar campo mientras carga
+    />
+    <PageLink onClick={() => navigate('/recuperar-contraseña')}>
+      Olvidaste tu contraseña?
+    </PageLink>
+    <FormButton type="submit" disabled={loading}>
+      {loading ? "Cargando..." : "Iniciar sesión"}
+    </FormButton>
+  </StyledForm>
+
+  <SignUpLabel>
+    Aun no estás registrado?{" "}
+    <SignUpLink onClick={() => navigate('/landing')}>
+      Registrate
+    </SignUpLink>
+  </SignUpLabel>
+</FormContainer>
+
       </BackgroundContainer>
     </>
   );
@@ -99,13 +100,18 @@ const Login = () => {
 
 const FormContainer = styled.div`
   width: 350px;
-  height: 400px;
+  min-height: 400px; /* 🔹 Permite que crezca si se necesita */
   background-color: #fff;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 10px;
   box-sizing: border-box;
   padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 🔹 Centra verticalmente */
+  align-items: center; /* 🔹 Centra horizontalmente */
 `;
+
 
 const Title = styled.p`
   text-align: center;

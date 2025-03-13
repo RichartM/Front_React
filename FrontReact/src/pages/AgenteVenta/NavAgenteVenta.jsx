@@ -24,16 +24,13 @@ const StyledNavLink = styled(Nav.Link)`
     transition: width 0.3s ease;
   }
 
-  &:hover::after {
+  &:hover::after,
+  &.active::after {
     width: 100%;
   }
 
   &.active {
     color: #018180 !important;
-  }
-
-  &.active::after {
-    width: 100%;
   }
 `;
 
@@ -52,22 +49,36 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const NavAgenteVenta = () => {
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+
+        window.history.pushState(null, "", window.location.href);
+        window.history.replaceState(null, "", "/login");
+
+        setTimeout(() => {
+            window.location.href = "/login";
+        }, 100);
+    };
+
     return (
         <Navbar
             bg="light"
             expand="lg"
             className="w-100 position-fixed top-0 start-0 shadow-sm px-2"
-            style={{ zIndex: 1050 }} // Asegura que el navbar esté siempre encima
+            style={{ zIndex: 1050 }}
         >
             <Container fluid>
                 <Navbar.Brand>
-                    <img src={homeIcon} alt="home" style={{ width: '80px', height: '40px' }} />
+                    <img src={homeIcon} alt="home" style={{ width: "80px", height: "40px" }} />
                 </Navbar.Brand>
 
-                {/* ✅ Botón de hamburguesa que abre el menú lateral en móviles */}
+                {/* Botón de menú hamburguesa en móviles */}
                 <Navbar.Toggle aria-controls="offcanvasNavbar" />
 
-                {/* ✅ Offcanvas solo en móviles (se despliega de derecha a izquierda) */}
+                {/* Offcanvas para móviles */}
                 <Navbar.Offcanvas
                     id="offcanvasNavbar"
                     aria-labelledby="offcanvasNavbarLabel"
@@ -80,21 +91,42 @@ const NavAgenteVenta = () => {
                     </Offcanvas.Header>
                     <Offcanvas.Body>
                         <Nav className="d-flex flex-column align-items-start gap-2 w-100">
-                            <StyledNavLink href="/agente/dashboard">Dashboard</StyledNavLink>
-                            <StyledNavLink href="/agente/clientes">Clientes</StyledNavLink>
-                            <StyledNavLink href="/agente/productos">Productos</StyledNavLink>
-                            <StyledNavLink href="/agente/ventas">Ventas</StyledNavLink>
+                            <Nav.Item>
+                                <Dropdown>
+                                    <Dropdown.Toggle as={CustomToggle} className="d-flex align-items-center text-center">
+                                        <i className="bi bi-person-circle fs-2 me-2"></i>
+                                        Perfil
+                                    </Dropdown.Toggle>
+
+                                    <Dropdown.Menu align="end">
+                                        <Dropdown.Item href="/agente/editPerfil">
+                                            <i className="bi bi-person-gear fs-6"></i> Editar perfil
+                                        </Dropdown.Item>
+                                        <Dropdown.Item onClick={handleLogout}>
+                                            <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
+                                        </Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </Nav.Item>
+                            <StyledNavLink href="/agente/clientes">
+                                <i className="bi bi-people-fill"></i> Clientes
+                            </StyledNavLink>
+                            <StyledNavLink href="/agente/vender-auto">
+                                <i className="bi bi-cart-fill"></i> Vender Auto
+                            </StyledNavLink>
+                            <StyledNavLink href="/agente/historial-ventas">
+                                <i className="bi bi-clock-history"></i> Historial de Ventas
+                            </StyledNavLink>
                         </Nav>
                     </Offcanvas.Body>
                 </Navbar.Offcanvas>
 
-                {/* ✅ Navbar normal en PC */}
+                {/* Navbar normal en PC */}
                 <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
                     <Nav className="me-auto">
-                        <StyledNavLink href="/agente/dashboard">Dashboard</StyledNavLink>
-                        <StyledNavLink href="/agente/clientes">Clientes</StyledNavLink>
-                        <StyledNavLink href="/agente/productos">Productos</StyledNavLink>
-                        <StyledNavLink href="/agente/ventas">Ventas</StyledNavLink>
+                        <StyledNavLink href="/agente/tablaCliente">Clientes</StyledNavLink>
+                        <StyledNavLink href="/agente/vender-auto">Vender Auto</StyledNavLink>
+                        <StyledNavLink href="/agente/historial-ventas">Historial de Ventas</StyledNavLink>
                     </Nav>
 
                     <Nav>
@@ -108,7 +140,7 @@ const NavAgenteVenta = () => {
                                     <Dropdown.Item href="/agente/editPerfil">
                                         <i className="bi bi-person-gear fs-6"></i> Editar perfil
                                     </Dropdown.Item>
-                                    <Dropdown.Item href="#/logout">
+                                    <Dropdown.Item onClick={handleLogout}>
                                         <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
                                     </Dropdown.Item>
                                 </Dropdown.Menu>
