@@ -2,7 +2,7 @@ import React from "react";
 import { Navbar, Nav, Container, Dropdown } from "react-bootstrap";
 import homeIcon from "../../img/home.png";
 import styled from "styled-components";
-import MarcasDropdown from "../Cliente/MarcasDropdown";
+import MarcasDropdown from "../Autos/MarcasDropdown";
 
 const StyledNavLink = styled(Nav.Link)`
   color: #000 !important;

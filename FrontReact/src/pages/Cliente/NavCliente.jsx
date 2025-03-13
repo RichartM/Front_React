@@ -3,7 +3,7 @@ import { Navbar, Nav, Container, Dropdown, Offcanvas } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import homeIcon from "../../img/home.png";
 import styled from "styled-components";
-import MarcasDropdown from "./MarcasDropdown";
+import MarcasDropdown from "../Autos/MarcasDropdown.jsx";
 
 // Estilos personalizados para los enlaces del navbar
 const StyledNavLink = styled(Nav.Link)`
@@ -114,7 +114,7 @@ const NavCliente = () => {
 
               {/* Menú de Marcas - ÚLTIMO */}
               <div className="w-100">
-                <MarcasDropdown />
+                <MarcasDropdown tipoUsuario="cliente" />
               </div>
 
             </Nav>

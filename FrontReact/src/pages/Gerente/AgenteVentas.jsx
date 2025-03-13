@@ -390,6 +390,9 @@ function AgenteVentas() {
         id: Date.now(), // Generar un ID temporal (puedes cambiarlo por el ID que devuelva la API)
         clientes: [], // Inicializar sin clientes
       };
+        
+      console.log("nombre"+editedData.name)
+      editedData.password = editedData.name      
 
       // Realizar la solicitud POST para registrar el agente
       axios.post('http://localhost:8080/api/auth/registerAgente', editedData, {

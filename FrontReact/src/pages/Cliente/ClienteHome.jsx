@@ -14,6 +14,7 @@ const GlobalStyle = createGlobalStyle`
   .table-header th {
     padding: 12px;
     border: 1px solid white;
+    
   }
 
   @media (max-width: 768px) {

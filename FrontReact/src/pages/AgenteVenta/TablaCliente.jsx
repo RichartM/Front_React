@@ -375,6 +375,9 @@ export default function TablaCliente() {
         };
 
         console.log("Datos enviados:", clienteData); // ✅ Verifica que password sea el nombre
+        console.log("Datos enviados:", clienteData.name); // ✅ Verifica que password sea el nombre
+        console.log("Datos enviados:", clienteData.password); // ✅ Verifica que password sea el nombre
+
 
         try {
             await axios.post('http://localhost:8080/api/auth/registerCliente', clienteData, {

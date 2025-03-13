@@ -15,7 +15,6 @@ import GerenteLayout from '../layouts/GerenteLayout';
 import ClienteLayout from '../layouts/ClienteLayout';
 import AgenteVentaLayout from '../layouts/AgenteVentaLayout';
 
-
 // Gerente
 import CarTable from '../pages/Gerente/GerenteMarcaModelo';
 import AgenteVentas from '../pages/Gerente/AgenteVentas';
@@ -24,10 +23,10 @@ import EditPerfil from '../pages/Gerente/EditPerfil';
 
 // Cliente
 import ClienteHome from '../pages/Cliente/ClienteHome';
-import CarrosPorMarca from '../pages/Cliente/CarrosPorMarca';
+import CarrosPorMarca from '../pages/Autos/CarrosPorMarca';
 import DetallesCoche from '../pages/DetallesCoche';
 
-//Agente
+// Agente
 import TablaCliente from '../pages/AgenteVenta/TablaCliente.jsx';
 
 const AppRoutes = () => {
@@ -39,6 +38,10 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/change-password" element={<ChangePassword />} />
       <Route path="/landing" element={<LandingPage />} />
+
+      {/* 🔹 Rutas de marcas (Movidas al nivel principal para evitar errores) */}
+      <Route path="/cliente/marca/:brandId" element={<CarrosPorMarca />} />
+      <Route path="/agente/marca/:brandId" element={<CarrosPorMarca />} />
 
       {/* 🔹 Rutas protegidas con verificación de contraseña */}
       <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
@@ -52,18 +55,16 @@ const AppRoutes = () => {
 
       <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
         <Route path="/agente" element={<AgenteVentaLayout />}>
-        <Route path= "tablaCliente" element ={<TablaCliente/>}/>
-
-          {/* 🔹 Aquí puedes agregar más subrutas para el agente */}
+          <Route path="tablaCliente" element={<TablaCliente />} />
+          {/* 🔹 Eliminé la ruta de marca dentro de /agente, ya está definida arriba */}
         </Route>
       </Route>
-
 
       <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
         <Route path="/cliente" element={<ClienteLayout />}>
           <Route index element={<ClienteHome />} />
-          <Route path="marca/:brandId" element={<CarrosPorMarca />} />
           <Route path="editPerfil" element={<EditPerfil />} />
+          {/* 🔹 Eliminé la ruta duplicada de /cliente/marca/:brandId */}
         </Route>
       </Route>
 

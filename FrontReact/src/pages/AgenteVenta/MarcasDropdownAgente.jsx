@@ -8,10 +8,8 @@ const DropdownContainer = styled.div`
   display: inline-block;
 `;
 
-// ✅ Se mantiene la línea debajo de "Marcas" al pasar el cursor
 const StyledDropdownToggle = styled.span`
   cursor: pointer;
-  font-weight: bold;
   padding: 10px;
   display: inline-block;
   position: relative;
@@ -48,9 +46,9 @@ const DropdownMenu = styled.ul`
   background: white;
   border-radius: 5px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 8px;
-  display: ${(props) => (props.isMobile ? "block" : "flex")};
-  flex-direction: ${(props) => (props.isMobile ? "column" : "row")};
-  width: ${(props) => (props.isMobile ? "200px" : "auto")};
+  display: ${(props) => (props.$isMobile ? "block" : "flex")};
+  flex-direction: ${(props) => (props.$isMobile ? "column" : "row")};
+  width: ${(props) => (props.$isMobile ? "200px" : "auto")};
 `;
 
 const StyledDropdownItem = styled.li`
@@ -58,7 +56,7 @@ const StyledDropdownItem = styled.li`
   padding: 10px 15px;
   color: #000;
   transition: color 0.3s ease;
-  border-bottom: ${(props) => (props.isMobile ? "1px solid #ddd" : "none")};
+  border-bottom: ${(props) => (props.$isMobile ? "1px solid #ddd" : "none")};
 
   &:hover {
     color: #018180;
@@ -69,7 +67,10 @@ const StyledDropdownItem = styled.li`
   }
 `;
 
-const MarcasDropdown = () => {
+
+
+
+const MarcasDropdownAgente = ({ tipoUsuario }) => {
   const { brands } = useContext(BrandsContext);
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
@@ -89,13 +90,14 @@ const MarcasDropdown = () => {
       onMouseLeave={() => !isMobile && setIsVisible(false)}
     >
       <StyledDropdownToggle onClick={() => isMobile && setIsVisible(!isVisible)}>
-        Marcas <i className="bi bi-caret-down-fill"></i>
+        Vender auto <i className="bi bi-caret-down-fill"></i>
       </StyledDropdownToggle>
 
       {isVisible && (
-        <DropdownMenu isMobile={isMobile}>
-          {brands.map((brand) => (
-            <StyledDropdownItem key={brand.id} isMobile={isMobile} onClick={() => navigate(`/cliente/marca/${brand.id}`)}>
+        <DropdownMenu $isMobile={isMobile}>
+        {brands.map((brand) => (
+        <StyledDropdownItem key={brand.id} $isMobile={isMobile} onClick={() => navigate(`/${tipoUsuario}/marca/${brand.id}`)}>
+
               {brand.name}
             </StyledDropdownItem>
           ))}
@@ -105,4 +107,4 @@ const MarcasDropdown = () => {
   );
 };
 
-export default MarcasDropdown;
+export default MarcasDropdownAgente;

@@ -6,7 +6,8 @@ const ClienteLayout = () => {
   return (
     <>
       <NavCliente />
-      <div style={{ marginTop: '60px' }}>
+      
+      <div style={{ marginTop: '8%' }}>
         <Outlet />
       </div>
     </>
