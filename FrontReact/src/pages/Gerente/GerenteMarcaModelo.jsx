@@ -171,20 +171,52 @@ function GerenteMarcaModelo() {
     }
   };
 
-  // Funciones para agregar registros
-  const agregarModelo = (nuevoModelo) => {
-    const newModelo = { ...nuevoModelo, id: modelos.length + 1 };
-    setModelos([...modelos, newModelo]);
-    setShowModelosModal(false);
-    Swal.fire({
-      title: "¡Agregado!",
-      text: "El modelo ha sido agregado con éxito.",
-      icon: "success",
-      confirmButtonColor: "#018180",
-      customClass: { confirmButton: 'btn-swal-confirmar' },
-      buttonsStyling: false
+  const convertirABase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
     });
   };
+  
+
+  // Funciones para agregar registros
+  const agregarModelo = async (nuevoModelo) => {
+  console.log(nuevoModelo.modelo);
+
+  if (nuevoModelo.imagen) {
+    try {
+      const imgBase64 = await convertirABase64(nuevoModelo.imagen); // Esperamos la conversión
+      nuevoModelo.imagen = imgBase64; // Asignamos la imagen ya convertida
+    } catch (error) {
+      console.error("Error al convertir la imagen a Base64:", error);
+      return;
+    }
+  }
+  console.log(nuevoModelo.imagen);
+  nuevoModelo.marca = []
+  axios.post('http://localhost:8080/vehiculo/crear', nuevoModelo, {
+          headers: {
+            Authorization: `Bearer  ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+  })
+  //const newModelo = { ...nuevoModelo, id: modelos.length + 1 };
+  //setModelos([...modelos, newModelo]);
+  //setShowModelosModal(false);
+
+  Swal.fire({
+    title: "¡Agregado!",
+    text: "El modelo ha sido agregado con éxito.",
+    icon: "success",
+    confirmButtonColor: "#018180",
+    customClass: { confirmButton: "btn-swal-confirmar" },
+    buttonsStyling: false,
+  });
+};
+
 
   const agregarMarca = (nuevaMarca) => {
     const newMarca = { ...nuevaMarca, id: marcas.length + 1 };
