@@ -24,24 +24,29 @@ import EditPerfil from '../pages/Gerente/EditPerfil';
 // Cliente
 import ClienteHome from '../pages/Cliente/ClienteHome';
 import CarrosPorMarca from '../pages/Autos/CarrosPorMarca';
-import DetallesCoche from '../pages/DetallesCoche';
+import DetallesCoche from '../pages/Autos/DetallesCoche.jsx';
 
 // Agente
 import TablaCliente from '../pages/AgenteVenta/TablaCliente.jsx';
+import DetallesCocheAgente from '../pages/AgenteVenta/DetallesCocheAgente.jsx';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Rutas públicas */}
+      {/* 🔹 Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/recuperar-contraseña" element={<RecuperarContraseña />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/change-password" element={<ChangePassword />} />
       <Route path="/landing" element={<LandingPage />} />
 
-      {/* 🔹 Rutas de marcas (Movidas al nivel principal para evitar errores) */}
+      {/* 🔹 Rutas de marcas para Clientes y Agentes */}
       <Route path="/cliente/marca/:brandId" element={<CarrosPorMarca />} />
       <Route path="/agente/marca/:brandId" element={<CarrosPorMarca />} />
+
+      {/* 🔹 Rutas de Detalle de Auto para Clientes y Agentes */}
+      <Route path="/cliente/marca/:brandId/coche/:carId" element={<DetallesCoche />} />
+      <Route path="/agente/marca/:brandId/coche/:carId" element={<DetallesCocheAgente />} />
 
       {/* 🔹 Rutas protegidas con verificación de contraseña */}
       <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
@@ -56,7 +61,6 @@ const AppRoutes = () => {
       <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
         <Route path="/agente" element={<AgenteVentaLayout />}>
           <Route path="tablaCliente" element={<TablaCliente />} />
-          {/* 🔹 Eliminé la ruta de marca dentro de /agente, ya está definida arriba */}
         </Route>
       </Route>
 
@@ -64,11 +68,8 @@ const AppRoutes = () => {
         <Route path="/cliente" element={<ClienteLayout />}>
           <Route index element={<ClienteHome />} />
           <Route path="editPerfil" element={<EditPerfil />} />
-          {/* 🔹 Eliminé la ruta duplicada de /cliente/marca/:brandId */}
         </Route>
       </Route>
-
-      <Route path="/marca/:brandId/coche/:carId" element={<DetallesCoche />} />
     </Routes>
   );
 };

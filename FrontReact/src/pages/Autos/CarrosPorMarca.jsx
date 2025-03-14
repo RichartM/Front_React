@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { BrandsContext } from "../../context/BrandsContext";
-import CarCard from "../../components/CarCard"; // Importamos el componente corregido
+import CarCard from "./CarCard"; 
+import CarCardAgente from "../AgenteVenta/CarCardAgente"; // ✅ Importamos la versión para agentes
 
 const PageContainer = styled.div`
   padding: 50px;
@@ -49,6 +50,8 @@ const GridContainer = styled.div`
 const CarrosPorMarca = () => {
   const { brandId } = useParams();
   const { brands } = useContext(BrandsContext);
+  const location = useLocation();
+  const isAgente = location.pathname.includes("/agente"); // 🔹 Detectamos si es agente
 
   const brand = brands.find((b) => b.id === brandId);
   if (!brand) return <p>Marca no encontrada</p>;
@@ -65,7 +68,9 @@ const CarrosPorMarca = () => {
 
       <GridContainer>
         {brand.cars.map((car) => (
-          <CarCard key={car.id} car={car} brandId={brandId} /> 
+          isAgente ? 
+            <CarCardAgente key={car.id} car={car} brandId={brandId} /> :
+            <CarCard key={car.id} car={car} brandId={brandId} />
         ))}
       </GridContainer>
     </PageContainer>
@@ -73,3 +78,4 @@ const CarrosPorMarca = () => {
 };
 
 export default CarrosPorMarca;
+  

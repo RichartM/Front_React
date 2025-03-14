@@ -56,12 +56,12 @@ const MoreButton = styled.button`
   }
 `;
 
-const CarCard = ({ car, brandId }) => {
-  const navigate = useNavigate(); // 🚀 Importamos useNavigate
+const CarCardAgente = ({ car, brandId }) => {
+  const navigate = useNavigate();
 
   const handleViewMore = () => {
-    console.log(`Redirigiendo a /marca/${brandId}/coche/${car.id}`); // 🔍 Debug
-    navigate(`/marca/${brandId}/coche/${car.id}`);
+    console.log(`Redirigiendo a /agente/marca/${brandId}/coche/${car.id}`);
+    navigate(`/agente/marca/${brandId}/coche/${car.id}`);
   };
 
   return (
@@ -76,4 +76,4 @@ const CarCard = ({ car, brandId }) => {
   );
 };
 
-export default CarCard;
+export default CarCardAgente;

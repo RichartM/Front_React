@@ -96,7 +96,7 @@ const MarcasDropdownAgente = ({ tipoUsuario }) => {
       {isVisible && (
         <DropdownMenu $isMobile={isMobile}>
         {brands.map((brand) => (
-        <StyledDropdownItem key={brand.id} $isMobile={isMobile} onClick={() => navigate(`/${tipoUsuario}/marca/${brand.id}`)}>
+        <StyledDropdownItem key={brand.id} $isMobile={isMobile} onClick={() => navigate(`/${tipoUsuario || "cliente"}/marca/${brand.id}`)}>
 
               {brand.name}
             </StyledDropdownItem>

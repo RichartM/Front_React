@@ -3,7 +3,7 @@ import { Navbar, Nav, Container, Dropdown, Offcanvas } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import homeIcon from "../../img/home.png";
 import styled from "styled-components";
-import MarcasDropdown from "../Autos/MarcasDropdown.jsx";
+import MarcasDropdown from "../Cliente/MarcasDropdown";
 
 // Estilos personalizados para los enlaces del navbar
 const StyledNavLink = styled(Nav.Link)`

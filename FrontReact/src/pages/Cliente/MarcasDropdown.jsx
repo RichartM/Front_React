@@ -71,7 +71,7 @@ const StyledDropdownItem = styled.li`
 
 
 
-const MarcasDropdown = ({ tipoUsuario }) => {
+const MarcasDropdown = ({ tipoUsuario = "cliente" }) => {  // ✅ Valor por defecto
   const { brands } = useContext(BrandsContext);
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);

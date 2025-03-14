@@ -1,9 +1,10 @@
-import React, { useContext, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom"; // Importamos useNavigate
 import styled from "styled-components";
-import { BrandsContext } from "../context/BrandsContext";
-import ServiciosModal from "../components/ServiciosModal";
-import NavCliente from "../pages/Cliente/NavCliente"; // Importamos el NavCliente
+import { BrandsContext } from "../../context/BrandsContext";
+import ServiciosModal from "../../components/ServiciosModal";
+import SeleccionarClienteModal from "./SeleccionarClienteModal";
+import NavAgenteVenta from "./NavAgenteVenta";
 import { BsDashCircle } from "react-icons/bs";
 
 const PageContainer = styled.div`
@@ -12,7 +13,7 @@ const PageContainer = styled.div`
   flex-direction: column;
   align-items: center;
 
-    @media (max-width: 768px) {
+  @media (max-width: 768px) {
     padding: 80px 20px 40px;
   }
 `;
@@ -25,12 +26,11 @@ const ContentWrapper = styled.div`
   width: 100%;
   max-width: 1200px;
 
-    @media (max-width: 1024px) {
+  @media (max-width: 1024px) {
     flex-direction: column;
     align-items: center;
     gap: 50px;
   }
-
 `;
 
 /* 🔥 SECCIÓN IZQUIERDA: AUTO */
@@ -40,19 +40,18 @@ const LeftSection = styled.div`
   flex-direction: column;
   align-items: center;
 
-   @media (max-width: 1024px) {
+  @media (max-width: 1024px) {
     width: 100%;
   }
-
 `;
 
 const CarImage = styled.img`
   width: 100%;
-  max-width: 500px; /* 🔥 Tamaño uniforme */
-  height: 300px; /* 🔥 Altura fija */
-  object-fit: contain; /* 🔥 Mantiene proporciones sin cortar */
-  background: transparent; /* 🔥 Sin fondo para PNGs */
-  border: none; /* 🔥 Elimina cualquier borde */
+  max-width: 500px;
+  height: 300px;
+  object-fit: contain;
+  background: transparent;
+  border: none;
 
   @media (max-width: 768px) {
     max-width: 100%;
@@ -72,7 +71,7 @@ const CarTitle = styled.h1`
   color: #212121;
   margin-bottom: 5px;
 
-   @media (max-width: 768px) {
+  @media (max-width: 768px) {
     font-size: 2rem;
   }
 `;
@@ -83,7 +82,7 @@ const CarYear = styled.p`
   color: #555;
   margin-bottom: 10px;
 
-   @media (max-width: 768px) {
+  @media (max-width: 768px) {
     font-size: 1.2rem;
   }
 `;
@@ -112,7 +111,7 @@ const BuyButton = styled.button`
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
 
-   @media (max-width: 768px) {
+  @media (max-width: 768px) {
     font-size: 1rem;
     padding: 12px 24px;
   }
@@ -125,7 +124,7 @@ const ServicesSection = styled.div`
   border-radius: 10px;
   text-align: left;
 
-   @media (max-width: 1024px) {
+  @media (max-width: 1024px) {
     width: 100%;
     text-align: center;
   }
@@ -156,6 +155,11 @@ const ServicesButton = styled.button`
   &:hover {
     background: #026c6c;
     transform: translateY(-2px);
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
   }
 `;
 
@@ -202,11 +206,14 @@ const DescriptionContainer = styled.div`
   background: white;
 `;
 
-const DetallesCoche = () => {
+const DetallesCocheAgente = () => {
   const { brandId, carId } = useParams();
   const { brands } = useContext(BrandsContext);
-  const [showModal, setShowModal] = useState(false);
+  const [showServiciosModal, setShowServiciosModal] = useState(false);
+  const [showClienteModal, setShowClienteModal] = useState(true); // Modal de cliente abierto al inicio
   const [selectedServices, setSelectedServices] = useState([]);
+  const [selectedCliente, setSelectedCliente] = useState(null);
+  const navigate = useNavigate(); // Hook para redireccionar
 
   const brand = brands.find((b) => b.id === brandId);
   if (!brand) return <p>Marca no encontrada</p>;
@@ -214,13 +221,29 @@ const DetallesCoche = () => {
   const car = brand.cars.find((c) => c.id.toString() === carId);
   if (!car) return <p>Coche no encontrado</p>;
 
+  // Maneja la selección de un cliente
+  const handleClienteSeleccionado = (cliente) => {
+    setSelectedCliente(cliente);
+    setShowClienteModal(false); // Cierra el modal de selección de cliente
+  };
+
+  // Maneja el clic en "Agregar Servicios"
+  const handleAgregarServicios = () => {
+    if (selectedCliente) {
+      setShowServiciosModal(true); // Abre el modal de servicios solo si hay un cliente seleccionado
+    }
+  };
+
+  // Si el usuario cancela la selección de cliente, redirige a la página anterior
+  const handleCancelarCliente = () => {
+    navigate(-1); // Redirige a la página anterior
+  };
+
   return (
     <>
-      <NavCliente />
-
+      <NavAgenteVenta />
       <PageContainer>
         <ContentWrapper>
-          {/* 🔥 SECCIÓN DEL AUTO */}
           <LeftSection>
             <CarImage src={car.image} alt={car.name} />
             <CarInfo>
@@ -233,8 +256,14 @@ const DetallesCoche = () => {
 
           {/* 🔥 SECCIÓN DE SERVICIOS */}
           <ServicesSection>
+            {selectedCliente && (
+              <p>Atendiendo a: {selectedCliente.nombre}</p>
+            )}
             <ServicesTitle>Servicios</ServicesTitle>
-            <ServicesButton onClick={() => setShowModal(true)}>
+            <ServicesButton
+              onClick={handleAgregarServicios}
+              disabled={!selectedCliente} // Deshabilita el botón si no hay cliente seleccionado
+            >
               Agregar Servicios
             </ServicesButton>
 
@@ -263,17 +292,24 @@ const DetallesCoche = () => {
         </DescriptionContainer>
 
         {/* Modal de Servicios */}
-        {showModal && (
+        {showServiciosModal && (
           <ServiciosModal
-            onClose={() => setShowModal(false)}
+            onClose={() => setShowServiciosModal(false)}
             onAddService={setSelectedServices}
             selectedServices={selectedServices}
             setSelectedServices={setSelectedServices}
           />
         )}
       </PageContainer>
+
+      {/* Modal para seleccionar cliente */}
+      <SeleccionarClienteModal 
+        isOpen={showClienteModal} 
+        onClose={handleCancelarCliente} // Redirige al cancelar
+        onSelect={handleClienteSeleccionado} 
+      />
     </>
   );
 };
 
-export default DetallesCoche;
+export default DetallesCocheAgente;
