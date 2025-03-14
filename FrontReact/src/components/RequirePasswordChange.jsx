@@ -1,12 +1,13 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-/**
- * 📌 Verifica si el usuario debe cambiar su contraseña antes de acceder a la app
- */
 const RequirePasswordChange = () => {
     const mustChangePassword = localStorage.getItem("forcePasswordChange") === "true";
 
-    return mustChangePassword ? <Navigate to="/change-password" /> : <Outlet />;
+    if (mustChangePassword) {
+        return <Navigate to="/change-password" replace />;
+    }
+
+    return <Outlet />;
 };
 
 export default RequirePasswordChange;

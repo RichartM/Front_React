@@ -123,6 +123,7 @@ const NavPrincipal = () => {
         {/*  Navbar normal en PC */}
         <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
           <Nav className="me-auto">
+            <StyledNavLink href="/gerente/panelControl">Panel de control</StyledNavLink>
             <StyledNavLink href="/gerente/agenteVentas">Agentes de venta</StyledNavLink>
             <StyledNavLink href="/gerente/cartable">Marcas</StyledNavLink>
             <StyledNavLink href="/gerente/servicios">Servicio</StyledNavLink>

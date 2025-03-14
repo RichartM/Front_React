@@ -1,6 +1,6 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import ProtectedRoute from '../components/ProtectedRoute.jsx'; // ✅ Proteger rutas
+import React, { Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from '../components/ProtectedRoute.jsx';
 import RequirePasswordChange from '../components/RequirePasswordChange';
 
 // Páginas públicas
@@ -20,57 +20,73 @@ import CarTable from '../pages/Gerente/GerenteMarcaModelo';
 import AgenteVentas from '../pages/Gerente/AgenteVentas';
 import Servicios from '../pages/Gerente/Servicios';
 import EditPerfil from '../pages/Gerente/EditPerfil';
+import PanelControl from '../pages/Gerente/PanelControl';
 
 // Cliente
 import ClienteHome from '../pages/Cliente/ClienteHome';
 import CarrosPorMarca from '../pages/Autos/CarrosPorMarca';
-import DetallesCoche from '../pages/Autos/DetallesCoche.jsx';
+import DetallesCoche from '../pages/Autos/DetallesCoche';
 
 // Agente
-import TablaCliente from '../pages/AgenteVenta/TablaCliente.jsx';
-import DetallesCocheAgente from '../pages/AgenteVenta/DetallesCocheAgente.jsx';
+import TablaCliente from '../pages/AgenteVenta/TablaCliente';
+import DetallesCocheAgente from '../pages/AgenteVenta/DetallesCocheAgente';
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      {/* 🔹 Rutas públicas */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/recuperar-contraseña" element={<RecuperarContraseña />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/change-password" element={<ChangePassword />} />
-      <Route path="/landing" element={<LandingPage />} />
+    <Suspense fallback={<h1>Cargando...</h1>}>
+      <Routes>
+        {/* 🔹 Página de inicio - Redirigir a login si no está autenticado */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-      {/* 🔹 Rutas de marcas para Clientes y Agentes */}
-      <Route path="/cliente/marca/:brandId" element={<CarrosPorMarca />} />
-      <Route path="/agente/marca/:brandId" element={<CarrosPorMarca />} />
+        {/* 🔹 Rutas públicas */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/recuperar-contraseña" element={<RecuperarContraseña />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/landing" element={<LandingPage />} />
 
-      {/* 🔹 Rutas de Detalle de Auto para Clientes y Agentes */}
-      <Route path="/cliente/marca/:brandId/coche/:carId" element={<DetallesCoche />} />
-      <Route path="/agente/marca/:brandId/coche/:carId" element={<DetallesCocheAgente />} />
+        {/* 🔹 Rutas de marcas para Clientes y Agentes */}
+        <Route path="/cliente/marca/:brandId" element={<CarrosPorMarca />} />
+        <Route path="/agente/marca/:brandId" element={<CarrosPorMarca />} />
 
-      {/* 🔹 Rutas protegidas con verificación de contraseña */}
-      <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
-        <Route path="/gerente" element={<GerenteLayout />}>
-          <Route path="cartable" element={<CarTable />} />
-          <Route path="agenteVentas" element={<AgenteVentas />} />
-          <Route path="servicios" element={<Servicios />} />
-          <Route path="editPerfil" element={<EditPerfil />} />
+        {/* 🔹 Rutas de Detalle de Auto para Clientes y Agentes */}
+        <Route path="/cliente/marca/:brandId/coche/:carId" element={<DetallesCoche />} />
+        <Route path="/agente/marca/:brandId/coche/:carId" element={<DetallesCocheAgente />} />
+
+        {/* 🔹 Rutas protegidas (GERENTES no requieren cambio de contraseña) */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/gerente/*" element={<GerenteLayout />}>
+            <Route path="cartable" element={<CarTable />} />
+            <Route path="agenteVentas" element={<AgenteVentas />} />
+            <Route path="servicios" element={<Servicios />} />
+            <Route path="editPerfil" element={<EditPerfil />} />
+            <Route path="panelControl" element={<PanelControl />} />
+
+          </Route>
         </Route>
-      </Route>
 
-      <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
-        <Route path="/agente" element={<AgenteVentaLayout />}>
-          <Route path="tablaCliente" element={<TablaCliente />} />
-        </Route>
-      </Route>
+        {/* 🔹 Rutas protegidas con verificación de cambio de contraseña (AGENTES y CLIENTES) */}
+        <Route element={<RequirePasswordChange />}>
+          <Route element={<ProtectedRoute />}>
+            {/* 🔹 Rutas para Agentes */}
+            <Route path="/agente/*" element={<AgenteVentaLayout />}>
+              <Route index element={<Navigate to="/agente/tablaCliente" replace />} />
+              <Route path="tablaCliente" element={<TablaCliente />} />
+            </Route>
 
-      <Route element={<RequirePasswordChange><ProtectedRoute /></RequirePasswordChange>}>
-        <Route path="/cliente" element={<ClienteLayout />}>
-          <Route index element={<ClienteHome />} />
-          <Route path="editPerfil" element={<EditPerfil />} />
+            {/* 🔹 Rutas para Clientes */}
+            <Route path="/cliente/*" element={<ClienteLayout />}>
+              <Route index element={<Navigate to="/cliente/home" replace />} />
+              <Route path="home" element={<ClienteHome />} />
+              <Route path="editPerfil" element={<EditPerfil />} />
+            </Route>
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+
+        {/* 🔹 Ruta 404 para cualquier otra dirección no definida */}
+        <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
+      </Routes>
+    </Suspense>
   );
 };
 

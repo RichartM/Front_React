@@ -1,124 +1,205 @@
 import React, { useState } from "react";
+import axios from "axios";
 import styled from "styled-components";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { changePassword } from "../../services/passwordService";
-import Loader from "../../components/Loader"; // ✅ Import Loader
+import { Form, Button, Container, ProgressBar } from "react-bootstrap";
+import Swal from "sweetalert2";
+import zxcvbn from "zxcvbn";
+import bgImage from "../../img/EsteBueno.avif";
+import AuthServiceLogin from "../../services/AuthServiceLogin";
+import Loader from "../../components/Loader";
 
-// 🔹 Styled Components
-const Container = styled.div`
-  max-width: 400px;
-  margin: 100px auto;
-  padding: 20px;
-  background: #fff;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  text-align: center;
-`;
-
-const Title = styled.h2`
-  color: #333;
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 15px;
-`;
-
-const Form = styled.div`
+// 🔹 Contenedor estilizado (más corto)
+const StyledContainer = styled(Container)`
+  width: 350px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  min-height: auto;
+  margin: auto;
 `;
 
-const Input = styled.input`
-  border-radius: 20px;
-  border: 1px solid #c0c0c0;
-  background-color: white;
-  outline: none;
-  padding: 12px 15px;
-  color: #333;
-  width: 100%;
-`;
-
-const Button = styled.button`
-  padding: 10px 15px;
-  border-radius: 20px;
-  border: none;
-  background: #018180;
-  color: white;
-  cursor: pointer;
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-  &:hover {
-    background: #026c6c;
+const BackgroundContainer = styled.div`
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  z-index: 0;
+  ::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(${bgImage});
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(4px);
+    z-index: -1;
+    pointer-events: none;
   }
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+`;
+
+const StyledButton = styled(Button)`
+  background-color: #018180 !important;
+  border: none;
+  width: 100%;
+  &:hover {
+    background-color: #016b6a !important;
+  }
+`;
+
+const PasswordStrengthBar = styled(ProgressBar)`
+  margin-top: 10px;
+  height: 8px;
+  & .progress-bar {
+    background-color: ${(props) =>
+        props.strength === 0
+            ? "#dc3545"
+            : props.strength === 1
+            ? "#ffc107"
+            : props.strength === 2
+            ? "#ffc107"
+            : props.strength === 3
+            ? "#28a745"
+            : "#28a745"};
   }
 `;
 
 const ChangePassword = () => {
-  const navigate = useNavigate();
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
-  const handleChangePassword = async () => {
-    if (!newPassword || !confirmPassword) {
-      Swal.fire("Error", "Todos los campos son obligatorios.", "error");
-      return;
-    }
+    // Evaluar fortaleza de la contraseña
+    const passwordStrength = newPassword ? zxcvbn(newPassword).score : 0;
+    const passwordsMatch = newPassword === confirmPassword && newPassword !== "";
 
-    if (newPassword !== confirmPassword) {
-      Swal.fire("Error", "Las contraseñas no coinciden.", "error");
-      return;
-    }
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
 
-    if (newPassword.length < 6) {
-      Swal.fire("Error", "La nueva contraseña debe tener al menos 6 caracteres.", "error");
-      return;
-    }
+        if (!newPassword || !confirmPassword) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Debes ingresar y confirmar tu nueva contraseña.",
+            });
+            return;
+        }
 
-    setLoading(true);
-    try {
-      await changePassword(newPassword);
-      localStorage.removeItem("forcePasswordChange"); // ✅ Marcar como completado
-      Swal.fire("Éxito", "Contraseña cambiada correctamente", "success").then(() => {
-        navigate("/login");
-      });
-    } catch (error) {
-      Swal.fire("Error", error, "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+        if (!passwordsMatch) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Las contraseñas no coinciden.",
+            });
+            return;
+        }
 
-  return (
-    <Container>
-      <Title>Cambiar Contraseña</Title>
+        if (newPassword.length < 6) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "La nueva contraseña debe tener al menos 6 caracteres.",
+            });
+            return;
+        }
 
-      {loading && <Loader />} {/* ✅ Loader mientras carga */}
+        setLoading(true);
+        try {
+            const token = localStorage.getItem("token");
 
-      <Form>
-        <Input
-          type="password"
-          placeholder="Nueva contraseña"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          disabled={loading}
-        />
-        <Input
-          type="password"
-          placeholder="Confirmar nueva contraseña"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          disabled={loading}
-        />
-        <Button onClick={handleChangePassword} disabled={loading}>
-          {loading ? "Cambiando..." : "Actualizar"}
-        </Button>
-      </Form>
-    </Container>
-  );
+            if (!token) {
+                throw new Error("No estás autenticado.");
+            }
+
+            await axios.post(
+                "http://localhost:8080/api/auth/change-password",
+                { newPassword },
+                { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+            );
+
+            Swal.fire({
+                icon: "success",
+                title: "¡Contraseña actualizada!",
+                text: "Tu contraseña ha sido cambiada con éxito.",
+            });
+
+            // ✅ Eliminar la bandera de cambio de contraseña
+            localStorage.removeItem("forcePasswordChange");
+
+            // ✅ Redirigir según el rol
+            const role = AuthServiceLogin.getRoleFromToken();
+            if (role === "GERENTE") {
+                navigate("/gerente/agenteVentas");
+            } else if (role === "AGENTE") {
+                navigate("/agente/tablaCliente");
+            } else if (role === "CLIENTE") {
+                navigate("/cliente/home");
+            } else {
+                navigate("/login"); 
+            }
+        } catch (error) {
+            console.error("❌ Error al cambiar la contraseña:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.response?.data?.message || "No se pudo cambiar la contraseña.",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <BackgroundContainer>
+            {loading && <Loader />}
+            <StyledContainer>
+                <h2 className="text-center mb-3">Cambiar Contraseña</h2>
+                <Form onSubmit={handleChangePassword}>
+                    <Form.Group className="mb-2">
+                        <Form.Label>Nueva Contraseña</Form.Label>
+                        <Form.Control
+                            type="password"
+                            placeholder="Nueva contraseña"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                        <PasswordStrengthBar now={(passwordStrength + 1) * 25} strength={passwordStrength} />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Confirmar Contraseña</Form.Label>
+                        <Form.Control
+                            type="password"
+                            placeholder="Confirma tu contraseña"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                    </Form.Group>
+
+                    <div className="text-center">
+                        <StyledButton type="submit" disabled={loading}>
+                            {loading ? "Procesando..." : "Actualizar"}
+                        </StyledButton>
+                    </div>
+                </Form>
+            </StyledContainer>
+        </BackgroundContainer>
+    );
 };
 
 export default ChangePassword;

@@ -1,8 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
-// URL de tu backend
-const API_URL = 'http://localhost:8080/api/auth/';
+const API_URL = "http://localhost:8080/api/auth/";
 
+/**
+ * 📌 Obtener el perfil del usuario autenticado.
+ * Si el token es inválido o ha expirado, cierra sesión automáticamente.
+ */
 const getUserProfile = async () => {
     try {
         const token = localStorage.getItem("token");
@@ -12,67 +15,55 @@ const getUserProfile = async () => {
         }
 
         const response = await axios.get(`${API_URL}profile`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
         });
 
         return response.data;
     } catch (error) {
         if (error.response?.status === 401) {
-            console.warn("Token expirado o inválido. Redirigiendo al login...");
+            console.warn("⚠️ Token expirado o inválido. Cerrando sesión...");
             localStorage.removeItem("token");
             window.location.href = "/login";
         }
         throw error.response?.data || "Error al obtener el perfil.";
     }
-}
-// Función para iniciar sesión
-const login = async (email, password) => {
-    try {
-        const response = await axios.post(API_URL + 'Login', { email, password });
-        
-        if (response.data) {
-            localStorage.setItem('token', response.data); // Guardar el token en localStorage
-            return response.data;
-        }
-    } catch (error) {
-        throw error.response?.data || 'Error al iniciar sesión';
-    }
 };
 
-// Función para cerrar sesión
-const logout = () => {
-    localStorage.removeItem('token'); // Eliminar el token
-    window.location.href = '/login'; // Redirigir al login inmediatamente
-};
-
-// Función para registrar clientes
+/**
+ * 📌 Registrar un nuevo cliente.
+ */
 const registerCliente = async (clienteData) => {
     try {
-        const response = await axios.post(API_URL + 'registerCliente', clienteData);
+        const response = await axios.post(API_URL + "registerCliente", clienteData);
         return response.data;
     } catch (error) {
-        throw error.response?.data || 'Error al registrar cliente';
+        throw error.response?.data || "Error al registrar cliente.";
     }
 };
 
-// Función para obtener el rol desde el token
-const getRoleFromToken = () => {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
+/**
+ * 📌 Obtener `user_id` del token.
+ * @returns {number|null} - Retorna el ID del usuario si el token es válido, de lo contrario `null`.
+ */
+const getUserIdFromToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error("❌ No se encontró el token en localStorage.");
+        return null;
+    }
 
     try {
-        const payload = JSON.parse(atob(token.split('.')[1])); // Decodificar JWT
-        return payload.rol; // Devolver el rol desde el token
+        const payload = JSON.parse(atob(token.split(".")[1])); // Decodificar JWT
+        console.log("🔹 user_id extraído del token:", payload.user_id);
+        return payload.user_id || null;
     } catch (error) {
-        console.error('Error al decodificar token:', error);
+        console.error("❌ Error al extraer user_id del token:", error);
         return null;
     }
 };
 
-// Exportar todas las funciones correctamente
 export default {
-    login,
-    logout,
-    getRoleFromToken,
-    registerCliente
+    getUserProfile,
+    registerCliente,
+    getUserIdFromToken,
 };

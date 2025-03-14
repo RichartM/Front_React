@@ -1,0 +1,67 @@
+.card-container {
+  width: 180px;
+  height: 180px;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+  margin-top: -3%;
+
+}
+
+.card-container:hover {
+  transform: translateY(-8px);
+}
+
+/* Nueva clase para la imagen de fondo */
+.image-background {
+  position: absolute;
+  width: 70%;
+  height: 35%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  z-index: 5;
+  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+  margin-top: -10%;
+}
+
+.card-container:hover .image-background {
+  transform: scale(1.1);
+  filter: blur(2px);
+}
+
+.card-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.card-number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #343a40;
+}
+
+.card-text {
+  margin-top: 1%;
+  font-size: 18px;
+  font-weight: bold;
+  color: #495057;
+}
+
+.cards-wrapper {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente las tarjetas */
+  align-items: center; /* Asegura que todas se alineen verticalmente */
+  gap: 20px; /* Espaciado uniforme entre tarjetas */
+  margin-top: 20px;
+  flex-wrap: wrap; /* Si la pantalla es pequeña, permite que las tarjetas se acomoden en varias líneas */
+  width: 100%; /* Asegura que ocupe el ancho completo */
+}

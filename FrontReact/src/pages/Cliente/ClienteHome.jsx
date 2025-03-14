@@ -138,4 +138,3 @@ const ClienteHistorial = () => {
 };
 
 export default ClienteHistorial;
- 

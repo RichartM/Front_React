@@ -163,6 +163,38 @@ function GerenteMarcaModelo() {
   const recordsPerPageMarcas = 10;
   const recordsPerPageModelos = 10;
 
+  const [marcasApi,setMarcasApi] = useState([])
+
+
+
+  useEffect(() => {
+    console.log("get the useEffect")
+    const token = localStorage.getItem('token');  // Obtener el token del localStorage
+    console.log("token: "+token)
+
+    if (token) {
+      axios.get('http://localhost:8080/Marcas/getAll', {
+        headers: {
+          Authorization: `Bearer ${token}`  // Usar el token en el encabezado
+        }
+      })
+      .then(response => {
+        setMarcasApi(response.data);
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.error('Error al obtener los datos:', error);
+      });
+    } else {
+      console.log('No se encontró el token');
+    }
+  }, []);
+
+
+
+
+
+
   const handleOpenModal = () => {
     if (activeTab === "/home") {
       setShowMarcasModal(true);
@@ -219,9 +251,17 @@ function GerenteMarcaModelo() {
 
 
   const agregarMarca = (nuevaMarca) => {
-    const newMarca = { ...nuevaMarca, id: marcas.length + 1 };
-    setMarcas([...marcas, newMarca]);
-    setShowMarcasModal(false);
+    //const newMarca = { ...nuevaMarca, id: marcas.length + 1 };
+    //setMarcas([...marcas, newMarca]);
+    //setShowMarcasModal(false);
+    console.log("nueva marca: "+nuevaMarca.nombre)
+    axios.post('http://localhost:8080/Marcas/post', nuevaMarca, {
+      headers: {
+        Authorization: `Bearer  ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+})
+
     Swal.fire({
       title: "¡Agregado!",
       text: "La marca ha sido agregada con éxito.",
@@ -229,8 +269,10 @@ function GerenteMarcaModelo() {
       confirmButtonColor: "#018180",
       customClass: { confirmButton: 'btn-swal-confirmar' },
       buttonsStyling: false
+    }).then(() => {
+      setShowMarcasModal(false);
     });
-  };
+};
 
   // Función para editar registros (diferencia entre marca y modelo)
   const handleEdit = (item, isMarca) => {
@@ -393,6 +435,7 @@ function GerenteMarcaModelo() {
         setCurrentPageModelos(1); // Reinicia la paginación a la primera página al buscar
     };
     
+    
 
   return (
     <>
@@ -448,7 +491,7 @@ function GerenteMarcaModelo() {
           </Row>
           {activeTab === "/home" && (
             <TablaMarcas
-              marcas={marcas}
+              marcas={marcasApi}
               searchTerm={searchTermMarcas}
               setSearchTerm={setSearchTermMarcas}
               currentPage={currentPageMarcas}
@@ -486,7 +529,8 @@ function GerenteMarcaModelo() {
               e.preventDefault();
               const nombre = e.target.nombre.value;
               if (validateFields({ nombre }, true)) {
-                agregarMarca({ nombre, estado: 'ACTIVO' });
+                agregarMarca({ marca : nombre}); //antes:                agregarMarca({ nombre, estado: 'ACTIVO' });
+
               }
             }}>
               <Form.Group className="mb-3">
