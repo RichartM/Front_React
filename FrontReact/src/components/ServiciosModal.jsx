@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import Swal from "sweetalert2";
-import Checkbox from "./common/CheckBox"; // Importamos tu checkbox animado
+import Checkbox from "./common/CheckBox"; // ✅ Checkbox personalizado
 
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 0;
+  top: 5%;
   left: 0;
   width: 100%;
   height: 100%;
@@ -20,7 +20,7 @@ const ModalContent = styled.div`
   background: white;
   padding: 20px;
   border-radius: 10px;
-  width: 80%;
+  width: 85%;
   max-width: 900px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   text-align: center;
@@ -30,69 +30,76 @@ const ModalContent = styled.div`
 `;
 
 const CloseButton = styled.button`
-  background: red;
+  background: #ff4d4d;
   color: white;
   border: none;
-  padding: 8px 15px;
+  padding: 10px 18px;
   font-size: 1rem;
   border-radius: 5px;
   cursor: pointer;
   position: absolute;
   right: 15px;
   top: 15px;
+  transition: background 0.3s ease;
 
   &:hover {
-    background: darkred;
+    background: #cc0000;
   }
 `;
 
-const TableContainer = styled.div`
-  max-height: 400px;
-  overflow-y: auto;
+const SectionTitle = styled.h3`
+  color: #018180;
+  text-align: left;
+  margin-bottom: 10px;
+  font-size: 1.4rem;
 `;
 
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
+const ServiceContainer = styled.div`
+  margin-bottom: 20px;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 5px solid ${({ color }) => color || "#018180"};
 `;
 
-const TableHeader = styled.thead`
-  background: #018180;
-  color: white;
-
-  th {
-    padding: 12px;
-    border: 1px solid #fff;
-  }
+const ServiceTitle = styled.h4`
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: bold;
+  color: #212121;
 `;
 
-const TableRow = styled.tr`
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
+const ServiceDescription = styled.p`
+  font-size: 0.95rem;
+  color: #555;
+  margin: 5px 0 0;
+  text-align: left;
 `;
 
-const TableCell = styled.td`
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: center;
+const ServiceCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
-
-// **Servicios Simulados (Remplazar con datos de API más adelante)**
-const initialServices = [
-  { id: 1, name: "Cambio de Aceite", price: "$500", type: "Mensual" },
-  { id: 2, name: "Revisión de Frenos", price: "$700", type: "Mensual" },
-  { id: 3, name: "Servicio Completo", price: "$1200", type: "Anual" },
-  { id: 4, name: "Alineación y Balanceo", price: "$900", type: "Anual" },
-  { id: 5, name: "Cambio de Motor", price: "$8000", type: "Única Aplicación" },
-  { id: 6, name: "Cambio de Transmisión", price: "$7500", type: "Única Aplicación" }, // 🔴 Segundo servicio de única aplicación para prueba
-];
 
 const ServiciosModal = ({ onClose, onAddService, selectedServices, setSelectedServices }) => {
-  // Manejo de selección de servicios
+  // **Servicios Simulados (Puedes cambiar esto por una API)**
+  const initialServices = [
+    { id: 1, name: "Cambio de Aceite", type: "Mensual", description: "Se reemplaza el aceite viejo por uno nuevo y se cambia el filtro." },
+    { id: 2, name: "Revisión de Frenos", type: "Mensual", description: "Revisión completa del sistema de frenos para garantizar seguridad." },
+    { id: 3, name: "Servicio Completo", type: "Anual", description: "Mantenimiento general que incluye cambio de aceite, filtros y alineación." },
+    { id: 4, name: "Alineación y Balanceo", type: "Anual", description: "Corrección de la alineación de llantas para evitar desgaste prematuro." },
+    { id: 5, name: "Cambio de Motor", type: "Única Aplicación", description: "Sustitución completa del motor con garantía de fábrica." },
+    { id: 6, name: "Cambio de Transmisión", type: "Única Aplicación", description: "Reemplazo total de la transmisión para un mejor rendimiento." }
+  ];
+
+  // **Clasificar los servicios por tipo**
+  const groupedServices = {
+    Anual: initialServices.filter(s => s.type === "Anual"),
+    Mensual: initialServices.filter(s => s.type === "Mensual"),
+    "Única Aplicación": initialServices.filter(s => s.type === "Única Aplicación")
+  };
+
   const handleToggleService = (service) => {
     setSelectedServices((prevServices) => {
       const alreadySelected = prevServices.some((s) => s.id === service.id);
@@ -120,34 +127,50 @@ const ServiciosModal = ({ onClose, onAddService, selectedServices, setSelectedSe
   return (
     <ModalOverlay>
       <ModalContent>
-        <CloseButton onClick={onClose}>X</CloseButton>
-        <h2>Servicios disponibles</h2>
+        <CloseButton onClick={onClose}>Cerrar</CloseButton>
+        <h2>Servicios Disponibles</h2>
 
-        {/* 📌 Tabla de Servicios */}
-        <TableContainer>
-          <Table>
-            <TableHeader>
-              <tr>
-                <th>Seleccionar</th>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Tipo</th>
-              </tr>
-            </TableHeader>
-            <tbody>
-              {initialServices.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell onClick={() => handleToggleService(service)}>
-                    <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
-                  </TableCell>
-                  <TableCell>{service.name}</TableCell>
-                  <TableCell>{service.price}</TableCell>
-                  <TableCell>{service.type}</TableCell>
-                </TableRow>
-              ))}
-            </tbody>
-          </Table>
-        </TableContainer>
+        {/* 🔹 Servicios Anuales */}
+        <SectionTitle>Servicios Anuales</SectionTitle>
+        {groupedServices.Anual.map((service) => (
+          <ServiceContainer key={service.id} color="#ffb400">
+            <ServiceCheckbox onClick={() => handleToggleService(service)}>
+              <div>
+                <ServiceTitle>{service.name}</ServiceTitle>
+                <ServiceDescription>{service.description}</ServiceDescription>
+              </div>
+              <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
+            </ServiceCheckbox>
+          </ServiceContainer>
+        ))}
+
+        {/* 🔹 Servicios Mensuales */}
+        <SectionTitle>Servicios Mensuales</SectionTitle>
+        {groupedServices.Mensual.map((service) => (
+          <ServiceContainer key={service.id} color="#4caf50">
+            <ServiceCheckbox onClick={() => handleToggleService(service)}>
+              <div>
+                <ServiceTitle>{service.name}</ServiceTitle>
+                <ServiceDescription>{service.description}</ServiceDescription>
+              </div>
+              <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
+            </ServiceCheckbox>
+          </ServiceContainer>
+        ))}
+
+        {/* 🔹 Servicios de Única Aplicación */}
+        <SectionTitle>Servicios de Única Aplicación</SectionTitle>
+        {groupedServices["Única Aplicación"].map((service) => (
+          <ServiceContainer key={service.id} color="#018180">
+            <ServiceCheckbox onClick={() => handleToggleService(service)}>
+              <div>
+                <ServiceTitle>{service.name}</ServiceTitle>
+                <ServiceDescription>{service.description}</ServiceDescription>
+              </div>
+              <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
+            </ServiceCheckbox>
+          </ServiceContainer>
+        ))}
       </ModalContent>
     </ModalOverlay>
   );

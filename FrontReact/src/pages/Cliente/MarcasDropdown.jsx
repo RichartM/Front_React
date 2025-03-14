@@ -71,7 +71,7 @@ const StyledDropdownItem = styled.li`
 
 
 
-const MarcasDropdown = ({ tipoUsuario = "cliente" }) => {  // ✅ Valor por defecto
+const MarcasDropdown = ({ tipoUsuario }) => {
   const { brands } = useContext(BrandsContext);
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
@@ -97,9 +97,9 @@ const MarcasDropdown = ({ tipoUsuario = "cliente" }) => {  // ✅ Valor por defe
       {isVisible && (
         <DropdownMenu $isMobile={isMobile}>
         {brands.map((brand) => (
-        <StyledDropdownItem key={brand.id} $isMobile={isMobile} onClick={() => navigate(`/${tipoUsuario}/marca/${brand.id}`)}>
+        <StyledDropdownItem key={brand.id} $isMobile={isMobile} onClick={() => navigate(`/cliente/marca/${brand.marca}`)}>
 
-              {brand.name}
+              {brand.marca}
             </StyledDropdownItem>
           ))}
         </DropdownMenu>

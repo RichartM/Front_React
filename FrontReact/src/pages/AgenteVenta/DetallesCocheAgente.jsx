@@ -257,7 +257,7 @@ const DetallesCocheAgente = () => {
           {/* 🔥 SECCIÓN DE SERVICIOS */}
           <ServicesSection>
             {selectedCliente && (
-              <p>Atendiendo a: {selectedCliente.nombre}</p>
+              <p>Atendiendo a: {selectedCliente.name}</p>
             )}
             <ServicesTitle>Servicios</ServicesTitle>
             <ServicesButton
@@ -292,6 +292,7 @@ const DetallesCocheAgente = () => {
         </DescriptionContainer>
 
         {/* Modal de Servicios */}
+        <div style={{marginTop: '20%'}}>
         {showServiciosModal && (
           <ServiciosModal
             onClose={() => setShowServiciosModal(false)}
@@ -300,6 +301,8 @@ const DetallesCocheAgente = () => {
             setSelectedServices={setSelectedServices}
           />
         )}
+        </div>
+      
       </PageContainer>
 
       {/* Modal para seleccionar cliente */}
