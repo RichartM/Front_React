@@ -32,7 +32,7 @@ const Login = () => {
                 navigate("/change-password");
             } else {
                 if (role === "GERENTE") {
-                    navigate("/gerente/agenteVentas");
+                    navigate("/gerente/panelControl");
                 } else if (role === "AGENTE") {
                     navigate("/agente/tablaCliente");
                 } else if (role === "CLIENTE") {

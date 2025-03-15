@@ -10,7 +10,7 @@ import { createGlobalStyle } from "styled-components";
 import FiltroServicios from '../../components/Filtros/FiltroBuscador';
 import ClientePNG from '../../img/cliente.png';
 import axios from "axios"
-
+import HistoricoVentas from './HistoricoVentas';
 // Estilos globales
 const GlobalStyle = createGlobalStyle`
   .swal2-popup {
@@ -177,6 +177,7 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
     }
   };
 
+
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
       <Modal.Header closeButton>
@@ -274,6 +275,10 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
 }
 
 function AgenteVentas() {
+  
+  const [showHistoricoVentasModal, setShowHistoricoVentasModal] = useState(false);
+  const [selectedAgenteForHistorico, setSelectedAgenteForHistorico] = useState(null);
+  
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -292,7 +297,7 @@ function AgenteVentas() {
     password: '',
     state: true, // Por defecto, activo
     surname: '',
-    username :''
+    username: ''
   });
   const [errors, setErrors] = useState({});
 
@@ -309,10 +314,11 @@ function AgenteVentas() {
   const [showClientesModal, setShowClientesModal] = useState(false);
   const [selectedAgenteForClientes, setSelectedAgenteForClientes] = useState(null);
 
+
   const handleSearch = (term) => {
     setSearchTerm(term);
     setCurrentPage(1); // Reinicia la paginación a la primera página al buscar
-};
+  };
 
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -350,7 +356,7 @@ function AgenteVentas() {
     } else if (!/\S+@\S+\.\S+/.test(editedData.email)) {
       newErrors.correo = "El correo no es válido.";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -359,7 +365,7 @@ function AgenteVentas() {
     if (validateFields()) {
       if (selectedItem) {
         setAgentes(agentes.map(a => a.id === selectedItem.id ? { ...a, ...editedData } : a));
-        console.log("datosssssssss a registrar: "+a.name)
+        console.log("datosssssssss a registrar: " + a.name)
         setEditModal(false);
         Swal.fire({
           title: "¡Guardado!",
@@ -390,9 +396,9 @@ function AgenteVentas() {
         id: Date.now(), // Generar un ID temporal (puedes cambiarlo por el ID que devuelva la API)
         clientes: [], // Inicializar sin clientes
       };
-        
-      console.log("nombre"+editedData.name)
-      editedData.password = editedData.name      
+
+      console.log("nombre" + editedData.name)
+      editedData.password = editedData.name
 
       // Realizar la solicitud POST para registrar el agente
       axios.post('http://localhost:8080/api/auth/registerAgente', editedData, {
@@ -401,43 +407,43 @@ function AgenteVentas() {
           'Content-Type': 'application/json',
         },
       })
-      .then(response => {
-        console.log('Agente registrado:', response.data);
+        .then(response => {
+          console.log('Agente registrado:', response.data);
 
-        // Actualizar el estado con el nuevo agente
-        setAgentesData(prevAgentes => [...prevAgentes, response.data]);
+          // Actualizar el estado con el nuevo agente
+          setAgentesData(prevAgentes => [...prevAgentes, response.data]);
 
-        // Cerrar el modal y limpiar el formulario
-        setShowAgenteModal(false);
-        setEditedData({ email: '', lastname: '', name: '', password: '', state: '', surname: '', username: '' });
+          // Cerrar el modal y limpiar el formulario
+          setShowAgenteModal(false);
+          setEditedData({ email: '', lastname: '', name: '', password: '', state: '', surname: '', username: '' });
 
-        // Mostrar mensaje de éxito
-        Swal.fire({
-          title: "¡Agregado!",
-          text: "El agente ha sido agregado con éxito.",
-          icon: "success",
-          confirmButtonColor: "#018180",
-          customClass: { confirmButton: 'btn-swal-confirmar' },
-          buttonsStyling: false
-        }).then(()=>{
-          window.location.reload();
+          // Mostrar mensaje de éxito
+          Swal.fire({
+            title: "¡Agregado!",
+            text: "El agente ha sido agregado con éxito.",
+            icon: "success",
+            confirmButtonColor: "#018180",
+            customClass: { confirmButton: 'btn-swal-confirmar' },
+            buttonsStyling: false
+          }).then(() => {
+            window.location.reload();
+          });
+        })
+        .catch(error => {
+          console.error('Error al registrar el agente:', error);
+
+          // Mostrar mensaje de error
+          Swal.fire({
+            title: "Error",
+            text: "Hubo un problema al registrar el agente.",
+            icon: "error",
+            confirmButtonColor: "#018180",
+            customClass: { confirmButton: 'btn-swal-confirmar' },
+            buttonsStyling: false
+          }).then(() => {
+            window.location.reload()
+          });
         });
-      })
-      .catch(error => {
-        console.error('Error al registrar el agente:', error);
-
-        // Mostrar mensaje de error
-        Swal.fire({
-          title: "Error",
-          text: "Hubo un problema al registrar el agente.",
-          icon: "error",
-          confirmButtonColor: "#018180",
-          customClass: { confirmButton: 'btn-swal-confirmar' },
-          buttonsStyling: false
-        }).then(()=>{
-          window.location.reload()
-        });
-      });
     } else {
       Swal.fire({
         title: "Error",
@@ -468,7 +474,7 @@ function AgenteVentas() {
     }).then((result) => {
       if (result.isConfirmed) {
         const updatedAgente = { ...agente, state: agente.state === true ? false : true };
-        console.log("datos del modificado "+agente.name)
+        console.log("datos del modificado " + agente.name)
         setAgentes(agentes.map(a => a.id === agente.id ? updatedAgente : a));
 
         Swal.fire({
@@ -549,7 +555,7 @@ function AgenteVentas() {
       buttonsStyling: false
     });
   };
-  
+
   const [agentesData, setAgentesData] = useState([]);
   useEffect(() => {
     console.log("get the useEffect")
@@ -670,7 +676,7 @@ function AgenteVentas() {
                       {errors.apellidos}
                     </Form.Control.Feedback>
                   </Form.Group>
-                  
+
                   {/* Campo Apellidos */}
                   <Form.Group className="mb-3">
                     <Form.Label>Apellido materno:</Form.Label>
@@ -719,7 +725,7 @@ function AgenteVentas() {
               </Modal.Body>
               <Modal.Footer>
                 <CustomButton
-                  className="submit btn btn-primary"s
+                  className="submit btn btn-primary" s
                   variant="secondary"
                   onClick={() => { setShowAgenteModal(false); setEditModal(false); }}
                 >
@@ -786,6 +792,18 @@ function AgenteVentas() {
                         >
                           <img src={ClientePNG} alt="Clientes" style={{ width: '20px', height: '20px' }} />
                         </CustomButton>
+
+                        <CustomButton
+                          variant="info"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAgenteForHistorico(agente);
+                            setShowHistoricoVentasModal(true);
+                          }}
+                          className="ms-2 fs-6"
+                        >
+                          <i className="bi bi-folder-fill"></i>
+                        </CustomButton>
                       </td>
                     </tr>
                   ))}
@@ -811,6 +829,15 @@ function AgenteVentas() {
           agentes={agentes}
           onTransfer={handleTransferCliente}
           onTransferAll={handleTransferAllClientes}
+        />
+      )}
+
+      {/* Modal para Histórico de Ventas */}
+      {selectedAgenteForHistorico && (
+        <HistoricoVentas
+          show={showHistoricoVentasModal}
+          onHide={() => setShowHistoricoVentasModal(false)}
+          agente={selectedAgenteForHistorico}
         />
       )}
     </>
