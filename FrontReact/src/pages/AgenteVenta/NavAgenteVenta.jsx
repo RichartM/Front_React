@@ -2,7 +2,7 @@ import React from 'react';
 import { Navbar, Nav, Container, Dropdown, Offcanvas } from 'react-bootstrap';
 import homeIcon from '../../img/home.png';
 import styled from 'styled-components';
-import MarcasDropdownAgente from './MarcasDropdownAgente'
+import MarcasDropdownAgente from './MarcasDropdownAgente';
 
 // Estilos para la línea debajo del enlace al hacer hover
 const StyledNavLink = styled(Nav.Link)`
@@ -112,10 +112,10 @@ const NavAgenteVenta = () => {
                             <StyledNavLink href="/agente/clientes">
                                 <i className="bi bi-people-fill"></i> Clientes
                             </StyledNavLink>
-                            <StyledNavLink href="/agente/vender-auto">
-                                <i className="bi bi-cart-fill"></i>   Vender Auto           
 
-                            </StyledNavLink>
+                            {/* Aquí reemplazamos el enlace por el dropdown de marcas */}
+                            <MarcasDropdownAgente tipoUsuario="agente" />
+
                             <StyledNavLink href="/agente/historial-ventas">
                                 <i className="bi bi-clock-history"></i> Historial de Ventas
                             </StyledNavLink>
@@ -127,7 +127,10 @@ const NavAgenteVenta = () => {
                 <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
                     <Nav className="me-auto">
                         <StyledNavLink href="/agente/tablaCliente">Clientes</StyledNavLink>
-                        <MarcasDropdownAgente tipoUsuario="agente"/>
+                        
+                        {/* Aquí también agregamos el dropdown de marcas */}
+                        <MarcasDropdownAgente tipoUsuario="agente" />
+
                         <StyledNavLink href="/agente/historial-ventas">Historial de Ventas</StyledNavLink>
                     </Nav>
 

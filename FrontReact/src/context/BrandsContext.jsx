@@ -9,22 +9,16 @@ export const BrandsContext = createContext();
 export const BrandsProvider = ({ children }) => {
   const [brands, setBrands] = useState([]);
   useEffect(() => {
-    console.log("get the useEffect")
-    const token = localStorage.getItem('token');  // Obtener el token del localStorage
-    console.log("token: "+token)
-
-      axios.get('http://localhost:8080/Marcas/getAll', {
-
-      })
+    axios.get('http://localhost:8080/marcas/getAll')
       .then(response => {
+        console.log("📢 Marcas obtenidas en BrandsContext:", response.data);
         setBrands(response.data);
-        console.log(response.data)
       })
       .catch(error => {
-        console.error('Error al obtener los datos:', error);
+        console.error("❌ Error al obtener marcas en BrandsContext:", error);
       });
-   
   }, []);
+  
 
   // Función para agregar una nueva marca  
   // (Más adelante reemplazas esto por una llamada a la API)

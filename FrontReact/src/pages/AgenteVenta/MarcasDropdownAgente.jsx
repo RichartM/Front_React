@@ -1,7 +1,7 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { BrandsContext } from "../../context/BrandsContext";
 import { useNavigate } from "react-router-dom";
+import AgenteService from "../../services/AgenteService/AgenteService";
 
 const DropdownContainer = styled.div`
   position: relative;
@@ -46,63 +46,72 @@ const DropdownMenu = styled.ul`
   background: white;
   border-radius: 5px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 8px;
-  display: ${(props) => (props.$isMobile ? "block" : "flex")};
-  flex-direction: ${(props) => (props.$isMobile ? "column" : "row")};
-  width: ${(props) => (props.$isMobile ? "200px" : "auto")};
+  display: ${(props) => (props.$isVisible ? "flex" : "none")}; /* 🔹 Ahora es 'flex' para que sea horizontal */
+  flex-direction: row; /* 🔹 Muestra los elementos en fila */
+  gap: 10px; /* 🔹 Espacio entre las marcas */
+  width: auto; /* 🔹 Se ajusta automáticamente al contenido */
+  padding: 10px 15px;
 `;
 
 const StyledDropdownItem = styled.li`
   cursor: pointer;
   padding: 10px 15px;
-  color: #000;
+  color: black !important;
   transition: color 0.3s ease;
-  border-bottom: ${(props) => (props.$isMobile ? "1px solid #ddd" : "none")};
+  white-space: nowrap; /* 🔹 Evita que los nombres de las marcas se corten */
+  border-bottom: none; /* 🔹 Quitamos el borde inferior */
+  border-right: 1px solid #ddd; /* 🔹 Agregamos una separación vertical entre marcas */
 
   &:hover {
-    color: #018180;
+    color: #018180 !important;
   }
 
   &:last-child {
-    border-bottom: none;
+    border-right: none; /* 🔹 El último elemento no tendrá borde */
   }
 `;
 
-
-
-
 const MarcasDropdownAgente = ({ tipoUsuario }) => {
-  const { brands } = useContext(BrandsContext);
   const navigate = useNavigate();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
+  const [brands, setBrands] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 992);
+    const fetchBrands = async () => {
+      try {
+        const data = await AgenteService.getAllBrands();
+        console.log("📢 Marcas obtenidas desde API:", data);
+        setBrands(data);
+      } catch (error) {
+        console.error("❌ Error al obtener marcas:", error);
+      }
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    fetchBrands();
   }, []);
 
   return (
     <DropdownContainer
-      onMouseEnter={() => !isMobile && setIsVisible(true)}
-      onMouseLeave={() => !isMobile && setIsVisible(false)}
+      onMouseEnter={() => setIsVisible(true)} // 🔹 Muestra el dropdown al pasar el mouse
+      onMouseLeave={() => setIsVisible(false)} // 🔹 Oculta el dropdown al salir del área
     >
-      <StyledDropdownToggle onClick={() => isMobile && setIsVisible(!isVisible)}>
+      <StyledDropdownToggle>
         Vender auto <i className="bi bi-caret-down-fill"></i>
       </StyledDropdownToggle>
 
-      {isVisible && (
-        <DropdownMenu $isMobile={isMobile}>
-        {brands.map((brand) => (
-        <StyledDropdownItem key={brand.id} $isMobile={isMobile} onClick={() => navigate(`/${tipoUsuario || "cliente"}/marca/${brand.id}`)}>
-
-              {brand.name}
+      <DropdownMenu $isVisible={isVisible}>
+        {brands.length > 0 ? (
+          brands.map((brand) => (
+            <StyledDropdownItem
+              key={brand.id}
+              onClick={() => navigate(`/agente/marca/${brand.id.toString()}`)}
+            >
+              {brand.nombre} {/* 🔹 Asegura que usa 'nombre' en lugar de 'name' */}
             </StyledDropdownItem>
-          ))}
-        </DropdownMenu>
-      )}
+          ))
+        ) : (
+          <StyledDropdownItem>No hay marcas disponibles</StyledDropdownItem>
+        )}
+      </DropdownMenu>
     </DropdownContainer>
   );
 };

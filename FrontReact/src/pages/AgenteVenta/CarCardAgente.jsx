@@ -59,19 +59,26 @@ const MoreButton = styled.button`
 const CarCardAgente = ({ car, brandId }) => {
   const navigate = useNavigate();
 
-  const handleViewMore = () => {
-    console.log(`Redirigiendo a /agente/marca/${brandId}/coche/${car.id}`);
-    navigate(`/agente/marca/${brandId}/coche/${car.id}`);
-  };
+  if (!car) {
+    return null; // Evita renderizar si `car` no está definido
+  }
+
+  console.log("📢 Datos del coche recibido:", car);
+
+ // Función para redirigir a la página de detalles del coche
+ const handleViewMore = () => {
+  navigate(`/agente/marca/${brandId}/coche/${car.id}`);
+};
 
   return (
     <CardWrapper>
-      <CarImage src={car.image} alt={car.name} />
+      {/* Verifica si la imagen existe, si no usa una por defecto */}
+      <CarImage src={car.imagen || "default_image_url.jpg"} alt={car.modelo || "Modelo desconocido"} />
       <CardContent>
-        <CarTitle>{car.name}</CarTitle>
-        <CarYear>{car.year}</CarYear>
+        <CarTitle>{car.modelo || "Modelo desconocido"}</CarTitle>
+        <CarYear>{car.year || "Año desconocido"}</CarYear>
         <MoreButton onClick={handleViewMore}>Ver más</MoreButton>
-      </CardContent>
+        </CardContent>
     </CardWrapper>
   );
 };

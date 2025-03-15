@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
-import { useParams, useLocation } from "react-router-dom";
-import styled from "styled-components";
-import { BrandsContext } from "../../context/BrandsContext";
-import CarCard from "./CarCard"; 
-import CarCardAgente from "../AgenteVenta/CarCardAgente"; // ✅ Importamos la versión para agentes
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import { BrandsContext } from '../../context/BrandsContext';
+import CarCard from './CarCard';
+import CarCardAgente from '../AgenteVenta/CarCardAgente';
+import VehiculoService from '../../services/AgenteService/VehiculoService';
 
 const PageContainer = styled.div`
   padding: 50px;
@@ -50,32 +51,54 @@ const GridContainer = styled.div`
 const CarrosPorMarca = () => {
   const { brandId } = useParams();
   const { brands } = useContext(BrandsContext);
+  const [cars, setCars] = useState([]);
   const location = useLocation();
-  const isAgente = location.pathname.includes("/agente"); // 🔹 Detectamos si es agente
+  const isAgente = location.pathname.includes("/agente"); // Detectamos si es agente
 
-  const brand = brands.find((b) => b.id === brandId);
+  // ✅ Buscar la marca en el contexto por ID
+  const brand = brands.find((b) => b.id.toString() === brandId);
   if (!brand) return <p>Marca no encontrada</p>;
 
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        console.log("📌 Llamando a la API para obtener vehículos de marca ID:", brandId);
+        const data = await VehiculoService.getVehiclesByBrandId(brandId);
+        console.log("📌 Vehículos obtenidos:", data);
+  
+        // ✅ Asegurar que los datos no se dupliquen reemplazando completamente el estado
+        setCars([...new Map(data.map(car => [car.id, car])).values()]);
+  
+      } catch (error) {
+        console.error('❌ Error al obtener vehículos:', error);
+      }
+    };
+  
+    fetchCars();
+  }, [brandId]);
+  
   return (
     <PageContainer>
-      <HeaderContainer>
-        <BrandImage src={brand.logo} alt={brand.name} />
-        <TitleContainer>
-          <BrandTitle>{brand.name}</BrandTitle>
-          <BrandDescription>{brand.descripcion}</BrandDescription>
-        </TitleContainer>
-      </HeaderContainer>
-
+    <HeaderContainer>
+  <BrandImage src={brand.logo}  />
+  <TitleContainer>
+    <BrandTitle>Descubre los {brand.nombre}</BrandTitle>
+    <BrandDescription>{brand.descripcion}</BrandDescription>
+  </TitleContainer>
+</HeaderContainer>
       <GridContainer>
-        {brand.cars.map((car) => (
-          isAgente ? 
-            <CarCardAgente key={car.id} car={car} brandId={brandId} /> :
-            <CarCard key={car.id} car={car} brandId={brandId} />
-        ))}
+        {cars.length > 0 ? (
+          cars.map((car) => (
+            isAgente ? 
+              <CarCardAgente key={car.id} car={car} brandId={brandId} /> :
+              <CarCard key={car.id} car={car} brandId={brandId} />
+          ))
+        ) : (
+          <p>No hay vehículos disponibles para esta marca.</p>
+        )}
       </GridContainer>
     </PageContainer>
   );
 };
 
 export default CarrosPorMarca;
-  

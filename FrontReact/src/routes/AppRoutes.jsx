@@ -61,7 +61,6 @@ const AppRoutes = () => {
             <Route path="servicios" element={<Servicios />} />
             <Route path="editPerfil" element={<EditPerfil />} />
             <Route path="panelControl" element={<PanelControl />} />
-
           </Route>
         </Route>
 
