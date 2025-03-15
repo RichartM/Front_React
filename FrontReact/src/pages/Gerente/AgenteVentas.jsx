@@ -399,6 +399,7 @@ function AgenteVentas() {
 
       console.log("nombre" + editedData.name)
       editedData.password = editedData.name
+      console.log("password: "+editedData.password)
 
       // Realizar la solicitud POST para registrar el agente
       axios.post('http://localhost:8080/api/auth/registerAgente', editedData, {

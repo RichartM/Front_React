@@ -80,12 +80,12 @@ const TablaModelos = ({
                         {currentModelos.map((item) => (
                             <tr key={item.id}>
                                 <td>{item.modelo}</td>
-                                <td>{item.marca}</td>
+                                <td>{item.marca.nombre}</td>
                                 <td>{item.matricula}</td>
                                 <td>{item.precio}</td>
-                                <td>{item.año}</td>
+                                <td>{item.year}</td>
                                 <td>{item.color}</td>
-                                <td>{item.descripcion}</td>
+                                <td>{item.description}</td>
                                 <td>{item.estado}</td>
                                 <td>
                                     <BsPencilSquare

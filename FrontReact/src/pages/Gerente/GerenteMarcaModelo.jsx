@@ -172,11 +172,9 @@ function GerenteMarcaModelo() {
     const token = localStorage.getItem('token');  // Obtener el token del localStorage
     console.log("token: "+token)
 
-    if (token) {
-      axios.get('http://localhost:8080/Marcas/getAll', {
-        headers: {
-          Authorization: `Bearer ${token}`  // Usar el token en el encabezado
-        }
+    
+      axios.get('http://localhost:8080/marcas/getAll', {
+        
       })
       .then(response => {
         setMarcasApi(response.data);
@@ -185,9 +183,7 @@ function GerenteMarcaModelo() {
       .catch(error => {
         console.error('Error al obtener los datos:', error);
       });
-    } else {
-      console.log('No se encontró el token');
-    }
+    
   }, []);
 
 
@@ -228,7 +224,7 @@ function GerenteMarcaModelo() {
     }
   }
   console.log(nuevoModelo.imagen);
-  nuevoModelo.marca = []
+  nuevoModelo.marca = {id:2,estado:"Activo",nombre:"Versa"}
   axios.post('http://localhost:8080/vehiculo/crear', nuevoModelo, {
           headers: {
             Authorization: `Bearer  ${localStorage.getItem('token')}`,
@@ -255,7 +251,7 @@ function GerenteMarcaModelo() {
     //setMarcas([...marcas, newMarca]);
     //setShowMarcasModal(false);
     console.log("nueva marca: "+nuevaMarca.nombre)
-    axios.post('http://localhost:8080/Marcas/post', nuevaMarca, {
+    axios.post('http://localhost:8080/marcas/post', nuevaMarca, {
       headers: {
         Authorization: `Bearer  ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
@@ -529,7 +525,7 @@ function GerenteMarcaModelo() {
               e.preventDefault();
               const nombre = e.target.nombre.value;
               if (validateFields({ nombre }, true)) {
-                agregarMarca({ marca : nombre}); //antes:                agregarMarca({ nombre, estado: 'ACTIVO' });
+                agregarMarca({ nombre : nombre,estado:"Activo"}); //antes:                agregarMarca({ nombre, estado: 'ACTIVO' });
 
               }
             }}>
