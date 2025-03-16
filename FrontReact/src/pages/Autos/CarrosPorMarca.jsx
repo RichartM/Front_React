@@ -10,6 +10,7 @@ import { Margin } from '@mui/icons-material';
 
 const PageContainer = styled.div`
   padding: 50px;
+  margin-top: -10%;
   text-align: center;
 `;
 
@@ -57,10 +58,8 @@ const CarrosPorMarca = () => {
   const location = useLocation();
   const isAgente = location.pathname.includes("/agente"); // Detectamos si es agente
 
-  // ✅ Buscar la marca en el contexto por ID
-  const brand = brands.find((b) => b.id.toString() === brandId);
-  if (!brand) return <p>Marca no encontrada</p>;
-
+ 
+  
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -78,6 +77,12 @@ const CarrosPorMarca = () => {
   
     fetchCars();
   }, [brandId]);
+
+   // ✅ Buscar la marca en el contexto por ID
+   const brand = brands.find((b) => b.id.toString() === brandId);
+   if (!brands || brands.length === 0) {
+     return <p>Cargando marcas...</p>;
+   }
   
   return (
     <PageContainer>
@@ -86,7 +91,7 @@ const CarrosPorMarca = () => {
     <NavAgenteVenta />
 
   <BrandImage src={brand.logo}  />
-  <TitleContainer style={{marginTop:50}}>
+  <TitleContainer style={{marginTop:-100}}>
     <BrandTitle>Descubre los {brand.nombre}</BrandTitle>
     <BrandDescription>{brand.descripcion}</BrandDescription>
   </TitleContainer>

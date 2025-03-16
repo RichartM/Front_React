@@ -38,7 +38,6 @@ const StyledDropdownToggle = styled.span`
 
 const DropdownMenu = styled.ul`
   position: absolute;
-  top: 100%;
   left: 0;
   list-style: none;
   padding: 10px;

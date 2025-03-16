@@ -12,5 +12,6 @@ export default defineConfig({
   },
   server: {
     open: '/landing', // esto abrirá la página de inicio en la ruta /landing
+    historyApiFallback: true, // 🔥 Asegura que las rutas dinámicas funcionen
   },
 });

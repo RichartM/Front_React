@@ -9,29 +9,17 @@ import NavAgenteVenta from "./NavAgenteVenta";
 import { BsDashCircle } from "react-icons/bs";
 
 const PageContainer = styled.div`
-  padding: 100px 50px 50px;
+  margin-top: 13%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;  /* Espacio entre las secciones */
-  @media (max-width: 768px) {
-    padding: 80px 20px 40px;
-  }
+  gap: 40px;
 `;
 
 const ContentWrapper = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 40px;
   width: 80%;
-  flex-wrap: wrap;  /* Permite que los elementos se ajusten en pantallas pequeñas */
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 50px;
-  }
+  gap: 40px;
 `;
 
 const LeftSection = styled.div`
@@ -39,11 +27,7 @@ const LeftSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;  /* Espacio entre los elementos en la sección izquierda */
-
-  @media (max-width: 1024px) {
-    width: 100%;
-  }
+  gap: 20px;
 `;
 
 const CarImage = styled.img`
@@ -53,16 +37,10 @@ const CarImage = styled.img`
   object-fit: contain;
   background: transparent;
   border: none;
-
-  @media (max-width: 768px) {
-    max-width: 100%;
-    height: auto;
-  }
 `;
 
 const CarInfo = styled.div`
   text-align: center;
-  margin-top: 15px;
   width: 100%;
 `;
 
@@ -71,10 +49,6 @@ const CarTitle = styled.h1`
   font-weight: bold;
   color: #212121;
   margin-bottom: 5px;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
 `;
 
 const CarYear = styled.p`
@@ -82,10 +56,6 @@ const CarYear = styled.p`
   font-weight: bold;
   color: #555;
   margin-bottom: 10px;
-
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-  }
 `;
 
 const Price = styled.p`
@@ -111,11 +81,6 @@ const BuyButton = styled.button`
     transform: translateY(-3px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    padding: 12px 24px;
-  }
 `;
 
 const ServicesSection = styled.div`
@@ -123,12 +88,7 @@ const ServicesSection = styled.div`
   padding: 20px;
   border-radius: 10px;
   text-align: left;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Añadido para darle más definición a la sección */
-
-  @media (max-width: 1024px) {
-    width: 100%;
-    text-align: center;
-  }
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 `;
 
 const ServicesTitle = styled.h2`
@@ -136,10 +96,6 @@ const ServicesTitle = styled.h2`
   font-weight: bold;
   color: #212121;
   margin-bottom: 15px;
-
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
-  }
 `;
 
 const ServicesButton = styled.button`
@@ -198,50 +154,28 @@ const DescriptionContainer = styled.div`
   padding: 20px;
   border-radius: 10px;
   margin-top: 30px;
-  max-width: 80%;  /* Asegura que no se expanda más allá del 80% del ancho */
-  text-align:justify;
+  width: 80%;
+  text-align: justify;
   font-size: 1.2rem;
   line-height: 1.6;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   background: white;
 `;
 
-
-
-
-
 const DetallesCocheAgente = () => {
   const { brandId, carId } = useParams();
   const { brands } = useContext(BrandsContext);
-  //Importante
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [car, setCar] = useState(null);
-  console.log("📢 Parámetros de la URL:", { brandId, carId });
-  console.log("📢 Marcas disponibles:", brands);
-
-  
-
-
   const [showServiciosModal, setShowServiciosModal] = useState(false);
   const [showClienteModal, setShowClienteModal] = useState(true);
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedCliente, setSelectedCliente] = useState(null);
 
-
-
-  console.log("📢 Parámetros de la URL:", { brandId, carId });
-  console.log("📢 Marcas disponibles:", brands);
-
-  const brand = brands.find((b) => b.id.toString() === brandId);
-  if (!brand) return <p>Marca no encontrada</p>;
-
-  console.log("✅ Marca encontrada:", brand);
-
   useEffect(() => {
     const fetchCar = async () => {
       try {
         const data = await VehiculoService.getVehiclesByBrandId(brandId);
-        console.log("📢 Vehículos obtenidos para la marca:", data);
         const foundCar = data.find((c) => c.id.toString() === carId);
         setCar(foundCar || null);
       } catch (error) {
@@ -252,28 +186,29 @@ const DetallesCocheAgente = () => {
     fetchCar();
   }, [brandId, carId]);
 
-  if (!car) return <p>Coche no encontrado</p>;
-  console.log("✅ Auto encontrado:", car);
+  if (!brands || brands.length === 0) {
+    return <p>Cargando marcas...</p>;
+  }
 
-  // Maneja la selección de un cliente
+  const brand = brands.find((b) => b.id.toString() === brandId);
+  if (!brand) return <p>Marca no encontrada</p>;
+
+  if (!car) return <p>Coche no encontrado</p>;
+
   const handleClienteSeleccionado = (cliente) => {
     setSelectedCliente(cliente);
-    setShowClienteModal(false); // Cierra el modal de selección de cliente
+    setShowClienteModal(false);
   };
 
-  // Maneja el clic en "Agregar Servicios"
   const handleAgregarServicios = () => {
     if (selectedCliente) {
-      setShowServiciosModal(true); // Abre el modal de servicios solo si hay un cliente seleccionado
+      setShowServiciosModal(true);
     }
   };
 
-  // Si el usuario cancela la selección de cliente, redirige a la página anterior
   const handleCancelarCliente = () => {
-    navigate(-1); // Redirige a la página anterior
+    navigate(-1);
   };
-
-  
 
   return (
     <>
@@ -290,7 +225,6 @@ const DetallesCocheAgente = () => {
             </CarInfo>
           </LeftSection>
 
-          {/* 🔥 SECCIÓN DE SERVICIOS */}
           <ServicesSection>
             {selectedCliente && <p>Atendiendo a: {selectedCliente.name}</p>}
             <ServicesTitle>Servicios</ServicesTitle>
@@ -320,25 +254,20 @@ const DetallesCocheAgente = () => {
               )}
             </SelectedServicesList>
           </ServicesSection>
-          
         </ContentWrapper>
         <DescriptionContainer>
           {car.description}
         </DescriptionContainer>
-        {/* Modal de Servicios */}
-        <div style={{ marginTop: "20%" }}>
-          {showServiciosModal && (
-            <ServiciosModal
-              onClose={() => setShowServiciosModal(false)}
-              onAddService={setSelectedServices}
-              selectedServices={selectedServices}
-              setSelectedServices={setSelectedServices}
-            />
-          )}
-        </div>
+        {showServiciosModal && (
+          <ServiciosModal
+            onClose={() => setShowServiciosModal(false)}
+            onAddService={setSelectedServices}
+            selectedServices={selectedServices}
+            setSelectedServices={setSelectedServices}
+          />
+        )}
       </PageContainer>
 
-      {/* Modal para seleccionar cliente */}
       <SeleccionarClienteModal
         isOpen={showClienteModal}
         onClose={handleCancelarCliente}

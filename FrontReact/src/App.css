@@ -11,7 +11,6 @@
 body {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
   background-color: #f8f9fa;
   margin: 0; /* Asegúrate de que no haya márgenes adicionales */
   padding: 0;

@@ -71,6 +71,7 @@ const CarCardAgente = ({ car, brandId }) => {
 };
 
   return (
+    
     <CardWrapper>
       {/* Verifica si la imagen existe, si no usa una por defecto */}
       <CarImage src={car.imagen || "default_image_url.jpg"} alt={car.modelo || "Modelo desconocido"} />
