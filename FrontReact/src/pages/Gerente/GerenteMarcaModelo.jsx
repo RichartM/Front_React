@@ -223,7 +223,11 @@ function GerenteMarcaModelo() {
       return;
     }
   }
-  console.log(nuevoModelo.imagen);
+  console.log(nuevoModelo.description);
+  console.log(nuevoModelo.matricula);
+  console.log(nuevoModelo.year);
+
+
   nuevoModelo.marca = {id:2,estado:"Activo",nombre:"Versa"}
   axios.post('http://localhost:8080/vehiculo/crear', nuevoModelo, {
           headers: {
@@ -356,11 +360,11 @@ function GerenteMarcaModelo() {
     } else {
       if (!data.modelo || !data.modelo.trim()) newErrors.modelo = "El modelo es obligatorio.";
       if (!data.marca || !data.marca.trim()) newErrors.marca = "La marca es obligatoria.";
-      if (!data.placa || !data.placa.trim()) newErrors.placa = "La placa es obligatoria.";
+      if (!data.matricula || !data.matricula.trim()) newErrors.placa = "La placa es obligatoria.";
       if (!data.precio || !data.precio.toString().trim()) newErrors.precio = "El precio es obligatorio.";
-      if (!data.año || !data.año.toString().trim()) newErrors.año = "El año es obligatorio.";
+      if (!data.year || !data.year.toString().trim()) newErrors.año = "El año es obligatorio.";
       if (!data.color || !data.color.trim()) newErrors.color = "El color es obligatorio.";
-      if (!data.descripcion || !data.descripcion.trim()) newErrors.descripcion = "La descripción es obligatoria.";
+      if (!data.description || !data.description.trim()) newErrors.descripcion = "La descripción es obligatoria.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -558,11 +562,11 @@ function GerenteMarcaModelo() {
           const data = {
             modelo: e.target.modelo.value,
             marca: e.target.marca.value,
-            placa: e.target.placa.value,
+            matricula: e.target.matricula.value,
             precio: e.target.precio.value,
-            año: e.target.año.value,
+            year: e.target.year.value,
             color: e.target.color.value,
-            descripcion: e.target.descripcion.value,
+            description: e.target.description.value,
             imagen: e.target.imagen.files[0] || null,
           };
           if (validateFields(data, false)) {
@@ -590,7 +594,7 @@ function GerenteMarcaModelo() {
           <Col md={6}>
             <Form.Group className="mb-3">
               <Form.Label>Placa</Form.Label>
-              <Form.Control type="text" name="placa" className="input" isInvalid={!!errors.placa} />
+              <Form.Control type="text" name="matricula" className="input" isInvalid={!!errors.placa} />
               <Form.Control.Feedback type="invalid">{errors.placa}</Form.Control.Feedback>
             </Form.Group>
           </Col>
@@ -606,7 +610,7 @@ function GerenteMarcaModelo() {
           <Col md={6}>
             <Form.Group className="mb-3">
               <Form.Label>Año</Form.Label>
-              <Form.Control type="text" name="año" className="input" isInvalid={!!errors.año} />
+              <Form.Control type="text" name="year" className="input" isInvalid={!!errors.año} />
               <Form.Control.Feedback type="invalid">{errors.año}</Form.Control.Feedback>
             </Form.Group>
           </Col>
@@ -622,7 +626,7 @@ function GerenteMarcaModelo() {
           <Col md={12}>
             <Form.Group className="mb-3">
               <Form.Label>Descripción</Form.Label>
-              <Form.Control as="textarea" name="descripcion" className="input" isInvalid={!!errors.descripcion} />
+              <Form.Control as="textarea" name="description" className="input" isInvalid={!!errors.descripcion} />
               <Form.Control.Feedback type="invalid">{errors.descripcion}</Form.Control.Feedback>
             </Form.Group>
           </Col>

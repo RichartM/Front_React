@@ -284,7 +284,7 @@ const DetallesCocheAgente = () => {
             <CarImage src={car.imagen || "default_image_url.jpg"} alt={car.modelo} />
             <CarInfo>
               <CarTitle>{car.modelo}</CarTitle>
-              <CarYear>Año: {car.año}</CarYear>
+              <CarYear>Año: {car.year}</CarYear>
               <Price>Precio: ${car.precio.toLocaleString()} MXN</Price>
               <BuyButton>Comprar</BuyButton>
             </CarInfo>
@@ -323,8 +323,7 @@ const DetallesCocheAgente = () => {
           
         </ContentWrapper>
         <DescriptionContainer>
-          🚗 Este {car.modelo} del {car.year} es una excelente opción para quienes buscan comodidad y rendimiento.
-          Con un diseño innovador y tecnología avanzada, este vehículo ofrece seguridad y eficiencia en cada trayecto.
+          {car.description}
         </DescriptionContainer>
         {/* Modal de Servicios */}
         <div style={{ marginTop: "20%" }}>

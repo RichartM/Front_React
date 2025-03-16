@@ -5,6 +5,8 @@ import { BrandsContext } from '../../context/BrandsContext';
 import CarCard from './CarCard';
 import CarCardAgente from '../AgenteVenta/CarCardAgente';
 import VehiculoService from '../../services/AgenteService/VehiculoService';
+import NavAgenteVenta from '../AgenteVenta/NavAgenteVenta';
+import { Margin } from '@mui/icons-material';
 
 const PageContainer = styled.div`
   padding: 50px;
@@ -79,9 +81,12 @@ const CarrosPorMarca = () => {
   
   return (
     <PageContainer>
+
     <HeaderContainer>
+    <NavAgenteVenta />
+
   <BrandImage src={brand.logo}  />
-  <TitleContainer>
+  <TitleContainer style={{marginTop:50}}>
     <BrandTitle>Descubre los {brand.nombre}</BrandTitle>
     <BrandDescription>{brand.descripcion}</BrandDescription>
   </TitleContainer>
