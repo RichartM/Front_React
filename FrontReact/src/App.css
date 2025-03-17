@@ -1,19 +1,17 @@
 
 /* Establecer el estilo de la caja en toda la página */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+
 
 /* Centrar todo el contenido dentro del contenedor principal */
 
 body {
   display: flex;
   justify-content: center;
+  align-items: center;
   background-color: #f8f9fa;
-  margin: 0; /* Asegúrate de que no haya márgenes adicionales */
-  padding: 0;
+  min-height: 100vh; /* Ocupa toda la pantalla */
+  margin: 0;
+  font-family: Arial, sans-serif;
 }
 img, video, iframe, .carousel, .row, .col {
   max-width: 100%;
@@ -25,7 +23,6 @@ img, video, iframe, .carousel, .row, .col {
   width: 100%;
   padding: 20px;
   margin-top: 100px;
-  min-height: 100vh; /* Asegura que el contenedor ocupe al menos el 100% de la altura de la ventana */
 }
 
 /* Estilo para el card */

@@ -1,11 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import Swal from "sweetalert2";
+import { BsX } from "react-icons/bs"; // Importar el ícono de cierre
 import Checkbox from "./common/CheckBox"; // ✅ Checkbox personalizado
 
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 5%;
+  top: 0;
   left: 0;
   width: 100%;
   height: 100%;
@@ -19,9 +20,10 @@ const ModalOverlay = styled.div`
 const ModalContent = styled.div`
   background: white;
   padding: 20px;
+  margin-top: 5%;
   border-radius: 10px;
   width: 85%;
-  max-width: 900px;
+  max-width: 90%;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   text-align: center;
   position: relative;
@@ -29,22 +31,39 @@ const ModalContent = styled.div`
   overflow-y: auto;
 `;
 
-const CloseButton = styled.button`
-  background: #ff4d4d;
+const CloseButtonContainer = styled.div`
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  padding: 15px;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #018180; /* Borde inferior más grueso */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para resaltar */
+`;
+
+const CloseButton = styled(BsX)`
+  font-size: 2.9rem;
   color: white;
-  border: none;
-  padding: 10px 18px;
-  font-size: 1rem;
-  border-radius: 5px;
   cursor: pointer;
-  position: absolute;
-  right: 15px;
-  top: 15px;
+  background: #ff4d4d;
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: background 0.3s ease;
 
   &:hover {
     background: #cc0000;
   }
+`;
+
+const ModalTitle = styled.h2`
+  font-size: 1.5rem;
+  color: #018180;
+  margin: 0;
+  font-weight: bold;
 `;
 
 const SectionTitle = styled.h3`
@@ -87,6 +106,8 @@ const ServiciosModal = ({ onClose, onAddService, selectedServices, setSelectedSe
   const initialServices = [
     { id: 1, name: "Cambio de Aceite", type: "Mensual", description: "Se reemplaza el aceite viejo por uno nuevo y se cambia el filtro." },
     { id: 2, name: "Revisión de Frenos", type: "Mensual", description: "Revisión completa del sistema de frenos para garantizar seguridad." },
+    { id: 7, name: "Cambio de Aceite", type: "Mensual", description: "Se reemplaza el aceite viejo por uno nuevo y se cambia el filtro." },
+    { id: 8, name: "Revisión de Frenos", type: "Mensual", description: "Revisión completa del sistema de frenos para garantizar seguridad." },
     { id: 3, name: "Servicio Completo", type: "Anual", description: "Mantenimiento general que incluye cambio de aceite, filtros y alineación." },
     { id: 4, name: "Alineación y Balanceo", type: "Anual", description: "Corrección de la alineación de llantas para evitar desgaste prematuro." },
     { id: 5, name: "Cambio de Motor", type: "Única Aplicación", description: "Sustitución completa del motor con garantía de fábrica." },
@@ -127,8 +148,10 @@ const ServiciosModal = ({ onClose, onAddService, selectedServices, setSelectedSe
   return (
     <ModalOverlay>
       <ModalContent>
-        <CloseButton onClick={onClose}>Cerrar</CloseButton>
-        <h2>Servicios Disponibles</h2>
+        <CloseButtonContainer>
+          <ModalTitle>SERVICIOS DISPONIBLES</ModalTitle>
+          <CloseButton onClick={onClose} /> {/* Botón de cerrar a la derecha */}
+        </CloseButtonContainer>
 
         {/* 🔹 Servicios Anuales */}
         <SectionTitle>Servicios Anuales</SectionTitle>
