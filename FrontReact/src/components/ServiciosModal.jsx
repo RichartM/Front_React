@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Swal from "sweetalert2";
 import { BsX } from "react-icons/bs"; // Importar el ícono de cierre
 import Checkbox from "./common/CheckBox"; // ✅ Checkbox personalizado
+import ServiciosService from "../services/AgenteService/ServiciosService"; // ✅ Importar servicio
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -99,35 +100,50 @@ const ServiceCheckbox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer; /* Para indicar que es clickeable */
 `;
 
-const ServiciosModal = ({ onClose, onAddService, selectedServices, setSelectedServices }) => {
-  // **Servicios Simulados (Puedes cambiar esto por una API)**
-  const initialServices = [
-    { id: 1, name: "Cambio de Aceite", type: "Mensual", description: "Se reemplaza el aceite viejo por uno nuevo y se cambia el filtro." },
-    { id: 2, name: "Revisión de Frenos", type: "Mensual", description: "Revisión completa del sistema de frenos para garantizar seguridad." },
-    { id: 7, name: "Cambio de Aceite", type: "Mensual", description: "Se reemplaza el aceite viejo por uno nuevo y se cambia el filtro." },
-    { id: 8, name: "Revisión de Frenos", type: "Mensual", description: "Revisión completa del sistema de frenos para garantizar seguridad." },
-    { id: 3, name: "Servicio Completo", type: "Anual", description: "Mantenimiento general que incluye cambio de aceite, filtros y alineación." },
-    { id: 4, name: "Alineación y Balanceo", type: "Anual", description: "Corrección de la alineación de llantas para evitar desgaste prematuro." },
-    { id: 5, name: "Cambio de Motor", type: "Única Aplicación", description: "Sustitución completa del motor con garantía de fábrica." },
-    { id: 6, name: "Cambio de Transmisión", type: "Única Aplicación", description: "Reemplazo total de la transmisión para un mejor rendimiento." }
-  ];
+const ServiciosModal = ({ onClose, selectedServices, setSelectedServices }) => {
+  const [services, setServices] = useState([]); // Estado para almacenar los servicios
+  const [loading, setLoading] = useState(true);
 
-  // **Clasificar los servicios por tipo**
-  const groupedServices = {
-    Anual: initialServices.filter(s => s.type === "Anual"),
-    Mensual: initialServices.filter(s => s.type === "Mensual"),
-    "Única Aplicación": initialServices.filter(s => s.type === "Única Aplicación")
-  };
+  // Cargar los servicios desde el backend
+  useEffect(() => {
+    const fetchServicios = async () => {
+      try {
+        const data = await ServiciosService.obtenerServicios();
+        setServices(data);
+      } catch (error) {
+        console.error("❌ Error obteniendo los servicios:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudieron cargar los servicios.",
+          icon: "error",
+          confirmButtonColor: "#018180",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServicios();
+  }, []);
+
+  // Agrupar servicios por modalidad
+  const groupedServices = services.reduce((acc, service) => {
+    const key = service.modalidad || "Otros";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(service);
+    return acc;
+  }, {});
 
   const handleToggleService = (service) => {
     setSelectedServices((prevServices) => {
       const alreadySelected = prevServices.some((s) => s.id === service.id);
 
       // Si el servicio es de "Única Aplicación" y ya hay uno seleccionado
-      if (service.type === "Única Aplicación" && !alreadySelected) {
-        const hasUniqueService = prevServices.some((s) => s.type === "Única Aplicación");
+      if (service.modalidad === "DE ÚNICA OCASIÓN" && !alreadySelected) {
+        const hasUniqueService = prevServices.some((s) => s.modalidad === "DE ÚNICA OCASIÓN");
 
         if (hasUniqueService) {
           Swal.fire({
@@ -153,47 +169,26 @@ const ServiciosModal = ({ onClose, onAddService, selectedServices, setSelectedSe
           <CloseButton onClick={onClose} /> {/* Botón de cerrar a la derecha */}
         </CloseButtonContainer>
 
-        {/* 🔹 Servicios Anuales */}
-        <SectionTitle>Servicios Anuales</SectionTitle>
-        {groupedServices.Anual.map((service) => (
-          <ServiceContainer key={service.id} color="#ffb400">
-            <ServiceCheckbox onClick={() => handleToggleService(service)}>
-              <div>
-                <ServiceTitle>{service.name}</ServiceTitle>
-                <ServiceDescription>{service.description}</ServiceDescription>
-              </div>
-              <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
-            </ServiceCheckbox>
-          </ServiceContainer>
-        ))}
-
-        {/* 🔹 Servicios Mensuales */}
-        <SectionTitle>Servicios Mensuales</SectionTitle>
-        {groupedServices.Mensual.map((service) => (
-          <ServiceContainer key={service.id} color="#4caf50">
-            <ServiceCheckbox onClick={() => handleToggleService(service)}>
-              <div>
-                <ServiceTitle>{service.name}</ServiceTitle>
-                <ServiceDescription>{service.description}</ServiceDescription>
-              </div>
-              <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
-            </ServiceCheckbox>
-          </ServiceContainer>
-        ))}
-
-        {/* 🔹 Servicios de Única Aplicación */}
-        <SectionTitle>Servicios de Única Aplicación</SectionTitle>
-        {groupedServices["Única Aplicación"].map((service) => (
-          <ServiceContainer key={service.id} color="#018180">
-            <ServiceCheckbox onClick={() => handleToggleService(service)}>
-              <div>
-                <ServiceTitle>{service.name}</ServiceTitle>
-                <ServiceDescription>{service.description}</ServiceDescription>
-              </div>
-              <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
-            </ServiceCheckbox>
-          </ServiceContainer>
-        ))}
+        {loading ? (
+          <p>Cargando servicios...</p>
+        ) : (
+          Object.keys(groupedServices).map((category) => (
+            <div key={category}>
+              <SectionTitle>{category}</SectionTitle>
+              {groupedServices[category].map((service) => (
+                <ServiceContainer key={service.id} color="#018180">
+                  <ServiceCheckbox onClick={() => handleToggleService(service)}>
+                    <div>
+                      <ServiceTitle>{service.name}</ServiceTitle>
+                      <ServiceDescription>{service.description}</ServiceDescription>
+                    </div>
+                    <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
+                  </ServiceCheckbox>
+                </ServiceContainer>
+              ))}
+            </div>
+          ))
+        )}
       </ModalContent>
     </ModalOverlay>
   );

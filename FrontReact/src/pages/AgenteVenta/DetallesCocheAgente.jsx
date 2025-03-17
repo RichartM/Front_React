@@ -264,6 +264,26 @@ const DetallesCocheAgente = () => {
     navigate(-1);
   };
 
+  const handleCompra = () => {
+    if (!selectedCliente) {
+      alert("Selecciona un cliente antes de comprar.");
+      return;
+    }
+  
+    navigate("/resumen-compra", {
+      state: {
+        cliente: selectedCliente,
+        coche: car,
+        fecha: new Date().toLocaleDateString(),
+        servicios: selectedServices,
+        totalAuto: car.precio,
+        totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
+        totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
+      },
+    });
+  };
+  
+
   return (
     <>
       <NavAgenteVenta />
@@ -275,8 +295,8 @@ const DetallesCocheAgente = () => {
               <CarTitle>{car.modelo}</CarTitle>
               <CarYear>Año: {car.year}</CarYear>
               <Price>Precio: ${car.precio.toLocaleString()} MXN</Price>
-              <BuyButton>Comprar</BuyButton>
-            </CarInfo>
+              <BuyButton onClick={handleCompra}>Comprar</BuyButton>
+              </CarInfo>
           </LeftSection>
 
           <ServicesSection>

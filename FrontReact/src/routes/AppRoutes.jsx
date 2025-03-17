@@ -30,7 +30,7 @@ import DetallesCoche from '../pages/Autos/DetallesCoche';
 // Agente
 import TablaCliente from '../pages/AgenteVenta/TablaCliente';
 import DetallesCocheAgente from '../pages/AgenteVenta/DetallesCocheAgente';
-
+import ResumenCompra from '../pages/AgenteVenta/ResumenCompra.jsx'
 const AppRoutes = () => {
   return (
     <Suspense fallback={<h1>Cargando...</h1>}>
@@ -52,6 +52,8 @@ const AppRoutes = () => {
         {/* 🔹 Rutas de Detalle de Auto para Clientes y Agentes */}
         <Route path="/cliente/marca/:brandId/coche/:carId" element={<DetallesCoche />} />
         <Route path="/agente/marca/:brandId/coche/:carId" element={<DetallesCocheAgente />} />
+        <Route path="/resumen-compra" element={<ResumenCompra />} />
+
 
         {/* 🔹 Rutas protegidas (GERENTES no requieren cambio de contraseña) */}
         <Route element={<ProtectedRoute />}>
