@@ -137,7 +137,7 @@ const ServiciosModal = ({ onClose, selectedServices, setSelectedServices }) => {
     return acc;
   }, {});
 
-  const handleToggleService = (service) => {
+  /*const handleToggleService = (service) => {
     setSelectedServices((prevServices) => {
       const alreadySelected = prevServices.some((s) => s.id === service.id);
 
@@ -159,7 +159,22 @@ const ServiciosModal = ({ onClose, selectedServices, setSelectedServices }) => {
       // Si ya está en la lista, lo eliminamos. Si no, lo agregamos
       return alreadySelected ? prevServices.filter((s) => s.id !== service.id) : [...prevServices, service];
     });
-  };
+  };*/
+
+  const handleToggleService = (service) => {
+    setSelectedServices((prevSelected) => {
+        const isSelected = prevSelected.some((s) => s.id === service.id);
+
+        if (isSelected) {
+            return prevSelected.filter((s) => s.id !== service.id); // 🔥 Eliminar si ya estaba seleccionado
+        } else {
+            return [...prevSelected, service]; // 🔥 Agregar si no estaba seleccionado
+        }
+    });
+};
+
+
+
 
   return (
     <ModalOverlay>
@@ -177,13 +192,15 @@ const ServiciosModal = ({ onClose, selectedServices, setSelectedServices }) => {
               <SectionTitle>{category}</SectionTitle>
               {groupedServices[category].map((service) => (
                 <ServiceContainer key={service.id} color="#018180">
-                  <ServiceCheckbox onClick={() => handleToggleService(service)}>
+                  <ServiceCheckbox onClick={() => {handleToggleService(service),console.log(service)}}>
                     <div>
                       <ServiceTitle>{service.name}</ServiceTitle>
                       <ServiceDescription>{service.description}</ServiceDescription>
                     </div>
-                    <Checkbox isChecked={selectedServices.some((s) => s.id === service.id)} />
-                  </ServiceCheckbox>
+                    {console.log(selectedServices)}
+                    <Checkbox isChecked={selectedServices.some((s) => s.name === service.name)} />
+                    </ServiceCheckbox>
+
                 </ServiceContainer>
               ))}
             </div>

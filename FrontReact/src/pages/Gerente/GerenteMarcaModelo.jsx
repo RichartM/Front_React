@@ -165,8 +165,34 @@ function GerenteMarcaModelo() {
 
   const [marcasApi,setMarcasApi] = useState([])
 
+  const [estadosAuto, setEstadosAuto] = useState([])
+
+  let selectedMarcalol ="" //checa 593
 
 
+  //tipos de estados del auto
+
+  useEffect(() => {
+    console.log("get the useEffect")
+    const token = localStorage.getItem('token');  // Obtener el token del localStorage
+    console.log("token: "+token)
+
+    
+      axios.get('http://localhost:8080/modalidad/todos', {
+        
+      })
+      .then(response => {
+        setEstadosAuto(response.data);
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.error('Error al obtener los datos:', error);
+      });
+    
+  }, []);
+
+  //obtener las marcas
+  
   useEffect(() => {
     console.log("get the useEffect")
     const token = localStorage.getItem('token');  // Obtener el token del localStorage
@@ -226,9 +252,16 @@ function GerenteMarcaModelo() {
   console.log(nuevoModelo.description);
   console.log(nuevoModelo.matricula);
   console.log(nuevoModelo.year);
+  nuevoModelo.marca = selectedMarcalol
+  console.log(selectedMarcalol)
+  console.log("datos de maras")
+  console.log(nuevoModelo.marca.id);
+  console.log(nuevoModelo.marca.nombre);
 
 
-  nuevoModelo.marca = {id:2,estado:"Activo",nombre:"Versa"}
+
+
+  nuevoModelo.estado = {id:1,nombre:"Disponible"}
   axios.post('http://localhost:8080/vehiculo/crear', nuevoModelo, {
           headers: {
             Authorization: `Bearer  ${localStorage.getItem('token')}`,
@@ -558,10 +591,12 @@ function GerenteMarcaModelo() {
     <Modal.Body>
       <Form
         onSubmit={(e) => {
+          
           e.preventDefault();
           const data = {
             modelo: e.target.modelo.value,
             marca: e.target.marca.value,
+           // marca:selectedMarcalol,
             matricula: e.target.matricula.value,
             precio: e.target.precio.value,
             year: e.target.year.value,
@@ -581,14 +616,31 @@ function GerenteMarcaModelo() {
               <Form.Control type="text" name="modelo" className="input" isInvalid={!!errors.modelo} />
               <Form.Control.Feedback type="invalid">{errors.modelo}</Form.Control.Feedback>
             </Form.Group>
-          </Col>
-          <Col md={6}>
+          </Col><Col md={6}>
             <Form.Group className="mb-3">
               <Form.Label>Marca</Form.Label>
-              <Form.Control type="text" name="marca" className="input" isInvalid={!!errors.marca} />
+              <Form.Select
+                name="marca"
+                className="input"
+                isInvalid={!!errors.marca}
+                onChange={(e) => {
+                   selectedMarcalol = JSON.parse(e.target.value);
+                  console.log("Marca seleccionada:", selectedMarcalol);
+                  setSelectedMarca(selectedMarca); // Guarda el objeto en un estado
+                }}
+              >
+                <option value="">Selecciona una marca</option>
+                {marcasApi.map((marca, index) => (
+                  <option key={index} value={JSON.stringify(marca)}>
+                    {marca.nombre}
+                  </option>
+                ))}
+              </Form.Select>
+
               <Form.Control.Feedback type="invalid">{errors.marca}</Form.Control.Feedback>
             </Form.Group>
           </Col>
+                           
         </Row>
         <Row>
           <Col md={6}>

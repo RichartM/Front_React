@@ -238,12 +238,14 @@ export default function Servicios() {
     const [showservicioModal, setShowservicioModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [editModal, setEditModal] = useState(false);
+    const [modalidades,setModalidades] = useState([])
+
     const [editedData, setEditedData] = useState({
-        identificador: '',
-        nombreServicio: '',
-        precio: '',
-        periodo: '',
-        estado: 'ACTIVO',
+        nomenclatura: '',
+        name: '',
+        price: '',
+        modalidad_id: modalidades.length > 0 ? modalidades[0] : {}, // ✅ Se inicializa con la primera modalidad o un objeto vacío
+        estate: 'true',
     });
 
     const [servicios, setservicios] = useState([
@@ -353,19 +355,19 @@ const handleSearch = (searchTerm) => {
     const handleEdit = (servicio) => {
         setSelectedItem(servicio);
         setEditedData({
-            identificador: servicio.identificador,
-            nombreServicio: servicio.nombreServicio,
-            precio: servicio.precio,
-            periodo: servicio.periodo,
-            estado: servicio.estado,
+            nomenclatura: servicio.nomenclatura,
+            name: servicio.name,
+            price: servicio.price,
+            modalidad_id: servicio.modalidad_id,
+            estate: servicio.estate,
         });
         setEditModal(true);
     };
 
     // Función para validar los campos del formulario con validaciones adicionales
     const validateFields = () => {
-        const { identificador, nombreServicio, precio, periodo } = editedData;
-        if (!identificador.trim() || !nombreServicio.trim() || !precio.trim() || !periodo.trim()) {
+        const { nomenclatura, name, price, modalidad_id } = editedData;
+        if (!nomenclatura.trim() || !name.trim() || !price.trim() ) {
             Swal.fire({
                 title: "Error",
                 text: "Todos los campos son obligatorios.",
@@ -379,7 +381,7 @@ const handleSearch = (searchTerm) => {
             });
             return false;
         }
-        if (identificador.trim().length < 3) {
+        if (nomenclatura.trim().length < 3) {
             Swal.fire({
                 title: "Error",
                 text: "El identificador debe tener al menos 3 caracteres.",
@@ -393,7 +395,7 @@ const handleSearch = (searchTerm) => {
             });
             return false;
         }
-        if (nombreServicio.trim().length < 3) {
+        if (name.trim().length < 3) {
             Swal.fire({
                 title: "Error",
                 text: "El nombre del servicio debe tener al menos 3 caracteres.",
@@ -407,7 +409,7 @@ const handleSearch = (searchTerm) => {
             });
             return false;
         }
-        if (isNaN(precio)) {
+        if (isNaN(price)) {
             Swal.fire({
                 title: "Error",
                 text: "El precio debe ser un número.",
@@ -421,7 +423,7 @@ const handleSearch = (searchTerm) => {
             });
             return false;
         }
-        if (Number(precio) <= 0) {
+        if (Number(price) <= 0) {
             Swal.fire({
                 title: "Error",
                 text: "El precio debe ser mayor que 0.",
@@ -457,14 +459,53 @@ const handleSearch = (searchTerm) => {
         }
     };
 
+
+
+
+  
+          //vendidos
+      useEffect(() => {
+        console.log("get the useEffect")
+        const token = localStorage.getItem('token');  // Obtener el token del localStorage
+        console.log("token: "+token)
+    
+        if (token) {
+          axios.get('http://localhost:8080/modali/get', {
+            headers: {
+              Authorization: `Bearer ${token}`  // Usar el token en el encabezado
+            }
+          })
+          .then(response => {
+            setModalidades(response.data);
+            console.log(response.data)
+          })
+          .catch(error => {
+            console.error('Error al obtener los datos:', error);
+          });
+        } else {
+          console.log('No se encontró el token');
+        }
+      }, []);
+
+
+
+
     // Función para agregar un nuevo servicio   PARA REVERTIR ESTA PARTE SOLO CAMBIA SERVICIOSREALES POR Servicios
     const agregarservicio = (nuevoServicio) => {
+        console.log("datos del dservicio")
+        console.log(nuevoServicio)
         if (validateFields()) {
             const newServicio = { ...nuevoServicio, id: servicios.length + 1 };
-            const updatedServicios = [...serviciosReales, newServicio];
+                axios.post('http://localhost:8080/servicios/crear', newServicio, {
+                  headers: {
+                    Authorization: `Bearer  ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                  },
+            })
+            /*const updatedServicios = [...serviciosReales, newServicio];
             setservicios(updatedServicios);
             setFilteredServicios(updatedServicios); // Actualiza la lista filtrada
-            setShowservicioModal(false);
+            setShowservicioModal(false);*/
             Swal.fire({
                 title: "¡Agregado!",
                 text: "El servicio ha sido agregado con éxito.",
@@ -565,8 +606,8 @@ const handleSearch = (searchTerm) => {
                                         <Form.Label>Identificador</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={editedData.identificador}
-                                            onChange={(e) => setEditedData({ ...editedData, identificador: e.target.value })}
+                                            value={editedData.nomenclatura}
+                                            onChange={(e) => setEditedData({ ...editedData, nomenclatura: e.target.value })}
                                             className="input"
                                             required
                                         />
@@ -576,47 +617,68 @@ const handleSearch = (searchTerm) => {
                                         <Form.Label>Nombre servicio</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={editedData.nombreServicio}
-                                            onChange={(e) => setEditedData({ ...editedData, nombreServicio: e.target.value })}
+                                            value={editedData.name}
+                                            onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
                                             className="input"
                                             required
                                         />
                                     </Form.Group>
+                                    <Form.Group className="mb-3">
+                                    <Form.Label>Descripción</Form.Label>
+                                        <Form.Control
+                                            as="textarea" // 🔥 Convierte el input en un textarea
+                                            value={editedData.description} // ✅ Usa "description" en lugar de "precio"
+                                            onChange={(e) => setEditedData({ ...editedData, description: e.target.value })}
+                                            className="input"
+                                            required
+                                            rows={3} // Opcional: Define el número de filas visibles
+                                        />
+                                    </Form.Group>
+
 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Precio</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={editedData.precio}
-                                            onChange={(e) => setEditedData({ ...editedData, precio: e.target.value })}
+                                            value={editedData.price}
+                                            onChange={(e) => setEditedData({ ...editedData, price: e.target.value })}
                                             className="input"
                                             required
                                         />
                                     </Form.Group>
+
+                                    
 
                                     <Form.Group className="mb-3">
                                         <Form.Label>Periodo</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={editedData.periodo}
-                                            onChange={(e) => setEditedData({ ...editedData, periodo: e.target.value })}
-                                            className="input"
-                                            required
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Estado</Form.Label>
                                         <Form.Select
-                                            value={editedData.estado}
-                                            onChange={(e) => setEditedData({ ...editedData, estado: e.target.value })}
+                                            value={editedData.modalidad_id ? JSON.stringify(editedData.modalidad_id) : "default"} // 🔥 Usa "default" si no hay valor
+                                            onChange={(e) => {
+                                                if (e.target.value !== "default") {
+                                                    setEditedData({ ...editedData, modalidad_id: JSON.parse(e.target.value) });
+                                                }
+                                            }}
                                             className="input"
                                             required
                                         >
-                                            <option value="ACTIVO">ACTIVO</option>
-                                            <option value="INACTIVO">INACTIVO</option>
+                                            {/* 🔥 Mensaje inicial */}
+                                            <option value="default" >
+                                                Selecciona una modalidad para el servicio
+                                            </option>
+
+                                            {/* 🔥 Opciones de modalidades dinámicas */}
+                                            {modalidades.map((modalidad) => (
+                                                <option key={modalidad.id} value={JSON.stringify(modalidad)}>
+                                                    {modalidad.nombre}
+                                                </option>
+                                            ))}
                                         </Form.Select>
                                     </Form.Group>
+
+
+
+
+
                                 </Form>
                             </Modal.Body>
                             <Modal.Footer>

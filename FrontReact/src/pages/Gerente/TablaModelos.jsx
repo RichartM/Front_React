@@ -86,7 +86,7 @@ const TablaModelos = ({
                                 <td>{item.year}</td>
                                 <td>{item.color}</td>
                                 <td>{item.description}</td>
-                                <td>{item.estado}</td>
+                                <td>{item.estado.nombre}</td>
                                 <td>
                                     <BsPencilSquare
                                         className="text-primary me-2 fs-1"
