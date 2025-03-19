@@ -271,9 +271,6 @@ function GerenteMarcaModelo() {
   .then(response => {
 
     setModelosREales(prevModelos => [...prevModelos, response.data]);
-  //const newModelo = { ...nuevoModelo, id: modelos.length + 1 };
-  //setModelos([...modelos, newModelo]);
-  //setShowModelosModal(false);
 
   Swal.fire({
     title: "¡Agregado!",
