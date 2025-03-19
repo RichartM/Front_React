@@ -268,6 +268,9 @@ function GerenteMarcaModelo() {
             'Content-Type': 'application/json',
           },
   })
+  .then(response => {
+
+    setModelosREales(prevModelos => [...prevModelos, response.data]);
   //const newModelo = { ...nuevoModelo, id: modelos.length + 1 };
   //setModelos([...modelos, newModelo]);
   //setShowModelosModal(false);
@@ -279,9 +282,14 @@ function GerenteMarcaModelo() {
     confirmButtonColor: "#018180",
     customClass: { confirmButton: "btn-swal-confirmar" },
     buttonsStyling: false,
-  });
+  }).then(() => {
+    setShowModelosModal(false); // Cierra el modal
+  })
+})
+.catch(error => {
+  console.error("Error al agregar el modelo:", error);
+});
 };
-
 
   const agregarMarca = (nuevaMarca) => {
     //const newMarca = { ...nuevaMarca, id: marcas.length + 1 };
@@ -294,6 +302,11 @@ function GerenteMarcaModelo() {
         'Content-Type': 'application/json',
       },
 })
+.then(response => {
+  console.log("Respuesta del backend:", response.data); // Verifica qué devuelve la API
+
+  // Agregar la nueva marca al estado
+  setMarcasApi(prevMarcas => [...prevMarcas, response.data]);
 
     Swal.fire({
       title: "¡Agregado!",
@@ -305,8 +318,11 @@ function GerenteMarcaModelo() {
     }).then(() => {
       setShowMarcasModal(false);
     });
+  })
+  .catch(error => {
+    console.error('Error al agregar la marca:', error);
+  });
 };
-
   // Función para editar registros (diferencia entre marca y modelo)
   const handleEdit = (item, isMarca) => {
     setSelectedItem({ ...item, isMarca });
