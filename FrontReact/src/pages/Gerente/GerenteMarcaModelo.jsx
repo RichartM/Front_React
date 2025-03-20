@@ -140,6 +140,7 @@ function GerenteMarcaModelo() {
   const [editModal, setEditModal] = useState(false);
   const [editedData, setEditedData] = useState({});
   const [errors, setErrors] = useState({});
+  const [selectedMarca, setSelectedMarca] = useState(null);
 
   // Registros para marcas y modelos
   const [marcas, setMarcas] = useState([
@@ -163,11 +164,11 @@ function GerenteMarcaModelo() {
   const recordsPerPageMarcas = 10;
   const recordsPerPageModelos = 10;
 
-  const [marcasApi,setMarcasApi] = useState([])
+  const [marcasApi, setMarcasApi] = useState([])
 
   const [estadosAuto, setEstadosAuto] = useState([])
 
-  let selectedMarcalol ="" //checa 593
+  let selectedMarcalol = "" //checa 593
 
 
   //tipos de estados del auto
@@ -175,12 +176,12 @@ function GerenteMarcaModelo() {
   useEffect(() => {
     console.log("get the useEffect")
     const token = localStorage.getItem('token');  // Obtener el token del localStorage
-    console.log("token: "+token)
+    console.log("token: " + token)
 
-    
-      axios.get('http://localhost:8080/modalidad/todos', {
-        
-      })
+
+    axios.get('http://localhost:8080/modalidad/todos', {
+
+    })
       .then(response => {
         setEstadosAuto(response.data);
         console.log(response.data)
@@ -188,30 +189,35 @@ function GerenteMarcaModelo() {
       .catch(error => {
         console.error('Error al obtener los datos:', error);
       });
-    
+
   }, []);
 
   //obtener las marcas
-  
+
   useEffect(() => {
-    console.log("get the useEffect")
-    const token = localStorage.getItem('token');  // Obtener el token del localStorage
-    console.log("token: "+token)
-
-    
+    const token = localStorage.getItem('token'); // Obtener el token del localStorage
+    if (token) {
       axios.get('http://localhost:8080/marcas/getAll', {
-        
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       })
-      .then(response => {
-        setMarcasApi(response.data);
-        console.log(response.data)
-      })
-      .catch(error => {
-        console.error('Error al obtener los datos:', error);
-      });
-    
+        .then(response => {
+          setMarcasApi(response.data);
+        })
+        .catch(error => {
+          console.error('Error al obtener las marcas:', error);
+          Swal.fire({
+            title: "Error",
+            text: "Hubo un problema al obtener las marcas.",
+            icon: "error",
+            confirmButtonColor: "#dc3545",
+            customClass: { confirmButton: 'btn-swal-cancelar' },
+            buttonsStyling: false,
+          });
+        });
+    }
   }, []);
-
 
 
 
@@ -229,98 +235,101 @@ function GerenteMarcaModelo() {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      
+
       reader.onload = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
   };
-  
+
 
   // Funciones para agregar registros
+
   const agregarModelo = async (nuevoModelo) => {
-  console.log(nuevoModelo.modelo);
-  nuevoModelo.estadoVehiculo = true; // Esto asegura que el estado siempre esté como 'Activo'
-
-  if (nuevoModelo.imagen) {
-    try {
-      const imgBase64 = await convertirABase64(nuevoModelo.imagen); // Esperamos la conversión
-      nuevoModelo.imagen = imgBase64; // Asignamos la imagen ya convertida
-    } catch (error) {
-      console.error("Error al convertir la imagen a Base64:", error);
-      return;
+    if (!selectedMarca || typeof selectedMarca !== 'object' || !selectedMarca.nombre) {
+      Swal.fire({
+        title: "Error",
+        text: "Debes seleccionar una marca válida.",
+        icon: "error",
+        confirmButtonColor: "#dc3545",
+        customClass: { confirmButton: 'btn-swal-cancelar' },
+        buttonsStyling: false,
+      });
+      return; // Detener la ejecución si no hay una marca válida
     }
-  }
-  console.log(nuevoModelo.description);
-  console.log(nuevoModelo.matricula);
-  console.log(nuevoModelo.year);
-  nuevoModelo.marca = selectedMarcalol
-  console.log(selectedMarcalol)
-  console.log("datos de maras")
-  console.log(nuevoModelo.marca.id);
-  console.log(nuevoModelo.marca.nombre);
 
+    nuevoModelo.estadoVehiculo = true; // Esto asegura que el estado siempre esté como 'Activo'
 
+    if (nuevoModelo.imagen) {
+      try {
+        const imgBase64 = await convertirABase64(nuevoModelo.imagen); // Esperamos la conversión
+        nuevoModelo.imagen = imgBase64; // Asignamos la imagen ya convertida
+      } catch (error) {
+        console.error("Error al convertir la imagen a Base64:", error);
+        return;
+      }
+    }
 
+    nuevoModelo.marca = selectedMarca; // Usar el estado selectedMarca
+    nuevoModelo.estado = { id: 1, nombre: "Disponible" };
 
-  nuevoModelo.estado = {id:1,nombre:"Disponible"}
-  axios.post('http://localhost:8080/vehiculo/crear', nuevoModelo, {
-          headers: {
-            Authorization: `Bearer  ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-  })
-  .then(response => {
+    axios.post('http://localhost:8080/vehiculo/crear', nuevoModelo, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        setModelosREales(prevModelos => [...prevModelos, response.data]);
 
-    setModelosREales(prevModelos => [...prevModelos, response.data]);
-
-  Swal.fire({
-    title: "¡Agregado!",
-    text: "El modelo ha sido agregado con éxito.",
-    icon: "success",
-    confirmButtonColor: "#018180",
-    customClass: { confirmButton: "btn-swal-confirmar" },
-    buttonsStyling: false,
-  }).then(() => {
-    setShowModelosModal(false); // Cierra el modal
-  })
-})
-.catch(error => {
-  console.error("Error al agregar el modelo:", error);
-});
-};
+        Swal.fire({
+          title: "¡Agregado!",
+          text: "El modelo ha sido agregado con éxito.",
+          icon: "success",
+          confirmButtonColor: "#018180",
+          customClass: { confirmButton: "btn-swal-confirmar" },
+          buttonsStyling: false,
+        }).then(() => {
+          setShowModelosModal(false); // Cierra el modal
+          setSelectedMarca(null); // Limpiar la selección de marca
+        });
+      })
+      .catch(error => {
+        console.error("Error al agregar el modelo:", error);
+      });
+  };
 
   const agregarMarca = (nuevaMarca) => {
     //const newMarca = { ...nuevaMarca, id: marcas.length + 1 };
     //setMarcas([...marcas, newMarca]);
     //setShowMarcasModal(false);
-    console.log("nueva marca: "+nuevaMarca.nombre)
+    console.log("nueva marca: " + nuevaMarca.nombre)
     axios.post('http://localhost:8080/marcas/post', nuevaMarca, {
       headers: {
         Authorization: `Bearer  ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
       },
-})
-.then(response => {
-  console.log("Respuesta del backend:", response.data); // Verifica qué devuelve la API
+    })
+      .then(response => {
+        console.log("Respuesta del backend:", response.data); // Verifica qué devuelve la API
 
-  // Agregar la nueva marca al estado
-  setMarcasApi(prevMarcas => [...prevMarcas, response.data]);
+        // Agregar la nueva marca al estado
+        setMarcasApi(prevMarcas => [...prevMarcas, response.data]);
 
-    Swal.fire({
-      title: "¡Agregado!",
-      text: "La marca ha sido agregada con éxito.",
-      icon: "success",
-      confirmButtonColor: "#018180",
-      customClass: { confirmButton: 'btn-swal-confirmar' },
-      buttonsStyling: false
-    }).then(() => {
-      setShowMarcasModal(false);
-    });
-  })
-  .catch(error => {
-    console.error('Error al agregar la marca:', error);
-  });
-};
+        Swal.fire({
+          title: "¡Agregado!",
+          text: "La marca ha sido agregada con éxito.",
+          icon: "success",
+          confirmButtonColor: "#018180",
+          customClass: { confirmButton: 'btn-swal-confirmar' },
+          buttonsStyling: false
+        }).then(() => {
+          setShowMarcasModal(false);
+        });
+      })
+      .catch(error => {
+        console.error('Error al agregar la marca:', error);
+      });
+  };
   // Función para editar registros (diferencia entre marca y modelo)
   const handleEdit = (item, isMarca) => {
     setSelectedItem({ ...item, isMarca });
@@ -332,74 +341,175 @@ function GerenteMarcaModelo() {
     } else {
       setEditedData({
         modelo: item.modelo,
-        marca: item.marca,
-        placa: item.placa,
+        marca: item.marca, // Asegúrate de que esto sea un objeto { id, nombre }
+        matricula: item.matricula,
         precio: item.precio,
-        año: item.año,
+        year: item.year,
         color: item.color,
-        descripcion: item.descripcion,
-        estadoVehiculo: item.estadoVehiculo,
-        estado: item.estado,
+        description: item.description,
+        // No incluir estadoVehiculo aquí
       });
     }
     setEditModal(true);
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (validateFields(editedData, selectedItem.isMarca)) {
-      if (selectedItem.isMarca) {
-        setMarcas(marcas.map(m => m.id === selectedItem.id ? { ...m, ...editedData } : m));
-      } else {
-        setModelos(modelos.map(m => m.id === selectedItem.id ? { ...m, ...editedData } : m));
-      }
-      setEditModal(false);
-      Swal.fire({
-        title: "¡Guardado!",
-        text: "Los cambios han sido guardados con éxito.",
-        icon: "success",
-        confirmButtonColor: "#018180",
-        customClass: { confirmButton: 'btn-swal-confirmar' },
-        buttonsStyling: false
-      });
-    }
-  };
-
-  const handleToggleStatus = (item, isMarca) => {
-    Swal.fire({
-      title: `¿Estás seguro de ${item.estado === 'ACTIVO' || item.estado === 'Activo' ? 'desactivar' : 'activar'} ${isMarca ? item.nombre : item.modelo}?`,
-      text: "Esta acción cambiará su estado.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, confirmar",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
-      confirmButtonColor: "#018180",
-      customClass: {
-        popup: 'swal2-popup',
-        confirmButton: 'btn-swal-confirmar',
-        cancelButton: 'btn-swal-cancelar'
-      },
-      buttonsStyling: false,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const updatedItem = { ...item, estado: (item.estado === 'ACTIVO' || item.estado === 'Activo') ? 'INACTIVO' : 'Activo' };
-        if (isMarca) {
-          setMarcas(marcas.map(m => m.id === item.id ? updatedItem : m));
+      try {
+        if (selectedItem.isMarca) {
+          // Lógica para actualizar marca
+          setMarcas(marcas.map(m => m.id === selectedItem.id ? { ...m, ...editedData } : m));
         } else {
-          setModelos(modelos.map(m => m.id === item.id ? updatedItem : m));
+          // Lógica para actualizar modelo
+          const response = await axios.put(
+            `http://localhost:8080/vehiculo/actualizar/${selectedItem.id}`,
+            editedData,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          const updatedItem = response.data;
+
+          // Actualizar el estado local
+          setModelosREales(prevModelos =>
+            prevModelos.map(modelo =>
+              modelo.id === updatedItem.id ? { ...modelo, ...updatedItem } : modelo
+            )
+          );
         }
+
+        setEditModal(false);
         Swal.fire({
-          title: "¡Hecho!",
-          text: `El estado ha sido cambiado.`,
+          title: "¡Guardado!",
+          text: "Los cambios han sido guardados con éxito.",
           icon: "success",
           confirmButtonColor: "#018180",
           customClass: { confirmButton: 'btn-swal-confirmar' },
           buttonsStyling: false,
         });
+      } catch (error) {
+        console.error("Error al guardar los cambios:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Hubo un problema al guardar los cambios.",
+          icon: "error",
+          confirmButtonColor: "#dc3545",
+          customClass: { confirmButton: 'btn-swal-cancelar' },
+          buttonsStyling: false,
+        });
       }
-    });
+    }
   };
 
+
+  //Para MARCAS
+  const handleSaveMarcaChanges = async () => {
+    if (validateFields(editedData, true)) { // Asegúrate de que esté validado
+      try {
+        // Lógica para actualizar la marca (solo el nombre, no se toca el estado)
+        const updatedMarca = { 
+          nombre: editedData.nombre,
+          estado: selectedItem.estado // Mantén el estado original tal como está
+        };
+  
+        // Realizar el PUT para actualizar la marca
+        const response = await axios.put(
+          `http://localhost:8080/marcas/put/${selectedItem.id}`,
+          updatedMarca,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+  
+        // Actualizar el estado local con la marca actualizada
+        setMarcasApi(prevMarcas =>
+          prevMarcas.map(marca =>
+            marca.id === selectedItem.id ? response.data : marca
+          )
+        );
+  
+        // Cierra el modal de edición
+        setEditModal(false);
+  
+        // Muestra un mensaje de éxito
+        Swal.fire({
+          title: "¡Guardado!",
+          text: "Los cambios han sido guardados con éxito.",
+          icon: "success",
+          confirmButtonColor: "#018180",
+          customClass: { confirmButton: 'btn-swal-confirmar' },
+          buttonsStyling: false,
+        });
+      } catch (error) {
+        console.error("Error al guardar los cambios:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Hubo un problema al guardar los cambios.",
+          icon: "error",
+          confirmButtonColor: "#dc3545",
+          customClass: { confirmButton: 'btn-swal-cancelar' },
+          buttonsStyling: false,
+        });
+      }
+    }
+  };
+  
+
+
+
+  const handleToggleStatus = async (marca, newStatus) => {
+    try {
+      const response = await fetch(`http://localhost:8080/marcas/editEstado/${marca.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ estado: newStatus }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al actualizar el estado de la marca');
+      }
+  
+      const updatedMarca = await response.json();
+  
+      // Actualiza el estado de la marca en el frontend
+      setMarcasApi((prevMarcas) =>
+        prevMarcas.map((m) =>
+          m.id === updatedMarca.id ? { ...m, estado: updatedMarca.estado } : m
+        )
+      );
+  
+      // Muestra una alerta de éxito
+      Swal.fire({
+        title: "¡Estado actualizado!",
+        text: `El estado de la marca "${marca.nombre}" ha sido cambiado a ${newStatus ? "Activo" : "Inactivo"}.`,
+        icon: "success",
+        confirmButtonColor: "#018180", // Color del botón de confirmación
+        customClass: { confirmButton: 'btn-swal-confirmar' }, // Clase personalizada
+        buttonsStyling: false, // Desactiva el estilo por defecto de SweetAlert2
+      });
+    } catch (error) {
+      console.error('Error:', error);
+  
+      // Muestra una alerta de error
+      Swal.fire({
+        title: "Error",
+        text: "Hubo un problema al cambiar el estado de la marca.",
+        icon: "error",
+        confirmButtonColor: "#dc3545", // Color del botón de error
+        customClass: { confirmButton: 'btn-swal-cancelar' }, // Clase personalizada
+        buttonsStyling: false, // Desactiva el estilo por defecto de SweetAlert2
+      });
+    }
+  };
   // Validación de campos (para marca y para modelo)
   const validateFields = (data, isMarca) => {
     const newErrors = {};
@@ -407,7 +517,9 @@ function GerenteMarcaModelo() {
       if (!data.nombre || !data.nombre.trim()) newErrors.nombre = "El nombre es obligatorio.";
     } else {
       if (!data.modelo || !data.modelo.trim()) newErrors.modelo = "El modelo es obligatorio.";
-      if (!data.marca || !data.marca.trim()) newErrors.marca = "La marca es obligatoria.";
+      if (!data.marca || typeof data.marca !== 'object' || !data.marca.nombre) {
+        newErrors.marca = "La marca es obligatoria.";
+      }
       if (!data.matricula || !data.matricula.trim()) newErrors.placa = "La placa es obligatoria.";
       if (!data.precio || !data.precio.toString().trim()) newErrors.precio = "El precio es obligatorio.";
       if (!data.year || !data.year.toString().trim()) newErrors.año = "El año es obligatorio.";
@@ -421,69 +533,63 @@ function GerenteMarcaModelo() {
 
 
   ///OBTENIENDO LAS MARCAS DE LA BASE DE DARTO
-  const [marcasReales,setMarcasREales] = useState([])
-
- useEffect(() => {
-       console.log("get the useEffect")
-       const token = localStorage.getItem('token');  // Obtener el token del localStorage
-       console.log("token: "+token)
-   
-       if (token) {
-         axios.get('http://localhost:8080/servicios/obtener', {
-           headers: {
-             Authorization: `Bearer ${token}`  // Usar el token en el encabezado
-           }
-         })
-         .then(response => {
-          setMarcasREales(response.data);
-           console.log(response.data)
-         })
-         .catch(error => {
-           console.error('Error al obtener los datos:', error);
-         });
-       } else {
-         console.log('No se encontró el token');
-       }
-     }, []);
-
-       ///OBTENIENDO LOS MODELOS DE LA BASE DE DARTO
-  const [modelosReales,setModelosREales] = useState([])
+  const [marcasReales, setMarcasREales] = useState([])
 
   useEffect(() => {
-        console.log("get the useEffect")
-        const token = localStorage.getItem('token');  // Obtener el token del localStorage
-        console.log("token: "+token)
-    
-        if (token) {
-          axios.get('http://localhost:8080/vehiculo/obtener', {
-            headers: {
-              Authorization: `Bearer ${token}`  // Usar el token en el encabezado
-            }
-          })
-          .then(response => {
-            setModelosREales(response.data);
-            console.log(response.data)
-          })
-          .catch(error => {
-            console.error('Error al obtener los datos:', error);
-          });
-        } else {
-          console.log('No se encontró el token');
+    console.log("get the useEffect")
+    const token = localStorage.getItem('token');  // Obtener el token del localStorage
+    console.log("token: " + token)
+
+    if (token) {
+      axios.get('http://localhost:8080/servicios/obtener', {
+        headers: {
+          Authorization: `Bearer ${token}`  // Usar el token en el encabezado
         }
-      }, []);
+      })
+        .then(response => {
+          setMarcasREales(response.data);
+          console.log(response.data)
+        })
+        .catch(error => {
+          console.error('Error al obtener los datos:', error);
+        });
+    } else {
+      console.log('No se encontró el token');
+    }
+  }, []);
+
+  ///OBTENIENDO LOS MODELOS DE LA BASE DE DARTO
+  const [modelosReales, setModelosREales] = useState([])
+
+  useEffect(() => {
+    const token = localStorage.getItem('token'); // Obtener el token del localStorage
+    if (token) {
+      axios.get('http://localhost:8080/vehiculo/obtener', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Incluir el token en el header
+        },
+      })
+        .then(response => {
+          setModelosREales(response.data);
+        })
+        .catch(error => {
+          console.error('Error al obtener los modelos:', error);
+        });
+    }
+  }, []);
 
 
-      const handleSearchMarcas = (term) => {
-        setSearchTermMarcas(term);
-        setCurrentPageMarcas(1); // Reinicia la paginación a la primera página al buscar
-    };
-    
-    const handleSearchModelos = (term) => {
-        setSearchTermModelos(term);
-        setCurrentPageModelos(1); // Reinicia la paginación a la primera página al buscar
-    };
-    
-    
+  const handleSearchMarcas = (term) => {
+    setSearchTermMarcas(term);
+    setCurrentPageMarcas(1); // Reinicia la paginación a la primera página al buscar
+  };
+
+  const handleSearchModelos = (term) => {
+    setSearchTermModelos(term);
+    setCurrentPageModelos(1); // Reinicia la paginación a la primera página al buscar
+  };
+
+
 
   return (
     <>
@@ -521,20 +627,20 @@ function GerenteMarcaModelo() {
               </Nav>
             </Col>
             <Col xs={4} className="d-flex justify-content-end align-items-center">
-            <FiltroBuscador
-    onSearch={activeTab === '/home' ? handleSearchMarcas : handleSearchModelos}
-    placeholder={activeTab === '/home' ? "Buscar marcas..." : "Buscar modelos..."}
-/>
+              <FiltroBuscador
+                onSearch={activeTab === '/home' ? handleSearchMarcas : handleSearchModelos}
+                placeholder={activeTab === '/home' ? "Buscar marcas..." : "Buscar modelos..."}
+              />
 
 
             </Col>
             <p></p>
             <Col xs={12} className="d-flex justify-content-end ">
 
-            <Nav.Link className="text-dark ms-2" onClick={(e) => { e.preventDefault(); handleOpenModal(); }}>
+              <Nav.Link className="text-dark ms-2" onClick={(e) => { e.preventDefault(); handleOpenModal(); }}>
                 <i className="bi bi-plus-circle fs-2"></i>
               </Nav.Link>
-              </Col>
+            </Col>
 
           </Row>
           {activeTab === "/home" && (
@@ -547,7 +653,7 @@ function GerenteMarcaModelo() {
               recordsPerPage={recordsPerPageMarcas}
               onEdit={handleEdit}
               onToggleStatus={handleToggleStatus}
-              
+
 
 
             />
@@ -578,7 +684,7 @@ function GerenteMarcaModelo() {
               e.preventDefault();
               const nombre = e.target.nombre.value;
               if (validateFields({ nombre }, true)) {
-                agregarMarca({ nombre : nombre,estado:"Activo"}); //antes:                agregarMarca({ nombre, estado: 'ACTIVO' });
+                agregarMarca({ nombre: nombre, estado: true }); //antes:                agregarMarca({ nombre, estado: 'ACTIVO' });
 
               }
             }}>
@@ -598,141 +704,140 @@ function GerenteMarcaModelo() {
         </StyledModalContent>
       </Modal>
       {/* Modal para Modelos */}
-{/* Modal para Modelos */}
-<Modal show={showModelosModal} onHide={() => setShowModelosModal(false)} centered>
-  <StyledModalContent>
-    <Modal.Header closeButton>
-      <Modal.Title className="title">Agregar Modelo</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      <Form
-        onSubmit={(e) => {
-          
-          e.preventDefault();
-          const data = {
-            modelo: e.target.modelo.value,
-            marca: e.target.marca.value,
-           // marca:selectedMarcalol,
-            matricula: e.target.matricula.value,
-            precio: e.target.precio.value,
-            year: e.target.year.value,
-            color: e.target.color.value,
-            description: e.target.description.value,
-            imagen: e.target.imagen.files[0] || null,
-          };
-          if (validateFields(data, false)) {
-            agregarModelo({ ...data, estado: 'Activo' });
-          }
-        }}
-      >
-        <Row>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Modelo</Form.Label>
-              <Form.Control type="text" name="modelo" className="input" isInvalid={!!errors.modelo} />
-              <Form.Control.Feedback type="invalid">{errors.modelo}</Form.Control.Feedback>
-            </Form.Group>
-          </Col><Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Marca</Form.Label>
-              <Form.Select
-                name="marca"
-                className="input"
-                isInvalid={!!errors.marca}
-                onChange={(e) => {
-                   selectedMarcalol = JSON.parse(e.target.value);
-                  console.log("Marca seleccionada:", selectedMarcalol);
-                  setSelectedMarca(selectedMarca); // Guarda el objeto en un estado
-                }}
-              >
-                <option value="">Selecciona una marca</option>
-                {marcasApi.map((marca, index) => (
-                  <option key={index} value={JSON.stringify(marca)}>
-                    {marca.nombre}
-                  </option>
-                ))}
-              </Form.Select>
-
-              <Form.Control.Feedback type="invalid">{errors.marca}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-                           
-        </Row>
-        <Row>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Placa</Form.Label>
-              <Form.Control type="text" name="matricula" className="input" isInvalid={!!errors.placa} />
-              <Form.Control.Feedback type="invalid">{errors.placa}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Precio</Form.Label>
-              <Form.Control type="text" name="precio" className="input" isInvalid={!!errors.precio} />
-              <Form.Control.Feedback type="invalid">{errors.precio}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Año</Form.Label>
-              <Form.Control type="text" name="year" className="input" isInvalid={!!errors.año} />
-              <Form.Control.Feedback type="invalid">{errors.año}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Color</Form.Label>
-              <Form.Control type="text" name="color" className="input" isInvalid={!!errors.color} />
-              <Form.Control.Feedback type="invalid">{errors.color}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
-            <Form.Group className="mb-3">
-              <Form.Label>Descripción</Form.Label>
-              <Form.Control as="textarea" name="description" className="input" isInvalid={!!errors.descripcion} />
-              <Form.Control.Feedback type="invalid">{errors.descripcion}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
-            <Form.Group className="mb-3">
-              <Form.Label>Imagen</Form.Label>
-              <Form.Control type="file" name="imagen" accept="image/*" />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Modal.Footer>
-          <CustomButton variant="secondary" onClick={() => setShowModelosModal(false)}>
-            Cancelar
-          </CustomButton>
-          <CustomButton type="submit">Agregar</CustomButton>
-        </Modal.Footer>
-      </Form>
-    </Modal.Body>
-  </StyledModalContent>
-</Modal>
+      {/* Modal para Modelos */}
+      <Modal show={showModelosModal} onHide={() => setShowModelosModal(false)} centered>
+        <StyledModalContent>
+          <Modal.Header closeButton>
+            <Modal.Title className="title">Agregar Modelo</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const data = {
+                  modelo: e.target.modelo.value,
+                  marca: selectedMarca, // Usa el estado selectedMarca directamente
+                  matricula: e.target.matricula.value,
+                  precio: e.target.precio.value,
+                  year: e.target.year.value,
+                  color: e.target.color.value,
+                  description: e.target.description.value,
+                  imagen: e.target.imagen.files[0] || null,
+                };
+                if (validateFields(data, false)) {
+                  agregarModelo({ ...data, estado: 'Activo' });
+                }
+              }}
+            >
+              {/* Campos del formulario */}
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Modelo</Form.Label>
+                    <Form.Control type="text" name="modelo" className="input" isInvalid={!!errors.modelo} />
+                    <Form.Control.Feedback type="invalid">{errors.modelo}</Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Marca</Form.Label>
+                    <Form.Select
+                      value={selectedMarca ? JSON.stringify(selectedMarca) : ""}
+                      onChange={(e) => {
+                        const selectedMarca = JSON.parse(e.target.value); // Convierte el valor seleccionado a objeto
+                        setSelectedMarca(selectedMarca); // Actualiza el estado
+                      }}
+                      className="input"
+                      isInvalid={!!errors.marca}
+                    >
+                      <option value="">Selecciona una marca</option>
+                      {marcasApi.map((marca, index) => (
+                        <option key={index} value={JSON.stringify(marca)}>
+                          {marca.nombre}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Form.Control.Feedback type="invalid">{errors.marca}</Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Placa</Form.Label>
+                    <Form.Control type="text" name="matricula" className="input" isInvalid={!!errors.placa} />
+                    <Form.Control.Feedback type="invalid">{errors.placa}</Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Precio</Form.Label>
+                    <Form.Control type="text" name="precio" className="input" isInvalid={!!errors.precio} />
+                    <Form.Control.Feedback type="invalid">{errors.precio}</Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Año</Form.Label>
+                    <Form.Control type="text" name="year" className="input" isInvalid={!!errors.año} />
+                    <Form.Control.Feedback type="invalid">{errors.año}</Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Color</Form.Label>
+                    <Form.Control type="text" name="color" className="input" isInvalid={!!errors.color} />
+                    <Form.Control.Feedback type="invalid">{errors.color}</Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={12}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Descripción</Form.Label>
+                    <Form.Control as="textarea" name="description" className="input" isInvalid={!!errors.descripcion} />
+                    <Form.Control.Feedback type="invalid">{errors.descripcion}</Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={12}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Imagen</Form.Label>
+                    <Form.Control type="file" name="imagen" accept="image/*" />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Modal.Footer>
+                <CustomButton variant="secondary" onClick={() => setShowModelosModal(false)}>
+                  Cancelar
+                </CustomButton>
+                <CustomButton type="submit">Agregar</CustomButton>
+              </Modal.Footer>
+            </Form>
+          </Modal.Body>
+        </StyledModalContent>
+      </Modal>
 
 
       {/* Modal de Edición */}
+
+
       <Modal show={editModal} onHide={() => { setEditModal(false); setErrors({}); }} centered>
         <StyledModalContent>
           <Modal.Header closeButton>
             <Modal.Title className="title">
-              Editar {selectedItem?.isMarca ? selectedItem?.nombre : selectedItem?.modelo}
+              Editar {selectedItem?.nombre} {/* Muestra el nombre de la marca aquí */}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form>
-              {selectedItem?.isMarca ? (
+            <Form onSubmit={(e) => e.preventDefault()}>  {/* Prevenir envío del formulario */}
+              {selectedItem?.isMarca && (  // Solo mostrar si es una marca
                 <>
                   <Form.Group className="mb-3">
-                    <Form.Label>Nombre</Form.Label>
+                    <Form.Label>Nombre de Marca</Form.Label>
                     <Form.Control
                       type="text"
                       value={editedData.nombre}
@@ -743,7 +848,8 @@ function GerenteMarcaModelo() {
                     <Form.Control.Feedback type="invalid">{errors.nombre}</Form.Control.Feedback>
                   </Form.Group>
                 </>
-              ) : (
+              )}
+              {selectedItem?.isMarca === false && (  // Solo mostrar si es un modelo
                 <>
                   <Form.Group className="mb-3">
                     <Form.Label>Modelo</Form.Label>
@@ -758,21 +864,44 @@ function GerenteMarcaModelo() {
                   </Form.Group>
                   <Form.Group className="mb-3">
                     <Form.Label>Marca</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={editedData.marca}
-                      onChange={(e) => setEditedData({ ...editedData, marca: e.target.value })}
+                    <Form.Select
+                      value={editedData.marca ? JSON.stringify(editedData.marca) : ""}
+                      onChange={(e) => {
+                        const selectedMarca = JSON.parse(e.target.value); // Convertir la cadena de vuelta a objeto
+                        setEditedData({ ...editedData, marca: selectedMarca });
+                      }}
                       className="input"
                       isInvalid={!!errors.marca}
-                    />
+                    >
+                      <option value="">Selecciona una marca</option>
+                      {marcasApi.map((marca, index) => (
+                        <option key={index} value={JSON.stringify(marca)}>
+                          {marca.nombre}
+                        </option>
+                      ))}
+                    </Form.Select>
                     <Form.Control.Feedback type="invalid">{errors.marca}</Form.Control.Feedback>
                   </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Estado</Form.Label>
+                    <Form.Select
+                      value={editedData.estado}
+                      onChange={(e) => setEditedData({ ...editedData, estado: e.target.value })}
+                      className="input"
+                      isInvalid={!!errors.estado}
+                    >
+                      <option value="ACTIVO">Activo</option>
+                      <option value="INACTIVO">Inactivo</option>
+                    </Form.Select>
+                    <Form.Control.Feedback type="invalid">{errors.estado}</Form.Control.Feedback>
+                  </Form.Group>
+
                   <Form.Group className="mb-3">
                     <Form.Label>Placa</Form.Label>
                     <Form.Control
                       type="text"
-                      value={editedData.placa}
-                      onChange={(e) => setEditedData({ ...editedData, placa: e.target.value })}
+                      value={editedData.matricula}
+                      onChange={(e) => setEditedData({ ...editedData, matricula: e.target.value })}
                       className="input"
                       isInvalid={!!errors.placa}
                     />
@@ -793,8 +922,8 @@ function GerenteMarcaModelo() {
                     <Form.Label>Año</Form.Label>
                     <Form.Control
                       type="text"
-                      value={editedData.año}
-                      onChange={(e) => setEditedData({ ...editedData, año: e.target.value })}
+                      value={editedData.year}
+                      onChange={(e) => setEditedData({ ...editedData, year: e.target.value })}
                       className="input"
                       isInvalid={!!errors.año}
                     />
@@ -815,8 +944,8 @@ function GerenteMarcaModelo() {
                     <Form.Label>Descripción</Form.Label>
                     <Form.Control
                       as="textarea"
-                      value={editedData.descripcion}
-                      onChange={(e) => setEditedData({ ...editedData, descripcion: e.target.value })}
+                      value={editedData.description}
+                      onChange={(e) => setEditedData({ ...editedData, description: e.target.value })}
                       className="input"
                       isInvalid={!!errors.descripcion}
                     />
@@ -824,29 +953,29 @@ function GerenteMarcaModelo() {
                   </Form.Group>
                 </>
               )}
-              <Form.Group className="mb-3">
-                <Form.Label>Estado</Form.Label>
-                <Form.Select
-                  value={editedData.estado}
-                  onChange={(e) => setEditedData({ ...editedData, estado: e.target.value })}
-                  className="input"
-                >
-                  <option value="Activo">Activo</option>
-                  <option value="INACTIVO">INACTIVO</option>
-                </Form.Select>
-              </Form.Group>
             </Form>
           </Modal.Body>
           <Modal.Footer>
             <CustomButton variant="secondary" onClick={() => { setEditModal(false); setErrors({}); }}>
               Cancelar
             </CustomButton>
-            <CustomButton variant="primary" onClick={handleSaveChanges}>
+            <CustomButton
+              variant="primary"
+              onClick={() => {
+                if (selectedItem?.isMarca) {
+                  handleSaveMarcaChanges(); // Si es una marca
+                } else {
+                  handleSaveChanges(); // Si es un vehículo
+                }
+              }}
+            >
               Guardar cambios
             </CustomButton>
           </Modal.Footer>
         </StyledModalContent>
       </Modal>
+
+
     </>
   );
 }

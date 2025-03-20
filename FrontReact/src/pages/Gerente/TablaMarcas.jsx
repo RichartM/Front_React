@@ -3,7 +3,6 @@ import { Table } from 'react-bootstrap';
 import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
 import styled from 'styled-components';
 import BootstrapPagination from '../../components/common/BootstrapPagination';
-import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
 
 const CustomTableHeader = styled.thead`
   .scrollable-table {
@@ -45,7 +44,7 @@ const TablaMarcas = ({
   setCurrentPage,
   recordsPerPage,
   onEdit,
-  onToggleStatus,
+  onToggleStatus, // Recibimos onToggleStatus como prop
 }) => {
   const filteredMarcas = marcas.filter(marca =>
     marca.nombre.toLowerCase().includes(searchTerm.toLowerCase())
@@ -72,24 +71,24 @@ const TablaMarcas = ({
             {currentMarcas.map((marca) => (
               <tr key={marca.id}>
                 <td>{marca.nombre}</td>
-                <td>{marca.estado}</td>
+                <td>{marca.estado ? "Activo" : "Inactivo"}</td>
                 <td>
                   <BsPencilSquare
                     className="text-primary me-5 fs-2"
                     style={{ cursor: "pointer" }}
                     onClick={() => onEdit(marca, true)}
                   />
-                  {marca.estado === "ACTIVO" ? (
+                  {marca.estado ? (
                     <BsToggleOn
                       className="text-success fs-1"
                       style={{ cursor: "pointer" }}
-                      onClick={() => onToggleStatus(marca, true)}
+                      onClick={() => onToggleStatus(marca, !marca.estado)} // Cambia el estado a false
                     />
                   ) : (
                     <BsToggleOff
                       className="text-danger fs-1"
                       style={{ cursor: "pointer" }}
-                      onClick={() => onToggleStatus(marca, true)}
+                      onClick={() => onToggleStatus(marca, !marca.estado)} // Cambia el estado a true
                     />
                   )}
                 </td>
