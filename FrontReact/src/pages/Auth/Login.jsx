@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../../img/EsteBueno.avif';
@@ -13,46 +13,53 @@ const Login = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const registroRef = useRef(null);
 
+  const handleRegisterRedirect = () => {
+    // Navegar a la LandingPage y pasar un estado para indicar que debe desplazarse al formulario de registro
+    navigate('/landing', { state: { scrollToRegister: true } });
+  };
+
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     setMessage("");
     setLoading(true);
 
     try {
-        const response = await AuthServiceLogin.login(email, password);
+      const response = await AuthServiceLogin.login(email, password);
 
-        if (response) {
-            const { token, mustChangePassword } = response;
-            localStorage.setItem("token", token);
-            localStorage.setItem("forcePasswordChange", mustChangePassword ? "true" : "false");
+      if (response) {
+        const { token, mustChangePassword } = response;
+        localStorage.setItem("token", token);
+        localStorage.setItem("forcePasswordChange", mustChangePassword ? "true" : "false");
 
-            const role = AuthServiceLogin.getRoleFromToken();
-            if (mustChangePassword && (role === "CLIENTE" || role === "AGENTE")) {
-                navigate("/change-password");
-            } else {
-                if (role === "GERENTE") {
-                    navigate("/gerente/panelControl");
-                } else if (role === "AGENTE") {
-                    navigate("/agente/tablaCliente");
-                } else if (role === "CLIENTE") {
-                    navigate("/cliente/home");
-                } else {
-                    setMessage("Rol desconocido, contacta con soporte.");
-                }
-            }
+        const role = AuthServiceLogin.getRoleFromToken();
+        if (mustChangePassword && (role === "CLIENTE" || role === "AGENTE")) {
+          navigate("/change-password");
         } else {
-            setMessage("No se recibió token.");
+          if (role === "GERENTE") {
+            navigate("/gerente/panelControl");
+          } else if (role === "AGENTE") {
+            navigate("/agente/tablaCliente");
+          } else if (role === "CLIENTE") {
+            navigate("/cliente/home");
+          } else {
+            setMessage("Rol desconocido, contacta con soporte.");
+          }
         }
+      } else {
+        setMessage("No se recibió token.");
+      }
     } catch (error) {
-        console.error("Error de autenticación:", error);
-        setMessage("Credenciales incorrectas o error en el servidor.");
+      console.error("Error de autenticación:", error);
+      setMessage("Credenciales incorrectas o error en el servidor.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
-  
+
 
   return (
     <>
@@ -92,10 +99,12 @@ const Login = () => {
 
           <SignUpLabel>
             Aun no estás registrado?{" "}
-            <SignUpLink onClick={() => navigate('/landing')}>
+            <SignUpLink onClick={handleRegisterRedirect}>
               Regístrate
             </SignUpLink>
           </SignUpLabel>
+
+
         </FormContainer>
       </BackgroundContainer>
     </>

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useLocation } from 'react-router-dom';
 import { Row, Col } from "react-bootstrap";
 import CarruselMarcas from '../../components/common/CarruselMarcas';
 import bgImage from '../../img/EsteBueno.avif';
@@ -11,6 +12,15 @@ import NavLandingPage from "./NavLandingPage"; // Importa el nav desde la misma 
 
 const LandingPage = () => {
   const [isArrowVisible, setIsArrowVisible] = useState(true);
+
+  const registroRef = useRef(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.scrollToRegister && registroRef.current) {
+      registroRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [location.state]);
 
   useEffect(() => {
     AOS.init({
@@ -114,9 +124,12 @@ const LandingPage = () => {
         </div>
 
         {/* Contact Section */}
-        <div className="text-center mt-2 mb-2" data-aos="fade-up">
+        {/* Sección de contacto con el formulario de registro */}
+        <div ref={registroRef} style={{ position: 'relative', top: '20%' }}></div>
+
+        <div className="text-center mt-2 mb-2" data-aos="fade-up" >
           <Row className="justify-content-center">
-            <Col md={5} className="d-flex align-items-center justify-content-center">
+            <Col md={5} className="d-flex align-items-center justify-content-center" >
               <div>
                 <img
                   src={Ruben}
@@ -128,9 +141,9 @@ const LandingPage = () => {
                 <p className="text-primary">SÉ UNO DE NUESTROS CLIENTES</p>
               </div>
             </Col>
-            <Col md={5} id="registro">
-              <FormRegistro />
-            </Col>
+<Col md={5} id="registro">
+  <FormRegistro />
+</Col>
           </Row>
         </div>
 
