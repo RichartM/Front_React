@@ -7,6 +7,8 @@ import CardAutosEspera from './CardsInformativos/CardAutosEspera'
 import CardAutosDisponibles from './CardsInformativos/CardAutosDiponibles'
 import CardAutosVendidos from './CardsInformativos/CardAutosVendidos'
 import CardTotalAutos from './CardsInformativos/CardTotalAutos'
+import { useState,useEffect } from 'react';
+import axios from "axios"
 
 const CustomTableHeader = styled.thead`
   background-color: #018180;
@@ -151,6 +153,27 @@ const StyledWrapper = styled.div`
 `;
 
 export default function PanelControl() {
+
+    ///OBTENIENDO LOS MODELOS DE LA BASE DE DARTO
+    const [modelosReales, setModelosREales] = useState([])
+  
+    useEffect(() => {
+      const token = localStorage.getItem('token'); // Obtener el token del localStorage
+      if (token) {
+        axios.get(' http://localhost:8080/vehiculo/estados?estados=Disponible&estados=En espera', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Incluir el token en el header
+          },
+        })
+          .then(response => {
+            setModelosREales(response.data);
+          })
+          .catch(error => {
+            console.error('Error al obtener los modelos:', error);
+          });
+      }
+    }, []);
+
   return (
       <>
                 <GlobalStyle />
@@ -197,36 +220,34 @@ export default function PanelControl() {
     
                         <StyledWrapper>
                             <div className="scrollable-table">
-                                <Table striped bordered hover className="mt-2">
-                                    <CustomTableHeader>
-                                        <tr>
-                                            <th>Modelo</th>
-                                            <th>Marca</th>
-                                            <th>Placa</th>
-                                            <th>Precio (MXN)</th>
-                                            <th>Año</th>
-                                            <th>Color</th>
-                                            <th>Descripcion</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </CustomTableHeader>
-    
-                                    <tbody>
-                                        
-                                            <tr>
-                                                <td>Mazda</td>
-                                                <td>{}</td>
-                                                <td>{}</td>
-                                                <td>{}</td>
-                                                <td>{}</td>
-                                                <td>{}</td>
-                                                <td>{}</td>
-                                                <td> <i class="bi bi-question-circle"></i>{}</td>
-                                            </tr>
-                                    </tbody>
-    
-    
-                                </Table>
+                            <Table striped bordered hover className="mt-2">
+                                  <CustomTableHeader>
+                                      <tr>
+                                          <th>Modelo</th>
+                                          <th>Marca</th>
+                                          <th>Placa</th>
+                                          <th>Precio (MXN)</th>
+                                          <th>Año</th>
+                                          <th>Color</th>
+                                          <th>Estado</th>
+                                      </tr>
+                                  </CustomTableHeader>
+
+                                  <tbody>
+                                      {modelosReales.map((marca, index) => (
+                                          <tr key={index}>
+                                              <td>{marca.modelo}</td>
+                                              <td>{marca.marca.nombre}</td>
+                                              <td>{marca.matricula}</td>
+                                              <td>{marca.precio}</td>
+                                              <td>{marca.year}</td>
+                                              <td>{marca.color}</td>
+                                              <td><i className="bi bi-question-circle"></i> {marca.estado.nombre}</td>
+                                          </tr>
+                                      ))}
+                                  </tbody>
+                              </Table>
+
                             </div>
                         </StyledWrapper>
                     </Card>

@@ -22,7 +22,8 @@ export const addServicio = (nuevoServicio, token) => {
 };
 
 // Función para actualizar un servicio
-export const updateServicio = (id, updatedServicio, token) => {
+export const updateServicio = (id, updatedServicio, token,noom) => {
+    updateServicio.nomenclatura  = noom
     return axios.put(`http://localhost:8080/servicios/actualizar/${id}`, updatedServicio, {
         headers: {
             Authorization: `Bearer ${token}`,

@@ -203,6 +203,8 @@ export default function TablaCliente() {
         setFilteredClientes(clientes);
     }, [clientes]);
 
+    
+
     const handleSearch = (searchTerm) => {
         const filtered = clientes.filter(cliente =>
             Object.values(cliente).some(value =>
@@ -218,7 +220,8 @@ export default function TablaCliente() {
         else if (page === "next" && currentPage < totalPages) setCurrentPage(currentPage + 1);
         else if (typeof page === "number" && page >= 1 && page <= totalPages) setCurrentPage(page);
     };
-
+    console.log("holaaaaas")
+    console.log(clientes)
 
     const handleEdit = (cliente) => {
     

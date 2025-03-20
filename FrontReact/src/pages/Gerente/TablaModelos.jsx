@@ -117,7 +117,6 @@ const TablaModelos = ({
                             <th>Precio</th>
                             <th>Año</th>
                             <th>Color</th>
-                            <th>Descripción</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -131,7 +130,6 @@ const TablaModelos = ({
                                 <td>{item.precio}</td>
                                 <td>{item.year}</td>
                                 <td>{item.color}</td>
-                                <td>{item.description}</td>
                                 <td>{item.estadoVehiculo ? "Activo" : "Inactivo"}</td>
                                 <td>
                                     <BsPencilSquare

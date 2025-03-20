@@ -236,6 +236,33 @@ export default function Servicios() {
     };
   }, []);
 
+  const [nomGenerada,setNomGenerada] = useState("")
+
+  function generateNomenclature(name) {
+    const words = name.trim().split(/\s+/);
+    let nomenclature = "";
+    let nomenclatureF = "";
+
+    
+    if (words.length === 1) {
+        nomenclature = words[0].slice(0, 4);
+    } else if (words.length === 2) {
+        nomenclature = words[0].slice(0, 2) + words[1].slice(0, 2);
+    } else if (words.length === 3) {
+        nomenclature = words[0][0] + words[1][0] + words[2].slice(0, 2);
+    } else {
+        nomenclature = words.map(word => word[0]).join("");
+    }
+    
+    const randomNumbers = Math.floor(1000 + Math.random() * 9000); // 4 dígitos aleatorios
+    nomenclatureF = nomenclature.toUpperCase() + "-" + randomNumbers
+    setNomGenerada(nomenclatureF)
+    return nomenclatureF;
+}
+
+
+
+
   const [showservicioModal, setShowservicioModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [editModal, setEditModal] = useState(false);
@@ -430,7 +457,7 @@ export default function Servicios() {
       estate: editedData.estate,
     };
 
-    updateServicio(selectedItem.id, updatedServicio, localStorage.getItem('token'))
+    updateServicio(selectedItem.id, updatedServicio, localStorage.getItem('token'),nomGenerada)
       .then(() => {
         const updatedServicios = serviciosReales.map((servicio) =>
           servicio.id === selectedItem.id ? updatedServicio : servicio
@@ -462,6 +489,7 @@ export default function Servicios() {
   };
 
   const agregarservicio = (nuevoServicio) => {
+    nuevoServicio.nomenclatura = nomGenerada
     if (validateFields()) {
       axios.post('http://localhost:8080/servicios/crear', nuevoServicio, {
         headers: {
@@ -646,6 +674,8 @@ export default function Servicios() {
                       onChange={(e) => setEditedData({ ...editedData, nomenclatura: e.target.value })}
                       className="input"
                       required
+                      placeholder={nomGenerada}
+                      disabled
                     />
                   </Form.Group>
 
@@ -654,9 +684,10 @@ export default function Servicios() {
                     <Form.Control
                       type="text"
                       value={editedData.name}
-                      onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
+                      onChange={(e) => {setEditedData({ ...editedData, name: e.target.value },generateNomenclature(editedData.name))}}
                       className="input"
                       required
+
                     />
                   </Form.Group>
                   <Form.Group className="mb-3">

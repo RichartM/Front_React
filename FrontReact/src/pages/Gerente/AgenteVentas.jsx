@@ -1,4 +1,4 @@
-  import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
   import { Form } from 'react-bootstrap';
   import Nav from 'react-bootstrap/Nav';
   import { Container, Row, Col, Card, Table, Modal, Button } from 'react-bootstrap';
@@ -309,6 +309,8 @@
     };
 
     const handleEdit = (agente) => {
+      console.log("telefonooooooooooooooooo:")
+      console.log(agente)
       setSelectedItem(agente);
       setEditedData(prevState => ({
         ...prevState,
@@ -841,3 +843,4 @@
   }
 
   export default AgenteVentas;
+
