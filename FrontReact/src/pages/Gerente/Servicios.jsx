@@ -323,13 +323,14 @@ export default function Servicios() {
   const clearModalData = () => {
     setEditedData({
       nomenclatura: '',
-      name: '',
+      name: '', 
       price: '',
       description: '',
-      modalidad_id: modalidades.length > 0 ? modalidades[0] : {},
+      modalidad_id: "", // Primer modalidad seleccionada por defecto
       estate: true,
     });
   };
+  
 
   const validateFields = () => {
     const { nomenclatura, name, price, description } = editedData;
@@ -620,6 +621,7 @@ export default function Servicios() {
                   className="text-dark ms-auto"
                   onClick={(e) => {
                     e.preventDefault();
+                    clearModalData(); // Limpiar los datos antes de abrir el modal
                     setShowservicioModal(true);
                   }}
                 >

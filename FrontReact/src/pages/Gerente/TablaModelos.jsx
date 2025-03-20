@@ -3,7 +3,8 @@ import { Table } from 'react-bootstrap';
 import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
 import styled from 'styled-components';
 import BootstrapPagination from '../../components/common/BootstrapPagination';
-import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const CustomTableHeader = styled.thead`
   background-color: #018180;
@@ -46,7 +47,7 @@ const TablaModelos = ({
     setCurrentPage,
     recordsPerPage,
     onEdit,
-    onToggleStatus,
+    setModelos,
 }) => {
     const filteredModelos = modelos.filter(item =>
         item.modelo.toLowerCase().includes(searchTerm.toLowerCase())
@@ -55,6 +56,51 @@ const TablaModelos = ({
         (currentPage - 1) * recordsPerPage,
         currentPage * recordsPerPage
     );
+
+    const toggleStatus = async (item) => {
+        const newState = !item.estadoVehiculo; // Alternar el estado booleano
+
+        try {
+            const response = await axios.put(
+                `http://localhost:8080/vehiculo/estado/${item.id}`,
+                { estadoVehiculo: newState },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                }
+            );
+
+            const updatedItem = response.data;
+
+            // Actualizar el estado local
+            setModelos(prevModelos =>
+                prevModelos.map(modelo =>
+                    modelo.id === updatedItem.id
+                        ? { ...modelo, estadoVehiculo: newState }
+                        : modelo
+                )
+            );
+
+            // Mostrar mensaje de éxito
+            Swal.fire({
+                title: "¡Hecho!",
+                text: `El estado del vehículo ha sido actualizado a ${newState ? "Activo" : "Inactivo"}.`,
+                icon: "success",
+                confirmButtonColor: "#018180",
+                customClass: { confirmButton: "btn-swal-confirmar" },
+            });
+        } catch (error) {
+            console.error("Error al cambiar el estado del vehículo:", error);
+            Swal.fire({
+                title: "Error",
+                text: "Hubo un problema al actualizar el estado del vehículo.",
+                icon: "error",
+                confirmButtonColor: "#dc3545",
+                customClass: { confirmButton: "btn-swal-cancelar" },
+            });
+        }
+    };
 
     return (
         <>
@@ -86,24 +132,24 @@ const TablaModelos = ({
                                 <td>{item.year}</td>
                                 <td>{item.color}</td>
                                 <td>{item.description}</td>
-                                <td>{item.estado.nombre}</td>
+                                <td>{item.estadoVehiculo ? "Activo" : "Inactivo"}</td>
                                 <td>
                                     <BsPencilSquare
                                         className="text-primary me-2 fs-1"
                                         style={{ cursor: "pointer" }}
                                         onClick={() => onEdit(item, false)}
                                     />
-                                    {item.estado === "Activo" ? (
+                                    {item.estadoVehiculo ? (
                                         <BsToggleOn
                                             className="text-success fs-1"
                                             style={{ cursor: "pointer" }}
-                                            onClick={() => onToggleStatus(item, false)}
+                                            onClick={() => toggleStatus(item)}
                                         />
                                     ) : (
                                         <BsToggleOff
                                             className="text-danger fs-1"
                                             style={{ cursor: "pointer" }}
-                                            onClick={() => onToggleStatus(item, false)}
+                                            onClick={() => toggleStatus(item)}
                                         />
                                     )}
                                 </td>

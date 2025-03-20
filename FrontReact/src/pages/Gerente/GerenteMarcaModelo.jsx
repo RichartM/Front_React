@@ -239,6 +239,7 @@ function GerenteMarcaModelo() {
   // Funciones para agregar registros
   const agregarModelo = async (nuevoModelo) => {
   console.log(nuevoModelo.modelo);
+  nuevoModelo.estadoVehiculo = true; // Esto asegura que el estado siempre esté como 'Activo'
 
   if (nuevoModelo.imagen) {
     try {
@@ -337,6 +338,7 @@ function GerenteMarcaModelo() {
         año: item.año,
         color: item.color,
         descripcion: item.descripcion,
+        estadoVehiculo: item.estadoVehiculo,
         estado: item.estado,
       });
     }
@@ -553,6 +555,7 @@ function GerenteMarcaModelo() {
           {activeTab === "link-1" && (
             <TablaModelos
               modelos={modelosReales}
+              setModelos={setModelosREales}  // Pasando correctamente la función setModelosREales
               searchTerm={searchTermModelos}
               setSearchTerm={setSearchTermModelos}
               currentPage={currentPageModelos}
