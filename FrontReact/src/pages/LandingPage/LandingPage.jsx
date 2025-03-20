@@ -65,7 +65,7 @@ const LandingPage = () => {
               position: "absolute",
               top: 0,
               left: 0,
-              width: "80%",
+              width: "100%",
               height: "100%",
               background: "linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0))",
               zIndex: 0,
@@ -75,7 +75,7 @@ const LandingPage = () => {
             style={{
               position: "absolute",
               top: "50%",
-              left: "20%",
+              left: "22%",
               transform: "translate(-50%, -50%)",
               zIndex: 1,
               color: "white",

@@ -80,7 +80,10 @@ const MarcasDropdownAgente = ({ tipoUsuario }) => {
       try {
         const data = await AgenteService.getAllBrands();
         console.log("📢 Marcas obtenidas desde API:", data);
-        setBrands(data);
+
+        // Filtra las marcas activas (suponiendo que 'estado' sea el campo que marca si la marca está activa)
+        const activeBrands = data.filter((brand) => brand.estado === true);  // Cambia 'estado' si es necesario
+        setBrands(activeBrands);
       } catch (error) {
         console.error("❌ Error al obtener marcas:", error);
       }
