@@ -13,7 +13,9 @@ const CustomTableHeader = styled.thead`
   th {
     background-color: #018180;
     color: white;
+    padding: 12px;
     text-align: center;
+    border: 1px solid rgb(255, 255, 255);
   }
 `;
 
@@ -196,6 +198,18 @@ export default function TablaCliente() {
         }
     };
 
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const payloadBase64 = token.split('.')[1];
+                const payload = JSON.parse(atob(payloadBase64));
+                setCorreoAgente(payload.sub);
+            } catch (error) {
+                console.error("Error al decodificar el token:", error);
+            }
+        }
+    }, []);  // 🔄 Se ejecuta solo una vez al montar el componente
     // ✅ Llamamos a fetchClientes cuando el componente se monta
     useEffect(() => {
         fetchClientes();
@@ -365,13 +379,27 @@ export default function TablaCliente() {
     
         return Object.keys(newErrors).length === 0;
     };
-    
+    useEffect(() => {
+        const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
+        if (agenteEncontrado) {
+            setAgenteAgregadoAhorita(agenteEncontrado);
+        }
+    }, [clienteAgregadoAhorita,clienteGuardar]);  // 🔄 Se ejecuta solo cuando cambian estos valores
+
+    console.log("cuscando clienteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+
+    useEffect(() => {
+        const clienteEncontrado = clientes.find(cliente => cliente.email === clienteAgregadoAhorita.email);
+        if (clienteEncontrado) {
+            setClienteGuardar(clienteEncontrado);
+        }
+    }, [clientes, clienteAgregadoAhorita]);  // 🔄 Se ejecuta solo cuando cambian estos valores
     
     const asociarGerenteCliente = async () => {
 
 
         try {
-            await axios.put(`http://localhost:8080/clientes-agente/mover-cliente?idGerente=${AgenteAgregadoAhorita.id}&idCliente=${clienteGuardar.id}`,{ //quité esto : AgenteAgregadoAhorita, clienteGuardar
+            await axios.put(`http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${AgenteAgregadoAhorita.id}&idCliente=${clienteGuardar.id}`,{ //quité esto : AgenteAgregadoAhorita, clienteGuardar
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json',
@@ -453,31 +481,13 @@ export default function TablaCliente() {
     };
     
 
-    console.log("cuscando clienteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
-
-    useEffect(() => {
-        const clienteEncontrado = clientes.find(cliente => cliente.email === clienteAgregadoAhorita.email);
-        if (clienteEncontrado) {
-            setClienteGuardar(clienteEncontrado);
-        }
-    }, [clientes, clienteAgregadoAhorita]);  // 🔄 Se ejecuta solo cuando cambian estos valores
+    
 
     const token = localStorage.getItem("token");
     const [correoAgente, setCorreoAgente] = useState("")
 
     
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            try {
-                const payloadBase64 = token.split('.')[1];
-                const payload = JSON.parse(atob(payloadBase64));
-                setCorreoAgente(payload.sub);
-            } catch (error) {
-                console.error("Error al decodificar el token:", error);
-            }
-        }
-    }, []);  // 🔄 Se ejecuta solo una vez al montar el componente
+
     
 
 
@@ -509,12 +519,7 @@ export default function TablaCliente() {
         fetchAgentes();
     }, []);
 
-    useEffect(() => {
-        const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
-        if (agenteEncontrado) {
-            setAgenteAgregadoAhorita(agenteEncontrado);
-        }
-    }, [clienteAgregadoAhorita,clienteGuardar]);  // 🔄 Se ejecuta solo cuando cambian estos valores
+
 
     console.log("El cliente a guardar es:",clienteGuardar)
     console.log("El cliente a guardar es:",AgenteAgregadoAhorita)
@@ -528,25 +533,26 @@ export default function TablaCliente() {
         <>
             <GlobalStyle />
             <Container>
-            <div
-          style={{
-            color: '#018180',
-            padding: '12px 25px',
-            fontSize: '1.4rem',
-            fontWeight: 'bold',
-            display: 'inline-block',
-            marginBottom: '20px',
-          }}
-        >
-          Clientes
-        </div>
                 <Card>
+                    <Row className="mb-3">
+                        <Col className="d-flex justify-content-end">
+                            <FiltroBuscador onSearch={handleSearch} placeholder="Buscar cliente..." />
+
+                        </Col>
+                    </Row>
                     <Row className="mb-1">
                         <Col>
                             <Nav variant="tabs" defaultActiveKey="/agentes">
-                               
-                            <FiltroBuscador onSearch={handleSearch} placeholder="Buscar cliente..." />
-
+                                <Nav.Item>
+                                    <Nav.Link eventKey="/agentes"
+                                        style={{
+                                            backgroundColor: '#018180',
+                                            border: '1px solidrgb(89, 104, 104)',
+                                            borderRadius: '5px',
+                                            boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
+                                        }}
+                                    >Clientes</Nav.Link>
+                                </Nav.Item>
                                 <Nav.Link
                                     className="text-dark ms-auto"
                                     onClick={(e) => {
@@ -683,7 +689,7 @@ export default function TablaCliente() {
 
                     <StyledWrapper>
                         <div className="scrollable-table">
-                            <Table striped hover className="mt-2">
+                            <Table striped bordered hover className="mt-2">
                                 <CustomTableHeader>
                                     <tr>
                                         <th>Nombre(s)</th>
