@@ -168,6 +168,11 @@ export default function TablaCliente() {
         telephone: '',
         estado: 'ACTIVO'
     });
+    const [clienteGuardar,setClienteGuardar] = useState({})
+    const [clienteAgregadoAhorita,setClienteAgregadoAhorita] = useState({})
+    const [AgenteAgregadoAhorita,setAgenteAgregadoAhorita] = useState({})
+
+    const [agentes,setAgentes] = useState([])
 
 
     const fetchClientes = async () => {
@@ -222,6 +227,8 @@ export default function TablaCliente() {
     };
     console.log("holaaaaas")
     console.log(clientes)
+
+    
 
     const handleEdit = (cliente) => {
     
@@ -362,11 +369,35 @@ export default function TablaCliente() {
     };
     
     
+    const asociarGerenteCliente = async () => {
 
+
+        try {
+            await axios.put(`http://localhost:8080/clientes-agente/mover-cliente?idGerente=${AgenteAgregadoAhorita.id}&idCliente=${clienteGuardar.id}`,{ //quité esto : AgenteAgregadoAhorita, clienteGuardar
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            console.log("ya se asocio tu")
+
+        } catch (error) {
+            console.error("Error en el registro:", error);
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo completar el registro. Inténtalo de nuevo.",
+                icon: "error",
+                confirmButtonColor: "#d33",
+            });
+        }
+        
+    };
+
+    
 
     const handleAddCliente = async () => {
         if (!validateFields()) return; // Validar los campos antes de continuar
-
         const clienteData = {
             name: editedData.nombre,
             surname: editedData.apellidos,
@@ -377,9 +408,11 @@ export default function TablaCliente() {
             telephone: editedData.telefono
         };
 
+
         console.log("Datos enviados:", clienteData); // ✅ Verifica que password sea el nombre
         console.log("Datos enviados:", clienteData.name); // ✅ Verifica que password sea el nombre
         console.log("Datos enviados:", clienteData.password); // ✅ Verifica que password sea el nombre
+
 
 
         try {
@@ -390,9 +423,17 @@ export default function TablaCliente() {
                 },
             });
 
+            setClienteAgregadoAhorita(clienteData)
+
+
             await fetchClientes();
             setShowModal(false);
             setEditedData({ nombre: '', apellidos: '', correo: '', telefono: '', estado: 'ACTIVO' });
+            await asociarGerenteCliente();
+
+            /*useEffect(() => {
+                asociarGerenteCliente();
+            }, []);*/
 
             Swal.fire({
                 title: "Registro Exitoso",
@@ -410,10 +451,80 @@ export default function TablaCliente() {
                 confirmButtonColor: "#d33",
             });
         }
+        
+    };
+    
+
+    console.log("cuscando clienteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+
+    useEffect(() => {
+        const clienteEncontrado = clientes.find(cliente => cliente.email === clienteAgregadoAhorita.email);
+        if (clienteEncontrado) {
+            setClienteGuardar(clienteEncontrado);
+        }
+    }, [clientes, clienteAgregadoAhorita]);  // 🔄 Se ejecuta solo cuando cambian estos valores
+
+    const token = localStorage.getItem("token");
+    const [correoAgente, setCorreoAgente] = useState("")
+
+    
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const payloadBase64 = token.split('.')[1];
+                const payload = JSON.parse(atob(payloadBase64));
+                setCorreoAgente(payload.sub);
+            } catch (error) {
+                console.error("Error al decodificar el token:", error);
+            }
+        }
+    }, []);  // 🔄 Se ejecuta solo una vez al montar el componente
+    
+
+
+    const fetchAgentes = async () => {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            try {
+                const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                setAgentes(response.data);
+                //setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
+
+            } catch (error) {
+                console.error("Error al obtener clientes:", error);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            console.log("No se encontró el token");
+            setLoading(false);
+        }
     };
 
+    // ✅ Llamamos a fetchClientes cuando el componente se monta
+    useEffect(() => {
+        fetchAgentes();
+    }, []);
+
+    useEffect(() => {
+        const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
+        if (agenteEncontrado) {
+            setAgenteAgregadoAhorita(agenteEncontrado);
+        }
+    }, [clienteAgregadoAhorita,clienteGuardar]);  // 🔄 Se ejecuta solo cuando cambian estos valores
+
+    console.log("El cliente a guardar es:",clienteGuardar)
+    console.log("El cliente a guardar es:",AgenteAgregadoAhorita)
 
 
+
+
+    
 
     return (
         <>

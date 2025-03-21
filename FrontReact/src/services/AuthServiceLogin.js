@@ -7,6 +7,8 @@ const API_URL = "http://localhost:8080/api/auth/";
  * @returns {Object} - Devuelve el token y si el usuario debe cambiar la contraseña.
  */
 const login = async (email, password) => {
+    console.log("que pasa en el login",email," ",password)
+
     try {
         const response = await axios.post(API_URL + "Login", { email, password });
 
