@@ -13,9 +13,7 @@ const CustomTableHeader = styled.thead`
   th {
     background-color: #018180;
     color: white;
-    padding: 12px;
     text-align: center;
-    border: 1px solid rgb(255, 255, 255);
   }
 `;
 
@@ -530,26 +528,25 @@ export default function TablaCliente() {
         <>
             <GlobalStyle />
             <Container>
+            <div
+          style={{
+            color: '#018180',
+            padding: '12px 25px',
+            fontSize: '1.4rem',
+            fontWeight: 'bold',
+            display: 'inline-block',
+            marginBottom: '20px',
+          }}
+        >
+          Clientes
+        </div>
                 <Card>
-                    <Row className="mb-3">
-                        <Col className="d-flex justify-content-end">
-                            <FiltroBuscador onSearch={handleSearch} placeholder="Buscar cliente..." />
-
-                        </Col>
-                    </Row>
                     <Row className="mb-1">
                         <Col>
                             <Nav variant="tabs" defaultActiveKey="/agentes">
-                                <Nav.Item>
-                                    <Nav.Link eventKey="/agentes"
-                                        style={{
-                                            backgroundColor: '#018180',
-                                            border: '1px solidrgb(89, 104, 104)',
-                                            borderRadius: '5px',
-                                            boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
-                                        }}
-                                    >Clientes</Nav.Link>
-                                </Nav.Item>
+                               
+                            <FiltroBuscador onSearch={handleSearch} placeholder="Buscar cliente..." />
+
                                 <Nav.Link
                                     className="text-dark ms-auto"
                                     onClick={(e) => {
@@ -686,7 +683,7 @@ export default function TablaCliente() {
 
                     <StyledWrapper>
                         <div className="scrollable-table">
-                            <Table striped bordered hover className="mt-2">
+                            <Table striped hover className="mt-2">
                                 <CustomTableHeader>
                                     <tr>
                                         <th>Nombre(s)</th>

@@ -188,30 +188,27 @@ export default function PanelControl() {
 
 
                 <p></p>
+                <div
+          style={{
+            color: '#018180',
+            padding: '12px 25px',
+            fontSize: '1.4rem',
+            fontWeight: 'bold',
+            display: 'inline-block',
+            marginBottom: '20px',
+          }}
+        >
+          AUTOS VENDIDOS Y EN ESPERA
+        </div>
                     <Card>
                         <Row className="mb-3">
-                            <Col className="d-flex justify-content-end">
+                            <Col className="d-flex justify-content-start">
                                 <FiltroBuscador  placeholder="Buscar..." />
     
                             </Col>
                         </Row>
                         <Row className="mb-1">
-                            <Col>
-                                <Nav variant="tabs" defaultActiveKey="/">
-                                    <Nav.Item>
-                                        <Nav.Link eventKey="/"
-                                            style={{
-                                                backgroundColor: '#018180',
-                                                border: '1px solidrgb(89, 104, 104)',
-                                                borderRadius: '5px',
-                                                boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
-                                            }}
-                                        >AUTOS VENDIDOS Y EN ESPERA</Nav.Link>
-                                    </Nav.Item>
-                                    
-    
-                                </Nav>
-                            </Col>
+                        
                         </Row>
     
     

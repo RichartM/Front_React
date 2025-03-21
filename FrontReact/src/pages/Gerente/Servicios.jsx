@@ -18,9 +18,7 @@ const CustomTableHeader = styled.thead`
   th {
     background-color: #018180;
     color: white;
-    padding: 12px;
     text-align: center;
-    border: 1px solid rgb(255, 255, 255);
   }
 `;
 
@@ -748,7 +746,7 @@ export default function Servicios() {
 
           <StyledWrapper>
             <div className="scrollable-table">
-              <Table striped bordered hover className="mt-2">
+              <Table striped  hover className="mt-2">
                 <CustomTableHeader>
                   <tr>
                     <th>Identificador</th>
