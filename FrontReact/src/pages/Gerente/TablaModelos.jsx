@@ -7,16 +7,11 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const CustomTableHeader = styled.thead`
-  background-color: #018180;
-  color: white;
-  
   th {
-    background-color: #018180;
-    color: white;
-    padding: 8px;
-    text-align: center;
-    border: 1px solid rgb(255, 255, 255);
-  }
+      background-color: #018180;
+      text-align: center;
+    }
+  
 `;
 
 const ScrollableContainer = styled.div`
@@ -37,6 +32,21 @@ const ScrollableContainer = styled.div`
   &::-webkit-scrollbar-track {
     background-color: #f1f1f1;
   }
+    
+`;
+
+const StyledTable = styled(Table)`
+border-collapse: collapse; /* Fusiona los bordes de las celdas */
+width: 100%;
+
+
+
+th {
+  background-color: #018180; /* Color de fondo del encabezado */
+  color: white; /* Color del texto del encabezado */
+}
+
+
 `;
 
 const TablaModelos = ({
@@ -108,7 +118,7 @@ const TablaModelos = ({
                 {/* Puedes incluir el FiltroBuscador aquí si lo requieres */}
             </div>
             <ScrollableContainer>
-                <Table striped bordered hover className="mt-2">
+            <StyledTable striped hover className="mt-2">
                     <CustomTableHeader>
                         <tr>
                             <th>Modelo</th>
@@ -154,7 +164,7 @@ const TablaModelos = ({
                             </tr>
                         ))}
                     </tbody>
-                </Table>
+                </StyledTable>
             </ScrollableContainer>
             <BootstrapPagination
                 currentPage={currentPage}

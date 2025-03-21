@@ -7,11 +7,10 @@ import TablaMarcas from './TablaMarcas';
 import TablaModelos from './TablaModelos';
 import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
 import axios from 'axios';
+import { BsJustifyLeft } from 'react-icons/bs';
 
 const GlobalStyle = createGlobalStyle`
-  body {
-    overflow: hidden;
-  }
+  
   
   .swal2-popup {
     background-color: rgb(255, 255, 255);
@@ -60,7 +59,6 @@ const CustomButton = styled(Button)`
 const StyledModalContent = styled.div`
   .scrollable-table {
     max-height: 400px;
-    overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #018180 #f1f1f1;
   }
@@ -125,12 +123,7 @@ const StyledModalContent = styled.div`
 `;
 
 function GerenteMarcaModelo() {
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, []);
+ 
 
   // Estados para pestañas, modales y edición
   const [activeTab, setActiveTab] = useState('/home');
@@ -411,11 +404,11 @@ function GerenteMarcaModelo() {
     if (validateFields(editedData, true)) { // Asegúrate de que esté validado
       try {
         // Lógica para actualizar la marca (solo el nombre, no se toca el estado)
-        const updatedMarca = { 
+        const updatedMarca = {
           nombre: editedData.nombre,
           estado: selectedItem.estado // Mantén el estado original tal como está
         };
-  
+
         // Realizar el PUT para actualizar la marca
         const response = await axios.put(
           `http://localhost:8080/marcas/put/${selectedItem.id}`,
@@ -427,17 +420,17 @@ function GerenteMarcaModelo() {
             },
           }
         );
-  
+
         // Actualizar el estado local con la marca actualizada
         setMarcasApi(prevMarcas =>
           prevMarcas.map(marca =>
             marca.id === selectedItem.id ? response.data : marca
           )
         );
-  
+
         // Cierra el modal de edición
         setEditModal(false);
-  
+
         // Muestra un mensaje de éxito
         Swal.fire({
           title: "¡Guardado!",
@@ -460,7 +453,7 @@ function GerenteMarcaModelo() {
       }
     }
   };
-  
+
 
 
 
@@ -473,20 +466,20 @@ function GerenteMarcaModelo() {
         },
         body: JSON.stringify({ estado: newStatus }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Error al actualizar el estado de la marca');
       }
-  
+
       const updatedMarca = await response.json();
-  
+
       // Actualiza el estado de la marca en el frontend
       setMarcasApi((prevMarcas) =>
         prevMarcas.map((m) =>
           m.id === updatedMarca.id ? { ...m, estado: updatedMarca.estado } : m
         )
       );
-  
+
       // Muestra una alerta de éxito
       Swal.fire({
         title: "¡Estado actualizado!",
@@ -498,7 +491,7 @@ function GerenteMarcaModelo() {
       });
     } catch (error) {
       console.error('Error:', error);
-  
+
       // Muestra una alerta de error
       Swal.fire({
         title: "Error",
@@ -595,52 +588,73 @@ function GerenteMarcaModelo() {
     <>
       <GlobalStyle />
       <Container>
+      <Col xs={8}>
+  <div
+    style={{
+      display: 'flex',
+      gap: '10px',
+      marginBottom: '20px',
+    }}
+  >
+    <div
+      onClick={() => setActiveTab("/home")}
+      style={{
+        color: '#018180',
+        padding: '12px 25px',
+        fontSize: '1.2rem',
+        fontWeight: 'bold',
+        backgroundColor: activeTab === "/home" ? '#d0f0f0' : 'transparent',
+        borderRadius: '5px',
+        cursor: 'pointer',
+      }}
+    >
+      Marcas
+    </div>
+    <div
+      onClick={() => setActiveTab("link-1")}
+      style={{
+        color: '#018180',
+        padding: '12px 25px',
+        fontSize: '1.2rem',
+        fontWeight: 'bold',
+        backgroundColor: activeTab === "link-1" ? '#d0f0f0' : 'transparent',
+        borderRadius: '5px',
+        cursor: 'pointer',
+      }}
+    >
+      Modelos
+    </div>
+  </div>
+</Col>
+
         <Card>
           {/* Fila para pestañas, filtro e ícono de agregar */}
           <Row className="mb-1 align-items-center">
-            <Col xs={8}>
-              <Nav variant="tabs" activeKey={activeTab} onSelect={(selectedKey) => setActiveTab(selectedKey)}>
-                <Nav.Item>
-                  <Nav.Link
-                    eventKey="/home"
-                    style={
-                      activeTab === "/home"
-                        ? { backgroundColor: '#026c6c', border: '1px solid rgb(89, 104, 104)', borderRadius: '5px', boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)', color: 'white', margin: '0 5px', fontWeight: 'bold' }
-                        : { backgroundColor: '#018180', border: '1px solid rgb(89, 104, 104)', borderRadius: '5px', boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)', color: 'white', margin: '0 5px', padding: '5px 10px' }
-                    }
-                  >
-                    Marcas
-                  </Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link
-                    eventKey="link-1"
-                    style={
-                      activeTab === "link-1"
-                        ? { backgroundColor: '#026c6c', border: '1px solid rgb(89, 104, 104)', borderRadius: '3px', boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)', color: 'white', margin: '0 5px', fontWeight: 'bold' }
-                        : { backgroundColor: '#018180', border: '1px solid rgb(89, 104, 104)', borderRadius: '3px', boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)', color: 'white', margin: '0 5px', padding: '5px 10px' }
-                    }
-                  >
-                    Modelos
-                  </Nav.Link>
-                </Nav.Item>
-              </Nav>
-            </Col>
+            
+
+
             <Col xs={4} className="d-flex justify-content-end align-items-center">
-              <FiltroBuscador
-                onSearch={activeTab === '/home' ? handleSearchMarcas : handleSearchModelos}
-                placeholder={activeTab === '/home' ? "Buscar marcas..." : "Buscar modelos..."}
-              />
+
 
 
             </Col>
             <p></p>
-            <Col xs={12} className="d-flex justify-content-end ">
-
-              <Nav.Link className="text-dark ms-2" onClick={(e) => { e.preventDefault(); handleOpenModal(); }}>
+            <Col xs={12} className="d-flex justify-content-between align-items-center">
+              {/* Buscador a la derecha */}
+              <FiltroBuscador
+                onSearch={activeTab === '/home' ? handleSearchMarcas : handleSearchModelos}
+                placeholder={activeTab === '/home' ? "Buscar marcas..." : "Buscar modelos..."}
+              />
+              {/* Botón Agregar a la izquierda */}
+              <Nav.Link
+                className="text-dark"
+                onClick={(e) => { e.preventDefault(); handleOpenModal(); }}
+              >
                 <i className="bi bi-plus-circle fs-2"></i>
               </Nav.Link>
+
             </Col>
+
 
           </Row>
           {activeTab === "/home" && (

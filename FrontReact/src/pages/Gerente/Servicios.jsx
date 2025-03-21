@@ -622,28 +622,27 @@ export default function Servicios() {
     <>
       <GlobalStyle />
       <Container>
+      <div
+          style={{
+            color: '#018180',
+            padding: '12px 25px',
+            fontSize: '1.4rem',
+            fontWeight: 'bold',
+            display: 'inline-block',
+            marginBottom: '20px',
+          }}
+        >
+          Servicios
+        </div>
         <Card>
           <Row className="mb-3">
-            <Col className="d-flex justify-content-end">
-              <FiltroBuscador onSearch={handleSearch} placeholder="Buscar servicio..." />
-            </Col>
+            
           </Row>
           <Row className="mb-1">
             <Col>
               <Nav variant="tabs" defaultActiveKey="/servicios">
-                <Nav.Item>
-                  <Nav.Link
-                    eventKey="/servicios"
-                    style={{
-                      backgroundColor: '#018180',
-                      border: '1px solidrgb(89, 104, 104)',
-                      borderRadius: '5px',
-                      boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
-                    }}
-                  >
-                    Servicios
-                  </Nav.Link>
-                </Nav.Item>
+                
+              <FiltroBuscador onSearch={handleSearch} placeholder="Buscar servicio..." />
 
                 <Nav.Link
                   className="text-dark ms-auto"

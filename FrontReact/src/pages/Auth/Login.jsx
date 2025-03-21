@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../../img/EsteBueno.avif';
-import NavLandingPage from '../LandingPage/NavLandingPage';
+import NavLogin from '../LandingPage/NavLogin';
 import AuthServiceLogin from "../../services/AuthServiceLogin"; // ✅ Asegurar la importación correcta
 import Loader from '../../components/Loader';
 
@@ -63,7 +63,7 @@ const Login = () => {
 
   return (
     <>
-      <NavLandingPage />
+      <NavLogin />
       <BackgroundContainer>
         <FormContainer>
           <Title>Bienvenido</Title>

@@ -1,38 +1,44 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Card, Row, Col } from 'react-bootstrap';
 import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
 import styled from 'styled-components';
 import BootstrapPagination from '../../components/common/BootstrapPagination';
 
-const CustomTableHeader = styled.thead`
-  .scrollable-table {
-    max-height: 400px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #018180 #f1f1f1;
-  }
-
-  .scrollable-table::-webkit-scrollbar {
+const CardContainer = styled.div`
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #018180 #f1f1f1;
+  padding-right: 10px;
+  position: relative; /* Asegura que el contenedor esté posicionado correctamente */
+  
+  &::-webkit-scrollbar {
     width: 8px;
   }
-
-  .scrollable-table::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     background-color: #888;
     border-radius: 4px;
   }
-
-  .scrollable-table::-webkit-scrollbar-track {
+  &::-webkit-scrollbar-track {
     background-color: #f1f1f1;
   }
-  background-color: #018180;
-  color: white;
-  
-  th {
-    background-color: #018180;
-    color: white;
-    padding: 12px;
-    text-align: center;
-    border: 1px solid rgb(255, 255, 255);
+`;
+
+const CustomCard = styled(Card)`
+  background-color: #f8f9fa;
+  border: 1px solid #ccc;
+  margin-bottom: 2%;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  height: 140px; /* Altura fija */
+  min-height: 140px; /* Altura mínima */
+  overflow: hidden;
+  padding: 5px;
+
+  &.custom-card {
+    min-height: 140px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -44,64 +50,66 @@ const TablaMarcas = ({
   setCurrentPage,
   recordsPerPage,
   onEdit,
-  onToggleStatus, // Recibimos onToggleStatus como prop
+  onToggleStatus,
 }) => {
   const filteredMarcas = marcas.filter(marca =>
     marca.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const currentMarcas = filteredMarcas.slice(
-    (currentPage - 1) * recordsPerPage,
+    (currentPage - 1) * recordsPerPage ,
     currentPage * recordsPerPage
   );
 
   return (
     <>
       <div className="d-flex justify-content-end mb-2">
+        {/* Aquí puedes dejar espacio para botones si en el futuro agregas */}
       </div>
-      <div>
-        <Table striped bordered hover className="mt-2">
-          <CustomTableHeader className="scrollable-table">
-            <tr>
-              <th>Marca</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </CustomTableHeader>
-          <tbody>
-            {currentMarcas.map((marca) => (
-              <tr key={marca.id}>
-                <td>{marca.nombre}</td>
-                <td>{marca.estado ? "Activo" : "Inactivo"}</td>
-                <td>
-                  <BsPencilSquare
-                    className="text-primary me-5 fs-2"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => onEdit(marca, true)}
-                  />
-                  {marca.estado ? (
-                    <BsToggleOn
-                      className="text-success fs-1"
+      
+      <CardContainer>
+        <Row>
+          {currentMarcas.map((marca) => (
+            <Col md={3} lg={3} key={marca.id}> {/* 4 tarjetas por fila */}
+              <CustomCard className="custom-card">
+                <Card.Body>
+                  <Card.Title style={{ color: '#018180', fontWeight: 'bold', fontSize: '20px' }}>
+                    {marca.nombre}
+                  </Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted" style={{ fontSize: '17px' }}>
+                    Estado: {marca.estado ? "Activo" : "Inactivo"}
+                  </Card.Subtitle>
+                  <div className="d-flex justify-content-between">
+                    <BsPencilSquare
+                      className="text-primary fs-2"
                       style={{ cursor: "pointer" }}
-                      onClick={() => onToggleStatus(marca, !marca.estado)} // Cambia el estado a false
+                      onClick={() => onEdit(marca, true)}
                     />
-                  ) : (
-                    <BsToggleOff
-                      className="text-danger fs-1"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => onToggleStatus(marca, !marca.estado)} // Cambia el estado a true
-                    />
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-        <BootstrapPagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(filteredMarcas.length / recordsPerPage)}
-          onPageChange={setCurrentPage}
-        />
-      </div>
+                    {marca.estado ? (
+                      <BsToggleOn
+                        className="text-success fs-1"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => onToggleStatus(marca, !marca.estado)}
+                      />
+                    ) : (
+                      <BsToggleOff
+                        className="text-danger fs-1"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => onToggleStatus(marca, !marca.estado)}
+                      />
+                    )}
+                  </div>
+                </Card.Body>
+              </CustomCard>
+            </Col>
+          ))}
+        </Row>
+      </CardContainer>
+
+      <BootstrapPagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(filteredMarcas.length / recordsPerPage)}
+        onPageChange={setCurrentPage}
+      />
     </>
   );
 };

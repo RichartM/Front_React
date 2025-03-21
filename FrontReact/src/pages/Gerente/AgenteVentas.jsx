@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-  import { Form } from 'react-bootstrap';
-  import Nav from 'react-bootstrap/Nav';
-  import { Container, Row, Col, Card, Table, Modal, Button } from 'react-bootstrap';
-  import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
-  import styled from 'styled-components';
-  import Swal from 'sweetalert2';
-  import BootstrapPagination from '../../components/common/BootstrapPagination';;
-  import { createGlobalStyle } from "styled-components";
-  import FiltroServicios from '../../components/Filtros/FiltroBuscador';
-  import ClientePNG from '../../img/cliente.png';
-  import axios from "axios"
-  import HistoricoVentas from './HistoricoVentas';
-  import AgenteVentasService from '../../services/GerenteService/AgenteVentasService';
+import { Form } from 'react-bootstrap';
+import Nav from 'react-bootstrap/Nav';
+import { Container, Row, Col, Card, Table, Modal, Button } from 'react-bootstrap';
+import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
+import styled from 'styled-components';
+import Swal from 'sweetalert2';
+import BootstrapPagination from '../../components/common/BootstrapPagination';;
+import { createGlobalStyle } from "styled-components";
+import FiltroServicios from '../../components/Filtros/FiltroBuscador';
+import ClientePNG from '../../img/cliente.png';
+import axios from "axios"
+import HistoricoVentas from './HistoricoVentas';
+import AgenteVentasService from '../../services/GerenteService/AgenteVentasService';
 
-  // Estilos globales
-  const GlobalStyle = createGlobalStyle`
+// Estilos globales
+const GlobalStyle = createGlobalStyle`
     .swal2-popup {
       background-color: rgb(255, 255, 255);
       color: black;
@@ -46,8 +46,8 @@ import React, { useState, useEffect } from 'react';
     }
   `;
 
-  // Styled component para todos los botones (tono uniforme)
-  const CustomButton = styled(Button)`
+// Styled component para todos los botones (tono uniforme)
+const CustomButton = styled(Button)`
     background-color: #018180 !important;
     border: none;
     color: white !important;
@@ -56,21 +56,37 @@ import React, { useState, useEffect } from 'react';
     }
   `;
 
-  // Estilos para el encabezado de la tabla
-  const CustomTableHeader = styled.thead`
-    background-color: #018180;
-    color: white;
+// Estilos para el encabezado de la tabla
+const CustomTableHeader = styled.thead`
     th {
       background-color: #018180;
       color: white;
-      padding: 12px;
       text-align: center;
-      border: 1px solid rgb(255, 255, 255);
     }
   `;
 
-  // Estilos para el contenido del modal y la tabla
-  const StyledWrapper = styled.div`
+  const StyledTable = styled(Table)`
+  border-collapse: collapse; /* Fusiona los bordes de las celdas */
+  width: 100%;
+
+  th, td {
+    border: 1px solid #dee2e6; /* Bordes consistentes */
+    padding: 8px; /* Espaciado interno */
+    text-align: center; /* Centrar el texto */
+  }
+
+  th {
+    background-color: #018180; /* Color de fondo del encabezado */
+    color: white; /* Color del texto del encabezado */
+  }
+
+  td {
+    background-color: white; /* Color de fondo de las celdas */
+  }
+`;
+
+// Estilos para el contenido del modal y la tabla
+const StyledWrapper = styled.div`
     .scrollable-table {
       max-height: 400px;
       overflow-y: auto;
@@ -114,7 +130,6 @@ import React, { useState, useEffect } from 'react';
     .title::before,
     .title::after {
       position: absolute;
-      content: "";
       height: 16px;
       width: 16px;
       border-radius: 50%;
@@ -156,194 +171,203 @@ import React, { useState, useEffect } from 'react';
         opacity: 0;
       }
     }
+  .scrollable-table {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #018180 #f1f1f1;
+  }
   `;
 
-  // Modal de Clientes: Se muestra el total de clientes que tiene el agente
-  function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAll }) {
-    const [selectedClientId, setSelectedClientId] = useState(null);
-    const [targetAgenteId, setTargetAgenteId] = useState("");
-    const [targetAgenteAll, setTargetAgenteAll] = useState("");
-
-    
-
-    const handleTransfer = () => {
-      if (selectedClientId && targetAgenteId) {
-        onTransfer(selectedClientId, agente.id, parseInt(targetAgenteId, 10));
-        setSelectedClientId(null);
-        setTargetAgenteId("");
-      }
-    };
-
-    const handleTransferAll = () => {
-      if (targetAgenteAll) {
-        onTransferAll(agente.id, parseInt(targetAgenteAll, 10));
-        setTargetAgenteAll("");
-      }
-    };
+// Modal de Clientes: Se muestra el total de clientes que tiene el agente
+function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAll }) {
+  const [selectedClientId, setSelectedClientId] = useState(null);
+  const [targetAgenteId, setTargetAgenteId] = useState("");
+  const [targetAgenteAll, setTargetAgenteAll] = useState("");
 
 
-    return (
-      <Modal show={show} onHide={onHide} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Clientes de {agente.nombre}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {agente.clientes && agente.clientes.length > 0 ? (
-            <>
-              <p>Total de clientes: {agente.clientes.length}</p>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>Nombre Cliente</th>
-                    <th>Transferir a</th>
-                    <th>Acción</th>
+
+  const handleTransfer = () => {
+    if (selectedClientId && targetAgenteId) {
+      onTransfer(selectedClientId, agente.id, parseInt(targetAgenteId, 10));
+      setSelectedClientId(null);
+      setTargetAgenteId("");
+    }
+  };
+
+  const handleTransferAll = () => {
+    if (targetAgenteAll) {
+      onTransferAll(agente.id, parseInt(targetAgenteAll, 10));
+      setTargetAgenteAll("");
+    }
+  };
+
+
+  return (
+    <Modal show={show} onHide={onHide} centered size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>Clientes de {agente.nombre}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {agente.clientes && agente.clientes.length > 0 ? (
+          <>
+            <p>Total de clientes: {agente.clientes.length}</p>
+            <StyledTable striped hover className="mt-2">
+            <CustomTableHeader>
+                            <thead>
+                <tr>
+                  <th>Nombre Cliente</th>
+                  <th>Transferir a</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              </CustomTableHeader>
+
+              <tbody>
+                {agente.clientes.map(cliente => (
+                  <tr key={cliente.id}>
+                    <td>{cliente.nombre}</td>
+                    <td>
+                      <Form.Select
+                        value={selectedClientId === cliente.id ? targetAgenteId : ""}
+                        onChange={(e) => {
+                          setSelectedClientId(cliente.id);
+                          setTargetAgenteId(e.target.value);
+                        }}
+                      >
+                        <option value="">Selecciona Agente</option>
+                        {agentes
+                          .filter(a => a.id !== agente.id)
+                          .map(a => (
+                            <option key={a.id} value={a.id}>
+                              {a.nombre} {a.apellidos}
+                            </option>
+                          ))
+                        }
+                      </Form.Select>
+                    </td>
+                    <td>
+                      <CustomButton
+                        size="sm"
+                        onClick={handleTransfer}
+                        disabled={!targetAgenteId || selectedClientId !== cliente.id}
+                      >
+                        Transferir
+                      </CustomButton>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {agente.clientes.map(cliente => (
-                    <tr key={cliente.id}>
-                      <td>{cliente.nombre}</td>
-                      <td>
-                        <Form.Select
-                          value={selectedClientId === cliente.id ? targetAgenteId : ""}
-                          onChange={(e) => {
-                            setSelectedClientId(cliente.id);
-                            setTargetAgenteId(e.target.value);
-                          }}
-                        >
-                          <option value="">Selecciona Agente</option>
-                          {agentes
-                            .filter(a => a.id !== agente.id)
-                            .map(a => (
-                              <option key={a.id} value={a.id}>
-                                {a.nombre} {a.apellidos}
-                              </option>
-                            ))
-                          }
-                        </Form.Select>
-                      </td>
-                      <td>
-                        <CustomButton
-                          size="sm"
-                          onClick={handleTransfer}
-                          disabled={!targetAgenteId || selectedClientId !== cliente.id}
-                        >
-                          Transferir
-                        </CustomButton>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+                ))}
+              </tbody>
+              </StyledTable>
               <hr />
-              <h5>Transferir TODOS los clientes</h5>
-              <Row className="align-items-center">
-                <Col md={6}>
-                  <Form.Select
-                    value={targetAgenteAll}
-                    onChange={(e) => setTargetAgenteAll(e.target.value)}
-                  >
-                    <option value="">Selecciona Agente</option>
-                    {agentes
-                      .filter(a => a.id !== agente.id)
-                      .map(a => (
-                        <option key={a.id} value={a.id}>
-                          {a.nombre} {a.apellidos}
-                        </option>
-                      ))
-                    }
-                  </Form.Select>
-                </Col>
-                <Col md={6}>
-                  <CustomButton
-                    size="sm"
-                    onClick={handleTransferAll}
-                    disabled={!targetAgenteAll}
-                  >
-                    Transferir Todos
-                  </CustomButton>
-                </Col>
-              </Row>
-            </>
-          ) : (
-            <p>No hay clientes asignados a este agente.</p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <CustomButton variant="secondary" onClick={onHide}>
-            Cerrar
-          </CustomButton>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+            <h5>Transferir TODOS los clientes</h5>
+            <Row className="align-items-center">
+              <Col md={6}>
+                <Form.Select
+                  value={targetAgenteAll}
+                  onChange={(e) => setTargetAgenteAll(e.target.value)}
+                >
+                  <option value="">Selecciona Agente</option>
+                  {agentes
+                    .filter(a => a.id !== agente.id)
+                    .map(a => (
+                      <option key={a.id} value={a.id}>
+                        {a.nombre} {a.apellidos}
+                      </option>
+                    ))
+                  }
+                </Form.Select>
+              </Col>
+              <Col md={6}>
+                <CustomButton
+                  size="sm"
+                  onClick={handleTransferAll}
+                  disabled={!targetAgenteAll}
+                >
+                  Transferir Todos
+                </CustomButton>
+              </Col>
+            </Row>
+          </>
+        ) : (
+          <p>No hay clientes asignados a este agente.</p>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <CustomButton variant="secondary" onClick={onHide}>
+          Cerrar
+        </CustomButton>
+      </Modal.Footer>
+    </Modal>
+  );
+}
 
-  function AgenteVentas() {
-    const [agentes, setAgentes] = useState([]);
-    const [showHistoricoVentasModal, setShowHistoricoVentasModal] = useState(false);
-    const [selectedAgenteForHistorico, setSelectedAgenteForHistorico] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [showAgenteModal, setShowAgenteModal] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [editModal, setEditModal] = useState(false);
-    
-    const [editedData, setEditedData] = useState({
-      email: '',
-      lastname: '',
-      name: '',
-      password: '',
-      state: true,
-      surname: '',
-      username: '',
-      telephone: '' // Inicializa el campo teléfono
-    });
-    const [errors, setErrors] = useState({});
-    const [movements, setMovements] = useState([]);
-    const [showClientesModal, setShowClientesModal] = useState(false);
-    const [selectedAgenteForClientes, setSelectedAgenteForClientes] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const recordsPerPage = 10;
+function AgenteVentas() {
+  const [agentes, setAgentes] = useState([]);
+  const [showHistoricoVentasModal, setShowHistoricoVentasModal] = useState(false);
+  const [selectedAgenteForHistorico, setSelectedAgenteForHistorico] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAgenteModal, setShowAgenteModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [editModal, setEditModal] = useState(false);
 
-    const agregarAgente = (nuevoAgente) => {
-      setAgentes([...agentes, { ...nuevoAgente, id: Date.now(), clientes: [] }]);
-    };
+  const [editedData, setEditedData] = useState({
+    email: '',
+    lastname: '',
+    name: '',
+    password: '',
+    state: true,
+    surname: '',
+    username: '',
+    telephone: '' // Inicializa el campo teléfono
+  });
+  const [errors, setErrors] = useState({});
+  const [movements, setMovements] = useState([]);
+  const [showClientesModal, setShowClientesModal] = useState(false);
+  const [selectedAgenteForClientes, setSelectedAgenteForClientes] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
 
-    const handleEdit = (agente) => {
-      console.log("telefonooooooooooooooooo:")
-      console.log(agente)
-      setSelectedItem(agente);
-      setEditedData(prevState => ({
-        ...prevState,
-        email: agente.email,
-        lastname: agente.lastname,
-        name: agente.name,
-        password: agente.name,
-        state: agente.state,
-        surname: agente.surname,
-        username: agente.name,
-        telephone: agente.telephone 
+  const agregarAgente = (nuevoAgente) => {
+    setAgentes([...agentes, { ...nuevoAgente, id: Date.now(), clientes: [] }]);
+  };
 
-      }));
-      setEditModal(true);
-    };
+  const handleEdit = (agente) => {
+    console.log("telefonooooooooooooooooo:")
+    console.log(agente)
+    setSelectedItem(agente);
+    setEditedData(prevState => ({
+      ...prevState,
+      email: agente.email,
+      lastname: agente.lastname,
+      name: agente.name,
+      password: agente.name,
+      state: agente.state,
+      surname: agente.surname,
+      username: agente.name,
+      telephone: agente.telephone
 
-    const validateFields = () => {
-      const newErrors = {};
-      if (!editedData.name.trim()) {
-        newErrors.nombre = "El nombre es obligatorio.";
-      }
-      if (!editedData.lastname.trim()) {
-        newErrors.apellidos = "Los apellidos son obligatorios.";
-      }
-      if (!editedData.email.trim()) {
-        newErrors.correo = "El correo es obligatorio.";
-      } else if (!/\S+@\S+\.\S+/.test(editedData.email)) {
-        newErrors.correo = "El correo no es válido.";
-      }
+    }));
+    setEditModal(true);
+  };
 
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    };
+  const validateFields = () => {
+    const newErrors = {};
+    if (!editedData.name.trim()) {
+      newErrors.nombre = "El nombre es obligatorio.";
+    }
+    if (!editedData.lastname.trim()) {
+      newErrors.apellidos = "Los apellidos son obligatorios.";
+    }
+    if (!editedData.email.trim()) {
+      newErrors.correo = "El correo es obligatorio.";
+    } else if (!/\S+@\S+\.\S+/.test(editedData.email)) {
+      newErrors.correo = "El correo no es válido.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   // Guardar cambios de agente
   // Guardar cambios de agente
@@ -354,7 +378,7 @@ import React, { useState, useEffect } from 'react';
         AgenteVentasService.updateAgente(selectedItem.id, editedData, token)
           .then(updatedAgente => {
             // Actualizar el estado de los agentes con la respuesta de la API
-            setAgentes(prevAgentes => 
+            setAgentes(prevAgentes =>
               prevAgentes.map(a => (a.id === updatedAgente.id ? updatedAgente : a))
             );
 
@@ -370,7 +394,7 @@ import React, { useState, useEffect } from 'react';
               customClass: { confirmButton: 'btn-swal-confirmar' },
               buttonsStyling: false
             });
-                  })
+          })
           .catch(error => {
             console.error('Error al guardar cambios', error);
             Swal.fire('Error', 'Hubo un problema al guardar los cambios', 'error');
@@ -387,9 +411,9 @@ import React, { useState, useEffect } from 'react';
         id: Date.now(), // Generar un ID temporal
         clientes: [], // Inicializar sin clientes
       };
-  
+
       editedData.password = editedData.name;
-  
+
       axios.post('http://localhost:8080/api/auth/registerAgente', editedData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -398,14 +422,14 @@ import React, { useState, useEffect } from 'react';
       })
         .then(response => {
           console.log('Agente registrado:', response.data);
-  
+
           // Actualiza el estado de agentes con el nuevo agente
           setAgentes(prevAgentes => [...prevAgentes, response.data]);  // Usamos el setter para actualizar el estado correctamente
-  
+
           // Cerrar el modal y limpiar el formulario
           setShowAgenteModal(false);
           setEditedData({ email: '', lastname: '', name: '', password: '', state: true, surname: '', username: '', telephone: '' });
-  
+
           // Mostrar mensaje de éxito
           Swal.fire({
             title: "¡Agregado!",
@@ -418,7 +442,7 @@ import React, { useState, useEffect } from 'react';
         })
         .catch(error => {
           console.error('Error al registrar el agente:', error);
-  
+
           // Mostrar mensaje de error detallado
           Swal.fire({
             title: "Error",
@@ -440,139 +464,139 @@ import React, { useState, useEffect } from 'react';
       });
     }
   };
-  
+
   useEffect(() => {
     console.log('Agentes actualizados:', agentes);
   }, [agentes]);  // Este efecto se ejecutará cada vez que el estado de `agentes` cambie
-  
 
 
 
-    const handleToggleStatus = (agente) => {
-      Swal.fire({
-        title: `¿Estás seguro de ${agente.state === true ? 'desactivar' : 'activar'} a ${agente.name}?`,
-        text: "Esta acción cambiará su estado.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, confirmar",
-        cancelButtonText: "Cancelar",
-        reverseButtons: true,
-        customClass: {
-          popup: 'swal2-popup',
-          confirmButton: 'btn-swal-confirmar',
-          cancelButton: 'btn-swal-cancelar',
-        },
-        buttonsStyling: false,
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const updatedAgente = { ...agente, state: agente.state === true ? false : true };
-          console.log("datos del modificado " + agente.name)
-          setAgentes(agentes.map(a => a.id === agente.id ? updatedAgente : a));
 
-          Swal.fire({
-            title: "¡Hecho!",
-            text: `El estado de ${agente.nombre} ha sido cambiado.`,
-            icon: "success",
-            confirmButtonColor: "#018180",
-            customClass: { confirmButton: 'btn-swal-confirmar' },
-            buttonsStyling: false,
-          });
-        }
-      });
-    };
+  const handleToggleStatus = (agente) => {
+    Swal.fire({
+      title: `¿Estás seguro de ${agente.state === true ? 'desactivar' : 'activar'} a ${agente.name}?`,
+      text: "Esta acción cambiará su estado.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, confirmar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      customClass: {
+        popup: 'swal2-popup',
+        confirmButton: 'btn-swal-confirmar',
+        cancelButton: 'btn-swal-cancelar',
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedAgente = { ...agente, state: agente.state === true ? false : true };
+        console.log("datos del modificado " + agente.name)
+        setAgentes(agentes.map(a => a.id === agente.id ? updatedAgente : a));
 
-    // Al transferir un cliente, actualiza el agente (modal) para que muestre el nuevo total de clientes (0 si se transfirió todo)
-    const handleTransferCliente = (clienteId, fromAgenteId, toAgenteId) => {
-      const fromAgent = agentes.find(a => a.id === fromAgenteId);
-      const toAgent = agentes.find(a => a.id === toAgenteId);
-      setAgentes(prevAgentes => {
-        const newAgentes = prevAgentes.map(agente => {
-          if (agente.id === fromAgenteId) {
-            return {
-              ...agente,
-              clientes: (agente.clientes || []).filter(cliente => cliente.id !== clienteId)
-            };
-          }
-          if (agente.id === toAgenteId) {
-            const fromAgente = prevAgentes.find(a => a.id === fromAgenteId);
-            const clienteTransferido = fromAgente && fromAgente.clientes ? fromAgente.clientes.find(cliente => cliente.id === clienteId) : null;
-            return {
-              ...agente,
-              clientes: [...(agente.clientes || []), clienteTransferido]
-            };
-          }
-          return agente;
+        Swal.fire({
+          title: "¡Hecho!",
+          text: `El estado de ${agente.nombre} ha sido cambiado.`,
+          icon: "success",
+          confirmButtonColor: "#018180",
+          customClass: { confirmButton: 'btn-swal-confirmar' },
+          buttonsStyling: false,
         });
-        // Actualizamos el agente en el modal si es el que se está visualizando
-        if (selectedAgenteForClientes && selectedAgenteForClientes.id === fromAgenteId) {
-          setSelectedAgenteForClientes(newAgentes.find(a => a.id === fromAgenteId));
-        }
-        return newAgentes;
-      });
-      Swal.fire({
-        title: "Transferencia realizada",
-        html: `<p>Se transfirió 1 cliente de ${fromAgent?.nombre} a ${toAgent?.nombre}.</p>`,
-        icon: "success",
-        confirmButtonColor: "#018180",
-        customClass: { confirmButton: 'btn-swal-confirmar' },
-        buttonsStyling: false
-      });
-    };
-
-    const handleTransferAllClientes = (fromAgenteId, toAgenteId) => {
-      const fromAgent = agentes.find(a => a.id === fromAgenteId);
-      const clientesToTransfer = fromAgent ? (fromAgent.clientes || []) : [];
-      const toAgent = agentes.find(a => a.id === toAgenteId);
-      setAgentes(prevAgentes => {
-        const newAgentes = prevAgentes.map(agente => {
-          if (agente.id === fromAgenteId) {
-            return { ...agente, clientes: [] };
-          }
-          if (agente.id === toAgenteId) {
-            return { ...agente, clientes: [...(agente.clientes || []), ...clientesToTransfer] };
-          }
-          return agente;
-        });
-        if (selectedAgenteForClientes && selectedAgenteForClientes.id === fromAgenteId) {
-          setSelectedAgenteForClientes(newAgentes.find(a => a.id === fromAgenteId));
-        }
-        return newAgentes;
-      });
-      Swal.fire({
-        title: "Transferencia realizada",
-        html: `<p>Se transfirieron ${clientesToTransfer.length} clientes de ${fromAgent?.nombre} a ${toAgent?.nombre}.</p>`,
-        icon: "success",
-        confirmButtonColor: "#018180",
-        customClass: { confirmButton: 'btn-swal-confirmar' },
-        buttonsStyling: false
-      });
-    };
-
-    useEffect(() => {
-      console.log("get the useEffect");
-      const token = localStorage.getItem('token');  // Obtener el token del localStorage
-      console.log("token: " + token)
-    
-      if (token) {
-        axios.get('http://localhost:8080/api/auth/fullAgentes', {
-          headers: {
-            Authorization: `Bearer ${token}`  // Usar el token en el encabezado
-          }
-        })
-          .then(response => {
-            setAgentes(response.data); // Solo esta llamada es suficiente
-            console.log(response.data);
-          })
-          .catch(error => {
-            console.error('Error al obtener los datos:', error);
-          });
-      } else {
-        console.log('No se encontró el token');
       }
-    }, []);
-    
+    });
+  };
 
-    const filteredAgentes = agentes
+  // Al transferir un cliente, actualiza el agente (modal) para que muestre el nuevo total de clientes (0 si se transfirió todo)
+  const handleTransferCliente = (clienteId, fromAgenteId, toAgenteId) => {
+    const fromAgent = agentes.find(a => a.id === fromAgenteId);
+    const toAgent = agentes.find(a => a.id === toAgenteId);
+    setAgentes(prevAgentes => {
+      const newAgentes = prevAgentes.map(agente => {
+        if (agente.id === fromAgenteId) {
+          return {
+            ...agente,
+            clientes: (agente.clientes || []).filter(cliente => cliente.id !== clienteId)
+          };
+        }
+        if (agente.id === toAgenteId) {
+          const fromAgente = prevAgentes.find(a => a.id === fromAgenteId);
+          const clienteTransferido = fromAgente && fromAgente.clientes ? fromAgente.clientes.find(cliente => cliente.id === clienteId) : null;
+          return {
+            ...agente,
+            clientes: [...(agente.clientes || []), clienteTransferido]
+          };
+        }
+        return agente;
+      });
+      // Actualizamos el agente en el modal si es el que se está visualizando
+      if (selectedAgenteForClientes && selectedAgenteForClientes.id === fromAgenteId) {
+        setSelectedAgenteForClientes(newAgentes.find(a => a.id === fromAgenteId));
+      }
+      return newAgentes;
+    });
+    Swal.fire({
+      title: "Transferencia realizada",
+      html: `<p>Se transfirió 1 cliente de ${fromAgent?.nombre} a ${toAgent?.nombre}.</p>`,
+      icon: "success",
+      confirmButtonColor: "#018180",
+      customClass: { confirmButton: 'btn-swal-confirmar' },
+      buttonsStyling: false
+    });
+  };
+
+  const handleTransferAllClientes = (fromAgenteId, toAgenteId) => {
+    const fromAgent = agentes.find(a => a.id === fromAgenteId);
+    const clientesToTransfer = fromAgent ? (fromAgent.clientes || []) : [];
+    const toAgent = agentes.find(a => a.id === toAgenteId);
+    setAgentes(prevAgentes => {
+      const newAgentes = prevAgentes.map(agente => {
+        if (agente.id === fromAgenteId) {
+          return { ...agente, clientes: [] };
+        }
+        if (agente.id === toAgenteId) {
+          return { ...agente, clientes: [...(agente.clientes || []), ...clientesToTransfer] };
+        }
+        return agente;
+      });
+      if (selectedAgenteForClientes && selectedAgenteForClientes.id === fromAgenteId) {
+        setSelectedAgenteForClientes(newAgentes.find(a => a.id === fromAgenteId));
+      }
+      return newAgentes;
+    });
+    Swal.fire({
+      title: "Transferencia realizada",
+      html: `<p>Se transfirieron ${clientesToTransfer.length} clientes de ${fromAgent?.nombre} a ${toAgent?.nombre}.</p>`,
+      icon: "success",
+      confirmButtonColor: "#018180",
+      customClass: { confirmButton: 'btn-swal-confirmar' },
+      buttonsStyling: false
+    });
+  };
+
+  useEffect(() => {
+    console.log("get the useEffect");
+    const token = localStorage.getItem('token');  // Obtener el token del localStorage
+    console.log("token: " + token)
+
+    if (token) {
+      axios.get('http://localhost:8080/api/auth/fullAgentes', {
+        headers: {
+          Authorization: `Bearer ${token}`  // Usar el token en el encabezado
+        }
+      })
+        .then(response => {
+          setAgentes(response.data); // Solo esta llamada es suficiente
+          console.log(response.data);
+        })
+        .catch(error => {
+          console.error('Error al obtener los datos:', error);
+        });
+    } else {
+      console.log('No se encontró el token');
+    }
+  }, []);
+
+
+  const filteredAgentes = agentes
     .filter(agente => agente && agente.name && agente.lastname && agente.surname && agente.email)
     .filter(agente =>
       agente.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -581,266 +605,272 @@ import React, { useState, useEffect } from 'react';
       agente.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const totalPages = Math.ceil(filteredAgentes.length / recordsPerPage);
-    const indexOfLastRecord = currentPage * recordsPerPage;
-    const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentAgentes = filteredAgentes.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredAgentes.length / recordsPerPage);
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentAgentes = filteredAgentes.slice(indexOfFirstRecord, indexOfLastRecord);
 
-    const paginate = (page) => {
-      if (page === "prev" && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      } else if (page === "next" && currentPage < totalPages) {
-        setCurrentPage(currentPage + 1);
-      } else if (typeof page === "number") {
-        setCurrentPage(page);
-      }
-    };
+  const paginate = (page) => {
+    if (page === "prev" && currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    } else if (page === "next" && currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    } else if (typeof page === "number") {
+      setCurrentPage(page);
+    }
+  };
 
-    const handleSearch = (term) => {
-      setSearchTerm(term); // Actualiza el término de búsqueda
-      setCurrentPage(1);   // Reinicia la paginación a la primera página
-    };
+  const handleSearch = (term) => {
+    setSearchTerm(term); // Actualiza el término de búsqueda
+    setCurrentPage(1);   // Reinicia la paginación a la primera página
+  };
 
-    return (
-      <>
-        <GlobalStyle />
-        <Container>
-          <Card>
-            <Row className="mb-3">
-              <Col className="d-flex justify-content-end">
+  return (
+    <>
+      <GlobalStyle />
+
+      <Container>
+        <div
+          style={{
+            color: '#018180',
+            padding: '12px 25px',
+            fontSize: '1.4rem',
+            fontWeight: 'bold',
+            display: 'inline-block',
+            marginBottom: '20px',
+          }}
+        >
+          Agentes de Ventas
+        </div>
+
+        <Card>
+          <Row className="mb-3">
+            <Col className="d-flex justify-content-end">
+            </Col>
+          </Row>
+
+          <Row className="mb-1">
+
+            <Col>
+              <Nav variant="tabs" defaultActiveKey="/agentes">
                 <FiltroServicios onSearch={handleSearch} placeholder="Buscar agentes..." />
-              </Col>
-            </Row>
 
-            <Row className="mb-1">
-              <Col>
-                <Nav variant="tabs" defaultActiveKey="/agentes">
-                  <Nav.Item>
-                    <Nav.Link eventKey="/agentes"
-                      style={{
-                        backgroundColor: '#018180', // Fondo gris claro
-                        border: '1px solidrgb(89, 104, 104)', // Borde con el color de acento
-                        borderRadius: '5px',         // Bordes redondeados
-                        boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)', // Sombra sutil para dar profundidad
-                      }}
-                    >Agentes de Ventas</Nav.Link>
-                  </Nav.Item>
-                  <Nav.Link
-                    className="text-dark ms-auto"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowAgenteModal(true);
-                    }}
-                  >
-                    <i className="bi bi-plus-circle fs-2"></i>
-                  </Nav.Link>
-                </Nav>
-              </Col>
-            </Row>
-            {/* Modal para Agregar/Editar Agente */}
-            <Modal show={showAgenteModal || editModal} onHide={() => { setShowAgenteModal(false); setEditModal(false); }} centered>
-              <StyledWrapper>
-                <Modal.Header closeButton>
-                  <Modal.Title className="title">{editModal ? "Editar Agente" : "Agregar Agente"}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <Form className="form">
-                    {/* Campo Nombre */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Nombre</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={editedData.name}
-                        onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
-                        className="input"
-                        isInvalid={!!errors.nombre}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.nombre}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                    {/* Campo Apellidos */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Apellido paterno:</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={editedData.lastname}
-                        onChange={(e) => setEditedData({ ...editedData, lastname: e.target.value })}
-                        className="input"
-                        isInvalid={!!errors.apellidos}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.apellidos}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                    {/* Campo Apellidos */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Apellido materno:</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={editedData.surname}
-                        onChange={(e) => setEditedData({ ...editedData, surname: e.target.value })}
-                        className="input"
-                        isInvalid={!!errors.apellidos}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.apellidos}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                    {/* Campo Correo */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Correo</Form.Label>
-                      <Form.Control
-                        type="email"
-                        value={editedData.email}
-                        onChange={(e) => setEditedData({ ...editedData, email: e.target.value })}
-                        className="input"
-                        isInvalid={!!errors.correo}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.correo}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                    {/* Campo Teléfono */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Teléfono</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={editedData.telephone}
-                        onChange={(e) => setEditedData({ ...editedData, telephone: e.target.value })}
-                        className="input"
-                        isInvalid={!!errors.telephone}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.telephone}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                  <CustomButton
-                    className="submit btn btn-primary" 
-                    variant="secondary"
-                    onClick={() => { setShowAgenteModal(false); setEditModal(false); }}
-                  >
-                    Cancelar
-                  </CustomButton>
-                  <CustomButton
-                    variant="primary"
-                    onClick={editModal ? handleSaveChanges : handleAddAgente}
-                    className="submit"
-                  >
-                    {editModal ? "Guardar cambios" : "Agregar"}
-                  </CustomButton>
-                </Modal.Footer>
-              </StyledWrapper>
-            </Modal>
-
-            {/* Tabla de Agentes de Ventas ----------------------------------------------------------------------------------------------------------------------------------------------*/}
+                <Nav.Link
+                  className="text-dark ms-auto"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowAgenteModal(true);
+                  }}
+                >
+                  <i className="bi bi-plus-circle fs-2"></i>
+                </Nav.Link>
+              </Nav>
+            </Col>
+          </Row>
+          {/* Modal para Agregar/Editar Agente */}
+          <Modal show={showAgenteModal || editModal} onHide={() => { setShowAgenteModal(false); setEditModal(false); }} centered>
             <StyledWrapper>
-              <div className="scrollable-table">
-                <Table striped bordered hover className="mt-2">
-                  <CustomTableHeader>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Apellidos</th>
-                      <th>Correo</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </CustomTableHeader>
-                  <tbody>
-                    {currentAgentes.map((agente) => (
-                      <tr key={agente.id}>
-                        <td>{agente.name}</td>
-                        <td>{agente.lastname + " " + agente.surname}</td>
-                        <td>{agente.email}</td>
-                        <td>{(agente.state) ? "Activo" : "Inactivo"}</td>
-                        <td>
-                          <BsPencilSquare
-                            className="text-primary me-2 fs-2"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => handleEdit(agente)}
-                          />
-                          {agente.state === true ? (
-                            <BsToggleOn
-                              className="text-success fs-1"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleToggleStatus(agente)}
-                            />
-                          ) : (
-                            <BsToggleOff
-                              className="text-danger fs-1"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleToggleStatus(agente)}
-                            />
-                          )}
-                          <CustomButton
-                            variant="info"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedAgenteForClientes(agente);
-                              setShowClientesModal(true);
-                            }}
-                            className="ms-2"
-                          >
-                            <img src={ClientePNG} alt="Clientes" style={{ width: '20px', height: '20px' }} />
-                          </CustomButton>
+              <Modal.Header closeButton>
+                <Modal.Title className="title">{editModal ? "Editar Agente" : "Agregar Agente"}</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <Form className="form">
+                  {/* Campo Nombre */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>Nombre</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editedData.name}
+                      onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
+                      className="input"
+                      isInvalid={!!errors.nombre}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.nombre}
+                    </Form.Control.Feedback>
+                  </Form.Group>
 
-                          <CustomButton
-                            variant="info"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedAgenteForHistorico(agente);
-                              setShowHistoricoVentasModal(true);
-                            }}
-                            className="ms-2 fs-6"
-                          >
-                            <i className="bi bi-folder-fill"></i>
-                          </CustomButton>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
+                  {/* Campo Apellidos */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>Apellido paterno:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editedData.lastname}
+                      onChange={(e) => setEditedData({ ...editedData, lastname: e.target.value })}
+                      className="input"
+                      isInvalid={!!errors.apellidos}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.apellidos}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+
+                  {/* Campo Apellidos */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>Apellido materno:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editedData.surname}
+                      onChange={(e) => setEditedData({ ...editedData, surname: e.target.value })}
+                      className="input"
+                      isInvalid={!!errors.apellidos}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.apellidos}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+
+                  {/* Campo Correo */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>Correo</Form.Label>
+                    <Form.Control
+                      type="email"
+                      value={editedData.email}
+                      onChange={(e) => setEditedData({ ...editedData, email: e.target.value })}
+                      className="input"
+                      isInvalid={!!errors.correo}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.correo}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+
+                  {/* Campo Teléfono */}
+                  <Form.Group className="mb-3">
+                    <Form.Label>Teléfono</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editedData.telephone}
+                      onChange={(e) => setEditedData({ ...editedData, telephone: e.target.value })}
+                      className="input"
+                      isInvalid={!!errors.telephone}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.telephone}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                </Form>
+              </Modal.Body>
+              <Modal.Footer>
+                <CustomButton
+                  className="submit btn btn-primary"
+                  variant="secondary"
+                  onClick={() => { setShowAgenteModal(false); setEditModal(false); }}
+                >
+                  Cancelar
+                </CustomButton>
+                <CustomButton
+                  variant="primary"
+                  onClick={editModal ? handleSaveChanges : handleAddAgente}
+                  className="submit"
+                >
+                  {editModal ? "Guardar cambios" : "Agregar"}
+                </CustomButton>
+              </Modal.Footer>
             </StyledWrapper>
+          </Modal>
 
-            {/* Paginador */}
-            <BootstrapPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={paginate}
-            />
-          </Card>
-        </Container>
-        {/* Modal para Clientes */}
-        {selectedAgenteForClientes && (
-          <ClientesModal
-            show={showClientesModal}
-            onHide={() => setShowClientesModal(false)}
-            agente={selectedAgenteForClientes}
-            agentes={agentes}
-            onTransfer={handleTransferCliente}
-            onTransferAll={handleTransferAllClientes}
+          {/* Tabla de Agentes de Ventas ----------------------------------------------------------------------------------------------------------------------------------------------*/}
+          <StyledWrapper>
+            <div className="scrollable-table">
+              <Table striped  hover className="mt-2">
+                <CustomTableHeader>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th>Correo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </CustomTableHeader>
+                <tbody>
+                  {currentAgentes.map((agente) => (
+                    <tr key={agente.id}>
+                      <td>{agente.name}</td>
+                      <td>{agente.lastname + " " + agente.surname}</td>
+                      <td>{agente.email}</td>
+                      <td>{(agente.state) ? "Activo" : "Inactivo"}</td>
+                      <td>
+                        <BsPencilSquare
+                          className="text-primary me-2 fs-2"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleEdit(agente)}
+                        />
+                        {agente.state === true ? (
+                          <BsToggleOn
+                            className="text-success fs-1"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleToggleStatus(agente)}
+                          />
+                        ) : (
+                          <BsToggleOff
+                            className="text-danger fs-1"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleToggleStatus(agente)}
+                          />
+                        )}
+                        <CustomButton
+                          variant="info"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAgenteForClientes(agente);
+                            setShowClientesModal(true);
+                          }}
+                          className="ms-2"
+                        >
+                          <img src={ClientePNG} alt="Clientes" style={{ width: '20px', height: '20px' }} />
+                        </CustomButton>
+
+                        <CustomButton
+                          variant="info"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAgenteForHistorico(agente);
+                            setShowHistoricoVentasModal(true);
+                          }}
+                          className="ms-2 fs-6"
+                        >
+                          <i className="bi bi-folder-fill"></i>
+                        </CustomButton>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </StyledWrapper>
+
+          {/* Paginador */}
+          <BootstrapPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={paginate}
           />
-        )}
+        </Card>
+      </Container>
+      {/* Modal para Clientes */}
+      {selectedAgenteForClientes && (
+        <ClientesModal
+          show={showClientesModal}
+          onHide={() => setShowClientesModal(false)}
+          agente={selectedAgenteForClientes}
+          agentes={agentes}
+          onTransfer={handleTransferCliente}
+          onTransferAll={handleTransferAllClientes}
+        />
+      )}
 
-        {/* Modal para Histórico de Ventas */}
-        {selectedAgenteForHistorico && (
-          <HistoricoVentas
-            show={showHistoricoVentasModal}
-            onHide={() => setShowHistoricoVentasModal(false)}
-            agente={selectedAgenteForHistorico}
-          />
-        )}
-      </>
-    );
-  }
+      {/* Modal para Histórico de Ventas */}
+      {selectedAgenteForHistorico && (
+        <HistoricoVentas
+          show={showHistoricoVentasModal}
+          onHide={() => setShowHistoricoVentasModal(false)}
+          agente={selectedAgenteForHistorico}
+        />
+      )}
+    </>
+  );
+}
 
-  export default AgenteVentas;
+export default AgenteVentas;
 
