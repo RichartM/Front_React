@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 import { Navbar, Nav, Container, Dropdown, Offcanvas } from 'react-bootstrap';
 import homeIcon from '../../img/home.png';
 import styled from 'styled-components';
@@ -64,6 +66,22 @@ const NavAgenteVenta = () => {
         }, 100);
     };
 
+    const [perfil, setPerfil] = React.useState({});
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        axios
+            .get("http://localhost:8080/api/auth/perfilAgente", {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+                setPerfil(response.data);
+            })
+            .catch((error) => {
+                console.error("Error al obtener los datos:", error);
+            });
+    },[]);
+
     return (
         <Navbar
             bg="light"
@@ -127,12 +145,20 @@ const NavAgenteVenta = () => {
                 <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
                     <Nav className="me-auto">
                         <StyledNavLink href="/agente/tablaCliente">Clientes</StyledNavLink>
-                        
+
                         {/* Aquí también agregamos el dropdown de marcas */}
                         <MarcasDropdownAgente tipoUsuario="agente" />
 
                         <StyledNavLink href="/agente/historial-ventas">Historial de Ventas</StyledNavLink>
                     </Nav>
+                    <div className="d-flex flex-column text-end me-3">
+                        <span style={{ fontWeight: "500", fontSize: "16px", color: "#018180" }}>
+                            {perfil.email}
+                        </span>
+                        <span style={{ fontWeight: "700", fontSize: "18px", color: "#000" }}>
+                            {perfil.name} - {perfil.rol}
+                        </span>
+                    </div>
 
                     <Nav>
                         <Nav.Item>

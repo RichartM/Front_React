@@ -10,7 +10,6 @@ const DropdownContainer = styled.div`
 
 const StyledDropdownToggle = styled.span`
   cursor: pointer;
-  font-weight: bold;
   padding: 10px;
   display: inline-block;
   position: relative;

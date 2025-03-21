@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Navbar, Nav, Container, Dropdown, Offcanvas } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import homeIcon from "../../img/home.png";
@@ -8,7 +9,6 @@ import MarcasDropdown from "../Cliente/MarcasDropdown";
 // Estilos personalizados para los enlaces del navbar
 const StyledNavLink = styled(Nav.Link)`
   color: #000 !important;
-  font-weight: bold;
   position: relative;
   transition: color 0.3s ease;
 
@@ -68,6 +68,23 @@ const NavCliente = () => {
     }, 100);
   };
 
+  const [perfil, setPerfil] = useState({});
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    axios
+      .get("http://localhost:8080/api/auth/perfilCliente", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setPerfil(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Error al obtener los datos:", error);
+      });
+  }, []);
+
   return (
     <Navbar
       bg="light"
@@ -89,7 +106,7 @@ const NavCliente = () => {
           </Offcanvas.Header>
           <Offcanvas.Body>
             <Nav className="d-flex flex-column align-items-start gap-2 w-100">
-              
+
               {/* Dropdown del usuario - PRIMERO */}
               <Nav.Item className="w-100">
                 <Dropdown className="w-100">
@@ -127,9 +144,17 @@ const NavCliente = () => {
             <StyledNavLink href="/cliente">Historial de compras</StyledNavLink>
             <MarcasDropdown />
           </Nav>
-
+          <div className="d-flex flex-column text-end me-3">
+            <span style={{ fontWeight: "500", fontSize: "16px", color: "#018180" }}>
+              {perfil.email}
+            </span>
+            <span style={{ fontWeight: "700", fontSize: "18px", color: "#000" }}>
+              {perfil.name} - {perfil.rol}
+            </span>
+          </div>
           <Nav>
             <Nav.Item>
+
               <Dropdown>
                 <Dropdown.Toggle as={CustomToggle}>
                   <i className="bi bi-person-circle fs-2"></i>
@@ -139,7 +164,7 @@ const NavCliente = () => {
                   <Dropdown.Item href="/cliente/editPerfil">
                     <i className="bi bi-person-gear fs-6"></i> Editar perfil
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={handleLogout}> 
+                  <Dropdown.Item onClick={handleLogout}>
                     <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
                   </Dropdown.Item>
                 </Dropdown.Menu>

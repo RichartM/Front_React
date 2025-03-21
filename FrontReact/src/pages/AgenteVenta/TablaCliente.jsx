@@ -168,11 +168,11 @@ export default function TablaCliente() {
         telephone: '',
         estado: 'ACTIVO'
     });
-    const [clienteGuardar,setClienteGuardar] = useState({})
-    const [clienteAgregadoAhorita,setClienteAgregadoAhorita] = useState({})
-    const [AgenteAgregadoAhorita,setAgenteAgregadoAhorita] = useState({})
+    const [clienteGuardar, setClienteGuardar] = useState({})
+    const [clienteAgregadoAhorita, setClienteAgregadoAhorita] = useState({})
+    const [AgenteAgregadoAhorita, setAgenteAgregadoAhorita] = useState({})
 
-    const [agentes,setAgentes] = useState([])
+    const [agentes, setAgentes] = useState([])
 
 
     const fetchClientes = async () => {
@@ -220,7 +220,7 @@ export default function TablaCliente() {
         setFilteredClientes(clientes);
     }, [clientes]);
 
-    
+
 
     const handleSearch = (searchTerm) => {
         const filtered = clientes.filter(cliente =>
@@ -240,14 +240,14 @@ export default function TablaCliente() {
     console.log("holaaaaas")
     console.log(clientes)
 
-    
+
 
     const handleEdit = (cliente) => {
-    
+
         if (!cliente || !cliente.id) {
             return;
         }
-    
+
         setSelectedItem(cliente);
         setEditedData({
             nombre: cliente.name || '',
@@ -256,24 +256,24 @@ export default function TablaCliente() {
             telefono: cliente.telephone ? cliente.telephone.toString() : '',
             estado: cliente.estado || 'ACTIVO'
         });
-    
+
         setEditModal(true);
     };
-    
-    
+
+
     const handleSaveChanges = async () => {
         if (!selectedItem || !selectedItem.id) {
             console.error("Error: No hay cliente seleccionado para editar.");
             return;
         }
-    
+
         if (!validateFields()) {
             console.error("Error: Validación fallida, hay campos vacíos.");
             return;
         }
-    
+
         const token = localStorage.getItem('token'); // 🔍 Obtener el token
-    
+
         if (!token) {
             Swal.fire({
                 title: "Error de autenticación",
@@ -283,7 +283,7 @@ export default function TablaCliente() {
             });
             return;
         }
-    
+
         const clienteData = {
             name: editedData.nombre,
             lastname: editedData.apellidos,
@@ -292,8 +292,8 @@ export default function TablaCliente() {
             telephone: editedData.telefono.toString(),
             username: selectedItem.username,
         };
-    
-    
+
+
         try {
             const response = await axios.put(
                 `http://localhost:8080/api/auth/updateCliente/${selectedItem.id}`,
@@ -305,9 +305,9 @@ export default function TablaCliente() {
                     },
                 }
             );
-    
+
             console.log("✅ Respuesta del backend:", response.data);
-    
+
             setTimeout(async () => {
                 await fetchClientes();
                 setEditModal(false);
@@ -327,9 +327,9 @@ export default function TablaCliente() {
             });
         }
     };
-    
-    
-    
+
+
+
 
     const handleToggleStatus = (cliente) => {
         Swal.fire({
@@ -353,30 +353,30 @@ export default function TablaCliente() {
 
     const validateFields = () => {
         console.log("📌 Validando campos, datos actuales:", editedData); // 🔍 Depuración
-    
+
         let newErrors = {};
-    
+
         if (!editedData.nombre || editedData.nombre.trim() === '') {
             newErrors.nombre = "El nombre es requerido";
         }
-    
+
         if (!editedData.apellidos || editedData.apellidos.trim() === '') {
             newErrors.apellidos = "Los apellidos son requeridos";
         }
-    
+
         if (!editedData.correo || editedData.correo.trim() === '') {
             newErrors.correo = "El correo es requerido";
         } else if (!/\S+@\S+\.\S+/.test(editedData.correo)) {
             newErrors.correo = "Correo inválido";
         }
-    
+
         if (!editedData.telefono || editedData.telefono.toString().trim() === '') {
             newErrors.telefono = "El teléfono es requerido";
         }
-    
+
         setErrors(newErrors);
         console.log("❌ Errores detectados:", newErrors); // 🔍 Ver qué errores se detectaron
-    
+
         return Object.keys(newErrors).length === 0;
     };
     useEffect(() => {
@@ -384,7 +384,7 @@ export default function TablaCliente() {
         if (agenteEncontrado) {
             setAgenteAgregadoAhorita(agenteEncontrado);
         }
-    }, [clienteAgregadoAhorita,clienteGuardar]);  // 🔄 Se ejecuta solo cuando cambian estos valores
+    }, [clienteAgregadoAhorita, clienteGuardar]);  // 🔄 Se ejecuta solo cuando cambian estos valores
 
     console.log("cuscando clienteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
 
@@ -394,18 +394,18 @@ export default function TablaCliente() {
             setClienteGuardar(clienteEncontrado);
         }
     }, [clientes, clienteAgregadoAhorita]);  // 🔄 Se ejecuta solo cuando cambian estos valores
-    
+
     const asociarGerenteCliente = async () => {
 
 
         try {
-            await axios.put(`http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${AgenteAgregadoAhorita.id}&idCliente=${clienteGuardar.id}`,{ //quité esto : AgenteAgregadoAhorita, clienteGuardar
+            await axios.put(`http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${AgenteAgregadoAhorita.id}&idCliente=${clienteGuardar.id}`, { //quité esto : AgenteAgregadoAhorita, clienteGuardar
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json',
                 },
             });
-            
+
             console.log("ya se asocio tu")
 
         } catch (error) {
@@ -417,10 +417,10 @@ export default function TablaCliente() {
                 confirmButtonColor: "#d33",
             });
         }
-        
+
     };
 
-    
+
 
     const handleAddCliente = async () => {
         if (!validateFields()) return; // Validar los campos antes de continuar
@@ -477,18 +477,18 @@ export default function TablaCliente() {
                 confirmButtonColor: "#d33",
             });
         }
-        
-    };
-    
 
-    
+    };
+
+
+
 
     const token = localStorage.getItem("token");
     const [correoAgente, setCorreoAgente] = useState("")
 
-    
 
-    
+
+
 
 
     const fetchAgentes = async () => {
@@ -521,209 +521,208 @@ export default function TablaCliente() {
 
 
 
-    console.log("El cliente a guardar es:",clienteGuardar)
-    console.log("El cliente a guardar es:",AgenteAgregadoAhorita)
+    console.log("El cliente a guardar es:", clienteGuardar)
+    console.log("El cliente a guardar es:", AgenteAgregadoAhorita)
 
 
 
 
-    
+
 
     return (
         <>
             <GlobalStyle />
             <Container>
-                <Card>
-                    <Row className="mb-3">
-                        <Col className="d-flex justify-content-end">
-                            <FiltroBuscador onSearch={handleSearch} placeholder="Buscar cliente..." />
-
-                        </Col>
-                    </Row>
-                    <Row className="mb-1">
-                        <Col>
-                            <Nav variant="tabs" defaultActiveKey="/agentes">
-                                <Nav.Item>
-                                    <Nav.Link eventKey="/agentes"
-                                        style={{
-                                            backgroundColor: '#018180',
-                                            border: '1px solidrgb(89, 104, 104)',
-                                            borderRadius: '5px',
-                                            boxShadow: '0 4px 6px rgba(0, 0, 1, 0.3)',
-                                        }}
-                                    >Clientes</Nav.Link>
-                                </Nav.Item>
-                                <Nav.Link
-                                    className="text-dark ms-auto"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setEditedData({ nombre: '', apellidos: '', correo: '', telefono: '', estado: 'ACTIVO' }); // ✅ Limpia los datos
-                                        setShowModal(true);
-                                    }}
-                                >
-                                    <i className="bi bi-plus-circle fs-2"></i>
-                                </Nav.Link>
-
-                            </Nav>
-                        </Col>
-                    </Row>
-
-
-
-
-                    <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-                        <StyledWrapper>
-                            <Modal.Header closeButton>
-                                <Modal.Title className="title">Registrar Cliente</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <Form className="form">
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Nombre</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={editedData.nombre}
-                                            onChange={(e) => setEditedData({ ...editedData, nombre: e.target.value })}
-                                            isInvalid={!!errors.nombre}
-                                        />
-                                        <Form.Control.Feedback type="invalid">{errors.nombre}</Form.Control.Feedback>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Apellidos</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={editedData.apellidos}
-                                            onChange={(e) => setEditedData({ ...editedData, apellidos: e.target.value })}
-                                            isInvalid={!!errors.apellidos}
-                                        />
-                                        <Form.Control.Feedback type="invalid">{errors.apellidos}</Form.Control.Feedback>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Correo</Form.Label>
-                                        <Form.Control
-                                            type="email"
-                                            value={editedData.correo}
-                                            onChange={(e) => setEditedData({ ...editedData, correo: e.target.value })}
-                                            isInvalid={!!errors.correo}
-                                        />
-                                        <Form.Control.Feedback type="invalid">{errors.correo}</Form.Control.Feedback>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Teléfono</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={editedData.telefono}
-                                            onChange={(e) => setEditedData({ ...editedData, telefono: e.target.value })}
-                                            isInvalid={!!errors.telefono}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.telefono}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-                                </Form>
-                            </Modal.Body>
-                            <Modal.Footer>
-                                <CustomButton variant="secondary" onClick={() => setShowModal(false)}>
-                                    Cancelar
-                                </CustomButton>
-                                <CustomButton variant="primary" onClick={handleAddCliente} className="submit">
-                                    Registrar
-                                </CustomButton>
-
-                            </Modal.Footer>
-                        </StyledWrapper>
-                    </Modal>
-
-
-                    <Modal show={editModal} onHide={() => setEditModal(false)} centered>
-                        <StyledWrapper>
-                            <Modal.Header closeButton>
-                                <Modal.Title className="title">Editar Cliente</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <Form className="form">
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Nombre</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={editedData.nombre}
-                                            onChange={(e) => setEditedData({ ...editedData, nombre: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Apellidos</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={editedData.apellidos}
-                                            onChange={(e) => setEditedData({ ...editedData, apellidos: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Correo</Form.Label>
-                                        <Form.Control
-                                            type="email"
-                                            value={editedData.correo}
-                                            onChange={(e) => setEditedData({ ...editedData, correo: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Teléfono</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={editedData.telefono}
-                                            onChange={(e) => setEditedData({ ...editedData, telefono: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Form>
-                            </Modal.Body>
-                            <Modal.Footer>
-                                <CustomButton variant="secondary" onClick={() => setEditModal(false)}>
-                                    Cancelar
-                                </CustomButton>
-                                <CustomButton variant="primary" onClick={handleSaveChanges}>
-                                    Guardar Cambios
-                                </CustomButton>
-                            </Modal.Footer>
-                        </StyledWrapper>
-                    </Modal>
-
-                    <StyledWrapper>
-                        <div className="scrollable-table">
-                            <Table striped bordered hover className="mt-2">
-                                <CustomTableHeader>
-                                    <tr>
-                                        <th>Nombre(s)</th>
-                                        <th>Apellido(s)</th>
-                                        <th>Correo</th>
-                                        <th>Número de Teléfono</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </CustomTableHeader>
-
-                                <tbody>
-                                    {filteredClientes.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage).map(cliente => (
-                                        <tr key={cliente.id}>
-                                            <td>{cliente.name}</td>
-                                            <td>{cliente.lastname}</td>
-                                            <td>{cliente.email}</td>
-                                            <td>{cliente.telephone}</td>
-                                            <td>{cliente.estado === "ACTIVO" ? "Activo" : "Desactivado"}</td>
-                                            <td>
-                                                <BsPencilSquare className="text-primary fs-4" onClick={() => handleEdit(cliente)} />
-                                                {cliente.estado === "ACTIVO"
-                                                    ? <BsToggleOn className="text-success fs-3" onClick={() => handleToggleStatus(cliente)} />
-                                                    : <BsToggleOff className="text-danger fs-3" onClick={() => handleToggleStatus(cliente)} />}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-
-
-                            </Table>
-                            <BootstrapPagination currentPage={currentPage} totalPages={totalPages} onPageChange={paginate} />
+                
+            <div
+                            style={{
+                                color: '#018180',
+                                padding: '12px 25px',
+                                fontSize: '1.4rem',
+                                fontWeight: 'bold',
+                                display: 'inline-block',
+                                marginBottom: '20px',
+                            }}
+                        >
+                            Clientes
                         </div>
-                    </StyledWrapper>
+                <Card>
+                        <Row className="mb-1">
+                            <Col>
+                                <Nav variant="tabs" defaultActiveKey="/agentes">
+                                    <FiltroBuscador onSearch={handleSearch} placeholder="Buscar cliente..." />
+
+                                    <Nav.Link
+                                        className="text-dark ms-auto"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setEditedData({ nombre: '', apellidos: '', correo: '', telefono: '', estado: 'ACTIVO' }); // ✅ Limpia los datos
+                                            setShowModal(true);
+                                        }}
+                                    >
+                                        <i className="bi bi-plus-circle fs-2"></i>
+                                    </Nav.Link>
+
+                                </Nav>
+                            </Col>
+                        </Row>
+
+
+
+
+                        <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+                            <StyledWrapper>
+                                <Modal.Header closeButton>
+                                    <Modal.Title className="title">Registrar Cliente</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    <Form className="form">
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Nombre</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={editedData.nombre}
+                                                onChange={(e) => setEditedData({ ...editedData, nombre: e.target.value })}
+                                                isInvalid={!!errors.nombre}
+                                            />
+                                            <Form.Control.Feedback type="invalid">{errors.nombre}</Form.Control.Feedback>
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Apellidos</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={editedData.apellidos}
+                                                onChange={(e) => setEditedData({ ...editedData, apellidos: e.target.value })}
+                                                isInvalid={!!errors.apellidos}
+                                            />
+                                            <Form.Control.Feedback type="invalid">{errors.apellidos}</Form.Control.Feedback>
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Correo</Form.Label>
+                                            <Form.Control
+                                                type="email"
+                                                value={editedData.correo}
+                                                onChange={(e) => setEditedData({ ...editedData, correo: e.target.value })}
+                                                isInvalid={!!errors.correo}
+                                            />
+                                            <Form.Control.Feedback type="invalid">{errors.correo}</Form.Control.Feedback>
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Teléfono</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={editedData.telefono}
+                                                onChange={(e) => setEditedData({ ...editedData, telefono: e.target.value })}
+                                                isInvalid={!!errors.telefono}
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.telefono}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    </Form>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <CustomButton variant="secondary" onClick={() => setShowModal(false)}>
+                                        Cancelar
+                                    </CustomButton>
+                                    <CustomButton variant="primary" onClick={handleAddCliente} className="submit">
+                                        Registrar
+                                    </CustomButton>
+
+                                </Modal.Footer>
+                            </StyledWrapper>
+                        </Modal>
+
+
+                        <Modal show={editModal} onHide={() => setEditModal(false)} centered>
+                            <StyledWrapper>
+                                <Modal.Header closeButton>
+                                    <Modal.Title className="title">Editar Cliente</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    <Form className="form">
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Nombre</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={editedData.nombre}
+                                                onChange={(e) => setEditedData({ ...editedData, nombre: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Apellidos</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={editedData.apellidos}
+                                                onChange={(e) => setEditedData({ ...editedData, apellidos: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Correo</Form.Label>
+                                            <Form.Control
+                                                type="email"
+                                                value={editedData.correo}
+                                                onChange={(e) => setEditedData({ ...editedData, correo: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Teléfono</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={editedData.telefono}
+                                                onChange={(e) => setEditedData({ ...editedData, telefono: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                    </Form>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                    <CustomButton variant="secondary" onClick={() => setEditModal(false)}>
+                                        Cancelar
+                                    </CustomButton>
+                                    <CustomButton variant="primary" onClick={handleSaveChanges}>
+                                        Guardar Cambios
+                                    </CustomButton>
+                                </Modal.Footer>
+                            </StyledWrapper>
+                        </Modal>
+
+                        <StyledWrapper>
+                            <div className="scrollable-table">
+                                <Table striped bordered hover className="mt-2">
+                                    <CustomTableHeader>
+                                        <tr>
+                                            <th>Nombre(s)</th>
+                                            <th>Apellido(s)</th>
+                                            <th>Correo</th>
+                                            <th>Número de Teléfono</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </CustomTableHeader>
+
+                                    <tbody>
+                                        {filteredClientes.slice((currentPage - 1) * recordsPerPage, currentPage * recordsPerPage).map(cliente => (
+                                            <tr key={cliente.id}>
+                                                <td>{cliente.name}</td>
+                                                <td>{cliente.lastname}</td>
+                                                <td>{cliente.email}</td>
+                                                <td>{cliente.telephone}</td>
+                                                <td>{cliente.estado === "ACTIVO" ? "Activo" : "Desactivado"}</td>
+                                                <td>
+                                                    <BsPencilSquare className="text-primary fs-4" onClick={() => handleEdit(cliente)} />
+                                                    {cliente.estado === "ACTIVO"
+                                                        ? <BsToggleOn className="text-success fs-3" onClick={() => handleToggleStatus(cliente)} />
+                                                        : <BsToggleOff className="text-danger fs-3" onClick={() => handleToggleStatus(cliente)} />}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+
+
+                                </Table>
+                                <BootstrapPagination currentPage={currentPage} totalPages={totalPages} onPageChange={paginate} />
+                            </div>
+                        </StyledWrapper>
                 </Card>
             </Container>
         </>

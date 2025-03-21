@@ -27,6 +27,14 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const CustomTableHeader = styled.thead`
+    th {
+      background-color: #018180;
+      color: white;
+      text-align: center;
+    }
+  `;
+ 
 const StyledWrapper = styled.div`
   .scrollable-table {
     max-height: 400px;
@@ -63,14 +71,25 @@ const ClienteHistorial = () => {
       <GlobalStyle />
       <NavCliente />
       <Container className="mt-5">
+      <div
+          style={{
+            color: '#018180',
+            padding: '12px 25px',
+            fontSize: '1.4rem',
+            fontWeight: 'bold',
+            display: 'inline-block',
+            marginBottom: '20px',
+          }}
+        >
+        Historial de Compras de tus Autos
+        </div>
         <Card className="mb-4">
-          <Card.Header className="text-white text-center" style={{ backgroundColor: "#018180" }}>
-            <h4>Historial de Compras de tus Autos</h4>
-          </Card.Header>
           <StyledWrapper>
             <div className="scrollable-table">
-              <Table striped bordered hover>
-                <thead className="table-header">
+            <CustomTableHeader>
+
+              <Table striped hover>
+                <thead>
                   <tr>
                     <th>ID</th>
                     <th>Modelo</th>
@@ -97,7 +116,10 @@ const ClienteHistorial = () => {
                     </tr>
                   ))}
                 </tbody>
+
               </Table>
+              </CustomTableHeader>
+
             </div>
           </StyledWrapper>
         </Card>
