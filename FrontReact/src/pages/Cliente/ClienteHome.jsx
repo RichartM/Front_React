@@ -91,7 +91,6 @@ const ClienteHistorial = () => {
               <Table striped hover>
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Modelo</th>
                     <th>Año</th>
                     <th>Última Compra</th>
@@ -101,7 +100,6 @@ const ClienteHistorial = () => {
                 <tbody>
                   {autos.map((auto) => (
                     <tr key={auto.id}>
-                      <td>{auto.id}</td>
                       <td>{auto.modelo}</td>
                       <td>{auto.año}</td>
                       <td>{auto.historial.length > 0 ? auto.historial[0].producto : "Sin compras"}</td>

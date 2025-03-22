@@ -1,6 +1,9 @@
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const API_URL = "http://localhost:8080/api/auth/";
+let lastTokenCheck = null; // Almacena la última vez que se verificó el token
+let isLoggingOut = false; // Bandera para evitar múltiples redirecciones
 
 /**
  * 📌 Iniciar sesión y almacenar el token en localStorage.
@@ -42,14 +45,24 @@ const login = async (email, password) => {
  * 📌 Cerrar sesión eliminando el token y redirigiendo al login.
  */
 const logout = () => {
-    console.log("🔹 Cerrando sesión...");
-    localStorage.removeItem("token");
-    localStorage.removeItem("forcePasswordChange");
+  if (isLoggingOut) return; // Evitar múltiples ejecuciones
+  isLoggingOut = true;
 
-    // ✅ Eliminar el token de axios para evitar solicitudes no autorizadas
-    delete axios.defaults.headers.common["Authorization"];
+  console.log("🔹 Cerrando sesión...");
+  localStorage.removeItem("token");
+  localStorage.removeItem("forcePasswordChange");
 
+  // ✅ Eliminar el token de axios para evitar solicitudes no autorizadas
+  delete axios.defaults.headers.common["Authorization"];
+
+  Swal.fire({
+    title: "Sesión expirada",
+    text: "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+    icon: "warning",
+    confirmButtonColor: "#018180",
+  }).then(() => {
     window.location.href = "/login";
+  });
 };
 
 /**
@@ -77,42 +90,50 @@ const getRoleFromToken = () => {
  * @returns {boolean} - `true` si el token ha expirado, `false` si sigue válido.
  */
 const isTokenExpired = () => {
-    const token = localStorage.getItem("token");
-    if (!token) return true;
+  const token = localStorage.getItem("token");
+  if (!token) return true;
 
-    try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const expiration = payload.exp * 1000; // Convertir a milisegundos
-        
-        console.log("🔹 Expiración del token:", new Date(expiration).toLocaleString());
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const expiration = payload.exp * 1000; // Convertir a milisegundos
 
-        return Date.now() > expiration;
-    } catch (error) {
-        console.error("❌ Error al verificar expiración del token:", error);
-        return true;
+    // Solo imprime la expiración si no se ha verificado recientemente
+    if (!lastTokenCheck || Date.now() - lastTokenCheck > 60000) { // 60 segundos
+      console.log("🔹 Expiración del token:", new Date(expiration).toLocaleString());
+      lastTokenCheck = Date.now();
     }
+
+    return Date.now() > expiration;
+  } catch (error) {
+    console.error("❌ Error al verificar expiración del token:", error);
+    return true;
+  }
 };
 
 /**
  * 📌 Interceptor para verificar la validez del token antes de cada solicitud
  */
 axios.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
+  (config) => {
+    const token = localStorage.getItem("token");
 
-        if (token) {
-            if (isTokenExpired()) {
-                console.warn("⚠️ Token expirado, cerrando sesión...");
-                logout();
-                return Promise.reject("Token expirado.");
-            }
+    if (token) {
+      // Verificar la expiración del token solo si no se ha verificado recientemente
+      if (isTokenExpired()) {
+        console.warn("⚠️ Token expirado, cerrando sesión...");
+        logout();
+        return Promise.reject(new Error("Token expirado.")); // Rechazar la solicitud sin alerta
+      }
 
-            config.headers["Authorization"] = `Bearer ${token}`;
-        }
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
 
-        return config;
-    },
-    (error) => Promise.reject(error)
+    return config;
+  },
+  (error) => {
+    console.error("❌ Error en la solicitud:", error);
+    return Promise.reject(error);
+  }
 );
 
 // 📌 Exportar funciones

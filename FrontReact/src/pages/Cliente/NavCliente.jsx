@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 import homeIcon from "../../img/home.png";
 import styled from "styled-components";
 import MarcasDropdown from "../Cliente/MarcasDropdown";
+import { usePerfilCliente } from '../../context/PerfilClienteContext';
+
+// Estilos personalizados para los enlaces del navbar
+
 
 // Estilos personalizados para los enlaces del navbar
 const StyledNavLink = styled(Nav.Link)`
@@ -54,6 +58,13 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const NavCliente = () => {
+  const { perfil, updatePerfil } = usePerfilCliente(); // Usa el hook
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    updatePerfil(); // Actualiza el perfil al cargar el componente
+  }, [updatePerfil]);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -67,23 +78,6 @@ const NavCliente = () => {
       window.location.href = "/login";
     }, 100);
   };
-
-  const [perfil, setPerfil] = useState({});
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    axios
-      .get("http://localhost:8080/api/auth/perfilCliente", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setPerfil(response.data);
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error("Error al obtener los datos:", error);
-      });
-  }, []);
 
   return (
     <Navbar
@@ -99,14 +93,19 @@ const NavCliente = () => {
 
         <Navbar.Toggle aria-controls="offcanvasNavbar" />
 
-        {/* ✅ Offcanvas solo en móviles */}
-        <Navbar.Offcanvas id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel" placement="end" style={{ maxWidth: "280px" }} className="d-lg-none">
+        {/* Offcanvas solo en móviles */}
+        <Navbar.Offcanvas
+          id="offcanvasNavbar"
+          aria-labelledby="offcanvasNavbarLabel"
+          placement="end"
+          style={{ maxWidth: "280px" }}
+          className="d-lg-none"
+        >
           <Offcanvas.Header closeButton>
             <Offcanvas.Title id="offcanvasNavbarLabel">Menú</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
             <Nav className="d-flex flex-column align-items-start gap-2 w-100">
-
               {/* Dropdown del usuario - PRIMERO */}
               <Nav.Item className="w-100">
                 <Dropdown className="w-100">
@@ -133,12 +132,11 @@ const NavCliente = () => {
               <div className="w-100">
                 <MarcasDropdown tipoUsuario="cliente" />
               </div>
-
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>
 
-        {/* ✅ Navbar normal en PC */}
+        {/* Navbar normal en PC */}
         <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
           <Nav className="me-auto d-flex align-items-center">
             <StyledNavLink href="/cliente">Historial de compras</StyledNavLink>
@@ -154,12 +152,10 @@ const NavCliente = () => {
           </div>
           <Nav>
             <Nav.Item>
-
               <Dropdown>
                 <Dropdown.Toggle as={CustomToggle}>
                   <i className="bi bi-person-circle fs-2"></i>
                 </Dropdown.Toggle>
-
                 <Dropdown.Menu align="end">
                   <Dropdown.Item href="/cliente/editPerfil">
                     <i className="bi bi-person-gear fs-6"></i> Editar perfil

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { usePerfil } from '../../context/PerfilGerenteContext';
+import { usePerfilCliente } from "../../context/PerfilClienteContext";
 import styled from "styled-components";
 import { Form, Container, Spinner, Button, ProgressBar } from "react-bootstrap";
 import Swal from "sweetalert2";
@@ -23,19 +23,20 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const EditPerfil = () => {
-  const [perfil, setPerfil] = useState({});
+const EditPerfilCliente = () => {
+  const [perfil, setPerfil] = useState({}); // Declara el estado y su función de actualización
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { updatePerfil } = usePerfil(); // Obtén la función del contexto
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { updatePerfil } = usePerfilCliente();
 
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
         const userData = await AuthServiceProfile.getUserProfile();
-        setPerfil(userData);
+        setPerfil(userData); // Actualiza el estado con los datos del perfil
         setLoading(false);
       } catch (error) {
         Swal.fire({
@@ -52,7 +53,7 @@ const EditPerfil = () => {
   }, []);
 
   const handleChange = (e) => {
-    setPerfil({ ...perfil, [e.target.name]: e.target.value });
+    setPerfil({ ...perfil, [e.target.name]: e.target.value }); // Usa setPerfil para actualizar el estado
   };
 
   const handlePasswordChange = (e) => {
@@ -62,7 +63,8 @@ const EditPerfil = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setIsSubmitting(true);
+
     if (!currentPassword) {
       Swal.fire({
         title: "Error",
@@ -70,32 +72,29 @@ const EditPerfil = () => {
         icon: "error",
         confirmButtonColor: "#018180",
       });
+      setIsSubmitting(false);
       return;
     }
-  
+
     const updatedData = { ...perfil, currentPassword, newPassword };
-  
+
     try {
       const response = await AuthServiceProfile.updateUserProfile(updatedData);
-  
-      // 🔹 Verificar si la respuesta es válida
+
       if (response && response.message) {
         Swal.fire({
           title: "Éxito",
-          text: response.message, // Muestra el mensaje de éxito del backend
+          text: response.message,
           icon: "success",
           confirmButtonColor: "#018180",
         });
-  
-        // Actualizar el contexto o estado local si es necesario
-        await updatePerfil();
+
+        await updatePerfil(); // Actualiza el contexto
       } else {
         throw new Error("Respuesta inesperada del servidor.");
       }
     } catch (error) {
       console.error("Error al actualizar el perfil:", error);
-  
-      // 🔹 Mostrar un mensaje de error más específico
       const errorMessage = error.response?.data?.message || error.message || "Hubo un problema al actualizar el perfil.";
       Swal.fire({
         title: "Error",
@@ -103,6 +102,8 @@ const EditPerfil = () => {
         icon: "error",
         confirmButtonColor: "#018180",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -121,11 +122,11 @@ const EditPerfil = () => {
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Nombre</Form.Label>
-          <Form.Control type="text" name="name" value={perfil.name || ""} onChange={handleChange} />
+          <Form.Control type="text" name="name" value={perfil.name || ""} onChange={handleChange} required />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Apellido</Form.Label>
-          <Form.Control type="text" name="lastname" value={perfil.lastname || ""} onChange={handleChange} />
+          <Form.Control type="text" name="lastname" value={perfil.lastname || ""} onChange={handleChange} required />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Segundo Apellido</Form.Label>
@@ -133,14 +134,13 @@ const EditPerfil = () => {
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Username</Form.Label>
-          <Form.Control type="text" name="username" value={perfil.username || ""} onChange={handleChange} />
+          <Form.Control type="text" name="username" value={perfil.username || ""} onChange={handleChange} required />
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Email</Form.Label>
-          <Form.Control type="email" name="email" value={perfil.email || ""} onChange={handleChange} />
+          <Form.Control type="email" name="email" value={perfil.email || ""} onChange={handleChange} required />
         </Form.Group>
 
-        {/* 🔹 Sección de Contraseña */}
         <Form.Group className="mb-3">
           <Form.Label>Contraseña Actual</Form.Label>
           <Form.Control
@@ -172,12 +172,12 @@ const EditPerfil = () => {
           </p>
         </Form.Group>
 
-        <StyledButton type="submit" className="w-100 mt-3">
-          Confirmar Cambios
+        <StyledButton type="submit" className="w-100 mt-3" disabled={isSubmitting}>
+          {isSubmitting ? "Guardando..." : "Confirmar Cambios"}
         </StyledButton>
       </Form>
     </StyledContainer>
   );
 };
 
-export default EditPerfil;
+export default EditPerfilCliente;

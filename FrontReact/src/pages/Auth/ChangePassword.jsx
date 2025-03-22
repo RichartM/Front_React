@@ -69,12 +69,12 @@ const PasswordStrengthBar = styled(ProgressBar)`
         props.strength === 0
             ? "#dc3545"
             : props.strength === 1
-            ? "#ffc107"
-            : props.strength === 2
-            ? "#ffc107"
-            : props.strength === 3
-            ? "#28a745"
-            : "#28a745"};
+                ? "#ffc107"
+                : props.strength === 2
+                    ? "#ffc107"
+                    : props.strength === 3
+                        ? "#28a745"
+                        : "#28a745"};
   }
 `;
 
@@ -150,7 +150,7 @@ const ChangePassword = () => {
             } else if (role === "CLIENTE") {
                 navigate("/cliente/home");
             } else {
-                navigate("/login"); 
+                navigate("/login");
             }
         } catch (error) {
             console.error("❌ Error al cambiar la contraseña:", error);
@@ -178,8 +178,11 @@ const ChangePassword = () => {
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                         />
-                        <PasswordStrengthBar now={(passwordStrength + 1) * 25} strength={passwordStrength} />
+
+
                     </Form.Group>
+
+
 
                     <Form.Group className="mb-3">
                         <Form.Label>Confirmar Contraseña</Form.Label>
@@ -188,8 +191,34 @@ const ChangePassword = () => {
                             placeholder="Confirma tu contraseña"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
+                            isInvalid={
+                                newPassword !== "" && confirmPassword !== newPassword
+                            }
+                            isValid={
+                                confirmPassword !== "" && confirmPassword === newPassword
+                            }
                         />
+                        <Form.Control.Feedback type="invalid">
+                            Las contraseñas no coinciden.
+                        </Form.Control.Feedback>
+                        <Form.Control.Feedback type="valid">
+                            Las contraseñas coinciden.
+                        </Form.Control.Feedback>
+
+                        <PasswordStrengthBar
+                            now={newPassword === "" ? 0 : (passwordStrength + 1) * 25}
+                            strength={passwordStrength}
+                        />
+
+                        <p className="mt-1 text-muted">
+                            Nivel de seguridad:
+                            {newPassword === ""
+                                ? "Sin datos"
+                                : ["Muy débil", "Débil", "Aceptable", "Fuerte", "Muy fuerte"][passwordStrength]
+                            }
+                        </p>
                     </Form.Group>
+
 
                     <div className="text-center">
                         <StyledButton type="submit" disabled={loading}>

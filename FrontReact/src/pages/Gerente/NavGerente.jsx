@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Navbar, Nav, Container, Dropdown, Offcanvas } from 'react-bootstrap';
-import homeIcon from '../../img/home.png';
-import styled from 'styled-components';
+import React, { useEffect, useCallback } from "react";
+import { usePerfil } from "../../context/PerfilGerenteContext"; // Ajusta la ruta según tu estructura
+import { Navbar, Nav, Container, Dropdown, Offcanvas } from "react-bootstrap";
+import homeIcon from "../../img/home.png";
+import styled from "styled-components";
 
 // Estilos para la línea debajo del enlace al hacer hover
 const StyledNavLink = styled(Nav.Link)`
@@ -53,28 +53,25 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const NavPrincipal = () => {
-  const [perfil, setPerfil] = useState({}); // Asumo que perfil es un objeto
+  const { perfil, updatePerfil } = usePerfil();
 
+  // Memoiza updatePerfil para evitar que cambie en cada renderizado
+  const memoizedUpdatePerfil = useCallback(() => {
+    if (!perfil.name) { // Solo actualiza si el perfil no está cargado
+      updatePerfil();
+    }
+  }, [perfil.name, updatePerfil]);
+
+  // Ejecuta memoizedUpdatePerfil solo una vez al montar el componente
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    axios.get('http://localhost:8080/api/auth/perfilGerente', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(response => {
-        setPerfil(response.data);
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.error('Error al obtener los datos:', error);
-      });
-  }, []);
+    memoizedUpdatePerfil();
+  }, [memoizedUpdatePerfil]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
 
     window.history.pushState(null, "", window.location.href);
     window.history.replaceState(null, "", "/login");
@@ -138,7 +135,6 @@ const NavPrincipal = () => {
               <StyledNavLink href="/gerente/servicios">
                 <i className="bi bi-clipboard-fill"></i> Servicio
               </StyledNavLink>
-
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>
@@ -150,37 +146,35 @@ const NavPrincipal = () => {
             <StyledNavLink href="/gerente/agenteVentas">Agentes de venta</StyledNavLink>
             <StyledNavLink href="/gerente/cartable">Marcas</StyledNavLink>
             <StyledNavLink href="/gerente/servicios">Servicio</StyledNavLink>
-
           </Nav>
 
           <Nav className="d-flex align-items-center gap-3">
-  <div className="d-flex flex-column text-end me-3">
-    <span style={{ fontWeight: "500", fontSize: "16px", color: "#018180" }}>
-    {perfil.email}
-    </span>
-    <span style={{ fontWeight: "700", fontSize: "18px", color: "#000" }}>
-      {perfil.name} - {perfil.rol}
-    </span>
-  </div>
+            <div className="d-flex flex-column text-end me-3">
+              <span style={{ fontWeight: "500", fontSize: "16px", color: "#018180" }}>
+                {perfil.email}
+              </span>
+              <span style={{ fontWeight: "700", fontSize: "18px", color: "#000" }}>
+                {perfil.name} - {perfil.rol}
+              </span>
+            </div>
 
-  <Nav.Item>
-    <Dropdown>
-      <Dropdown.Toggle as={CustomToggle}>
-        <i className="bi bi-person-circle fs-2"></i>
-      </Dropdown.Toggle>
+            <Nav.Item>
+              <Dropdown>
+                <Dropdown.Toggle as={CustomToggle}>
+                  <i className="bi bi-person-circle fs-2"></i>
+                </Dropdown.Toggle>
 
-      <Dropdown.Menu align="end">
-        <Dropdown.Item href="/gerente/editPerfil">
-          <i className="bi bi-person-gear fs-6"></i> Editar perfil
-        </Dropdown.Item>
-        <Dropdown.Item onClick={handleLogout}>
-          <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-  </Nav.Item>
-</Nav>
-
+                <Dropdown.Menu align="end">
+                  <Dropdown.Item href="/gerente/editPerfil">
+                    <i className="bi bi-person-gear fs-6"></i> Editar perfil
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogout}>
+                    <i className="bi bi-box-arrow-left fs-6"></i> Cerrar sesión
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Nav.Item>
+          </Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>

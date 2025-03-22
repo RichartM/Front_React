@@ -26,11 +26,15 @@ import PanelControl from '../pages/Gerente/PanelControl';
 import ClienteHome from '../pages/Cliente/ClienteHome';
 import CarrosPorMarca from '../pages/Autos/CarrosPorMarca';
 import DetallesCoche from '../pages/Autos/DetallesCoche';
+import EditPerfilCliente from '../pages/Cliente/EditPerfilCliente.jsx'; // Editar perfil para clientes
+
 
 // Agente
 import TablaCliente from '../pages/AgenteVenta/TablaCliente';
 import DetallesCocheAgente from '../pages/AgenteVenta/DetallesCocheAgente';
 import ResumenCompra from '../pages/AgenteVenta/ResumenCompra.jsx'
+import EditPerfilAgente from '../pages/AgenteVenta/EditPerfilAgente.jsx'; // Editar perfil para agentes
+
 const AppRoutes = () => {
   return (
     <Suspense fallback={<h1>Cargando...</h1>}>
@@ -56,6 +60,7 @@ const AppRoutes = () => {
 
 
         {/* 🔹 Rutas protegidas (GERENTES no requieren cambio de contraseña) */}
+
         <Route element={<ProtectedRoute />}>
           <Route path="/gerente/*" element={<GerenteLayout />}>
             <Route path="cartable" element={<CarTable />} />
@@ -66,6 +71,7 @@ const AppRoutes = () => {
           </Route>
         </Route>
 
+
         {/* 🔹 Rutas protegidas con verificación de cambio de contraseña (AGENTES y CLIENTES) */}
         <Route element={<RequirePasswordChange />}>
           <Route element={<ProtectedRoute />}>
@@ -73,14 +79,16 @@ const AppRoutes = () => {
             <Route path="/agente/*" element={<AgenteVentaLayout />}>
               <Route index element={<Navigate to="/agente/tablaCliente" replace />} />
               <Route path="tablaCliente" element={<TablaCliente />} />
+              <Route path="editPerfil" element={<EditPerfilAgente />} />
+
             </Route>
 
             {/* 🔹 Rutas para Clientes */}
             <Route path="/cliente/*" element={<ClienteLayout />}>
               <Route index element={<Navigate to="/cliente/home" replace />} />
               <Route path="home" element={<ClienteHome />} />
-              <Route path="editPerfil" element={<EditPerfil />} />
-            </Route>
+              <Route path="editPerfil" element={<EditPerfilCliente />} />
+              </Route>
           </Route>
         </Route>
 

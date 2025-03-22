@@ -82,6 +82,7 @@ const NavAgenteVenta = () => {
             });
     },[]);
 
+
     return (
         <Navbar
             bg="light"
@@ -155,7 +156,7 @@ const NavAgenteVenta = () => {
                         <span style={{ fontWeight: "500", fontSize: "16px", color: "#018180" }}>
                             {perfil.email}
                         </span>
-                        <span style={{ fontWeight: "700", fontSize: "18px", color: "#000" }}>
+                        <span style={{ fontWeight: "700", fontSize: "18px", color: "#5b5b5b" }}>
                             {perfil.name} - {perfil.rol}
                         </span>
                     </div>
