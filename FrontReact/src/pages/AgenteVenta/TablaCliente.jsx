@@ -190,7 +190,8 @@ export default function TablaCliente() {
                 });
     
                 setClientes(response.data);
-                setFilteredClientes(response.data);
+                console.log("dataaaaaInsalubre",clientes)
+                //setFilteredClientes(response.data);
     
                 return response.data; // ⬅️ Retornamos los datos actualizados
     
@@ -205,7 +206,7 @@ export default function TablaCliente() {
         }
     };
 
-
+    
     
     
 
@@ -360,7 +361,7 @@ export default function TablaCliente() {
     };
 
     const validateFields = () => {
-        console.log("📌 Validando campos, datos actuales:", editedData); // 🔍 Depuración
+       // console.log("📌 Validando campos, datos actuales:", editedData); // 🔍 Depuración
 
         let newErrors = {};
 
@@ -398,7 +399,8 @@ export default function TablaCliente() {
                 });
 
                 setAgentes(response.data);
-                setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
+                //setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
+                return response.data
 
             } catch (error) {
                 console.error("Error al obtener clientes:", error);
@@ -419,16 +421,24 @@ export default function TablaCliente() {
         fetchAgentes();
     }, []);
 
+    console.log("informacion reelevante", agentes)
+    console.log("informacion reelevante", correoAgente)
 
+    
 
     useEffect(() => {
         if (agentes.length > 0 && correoAgente) {
             const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
-            if (agenteEncontrado && agenteEncontrado !== AgenteAgregadoAhorita) {
+            if (agenteEncontrado) {
                 setAgenteAgregadoAhorita(agenteEncontrado);
+            } else {
+                console.log("No se encontró el agente con ese correo");
             }
         }
-    }, [agentes, correoAgente]); // se dispara solo cuando agentes o correoAgente cambian
+    }, [agentes, correoAgente]);
+    //console.log("sdsdsadsdsddsdsds",AgenteAgregadoAhorita.id)
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -448,6 +458,7 @@ useEffect(() => {
     
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 const asociarGerenteCliente = async (cli) => {
     try {
         // 1. Obtenemos los clientes actualizados
@@ -456,8 +467,8 @@ const asociarGerenteCliente = async (cli) => {
         // 2. Buscamos el cliente recién agregado en la lista más reciente
         let clienteEncontrado = clientesActualizados?.find(cliente => cliente.email === cli.email);
 
-        console.log("Clientes actualizados:", clientesActualizados);
-        console.log("Cliente a buscar:", cli.email);
+        //console.log("Clientes actualizados:", clientesActualizados);
+        //console.log("Cliente a buscar:", cli.email);
 
         // 3. Verificamos si lo encontramos
         if (clienteEncontrado) {
@@ -508,6 +519,31 @@ const asociarGerenteCliente = async (cli) => {
 };
 
 
+const fetchClientesEspecificos = async () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+        try {
+            const response = await axios.get(`http://localhost:8080/clientes-agente/buscarClienteDelAgente?idAgente=${AgenteAgregadoAhorita.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            setClientes(response.data);
+            //console.log("dataaaaaInsalubre",clientes)
+            setFilteredClientes(response.data);
+
+            return response.data; // ⬅️ Retornamos los datos actualizados
+
+        } catch (error) {
+            console.error("Error al obtener clientes:", error);
+        } finally {
+            setLoading(false);
+        }
+    } else {
+        console.log("No se encontró el token");
+        setLoading(false);
+    }
+};
 
 
 
@@ -517,7 +553,6 @@ const asociarGerenteCliente = async (cli) => {
 
 
     const handleAddCliente = async (c) => {
-        console.log("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",c.id)
         if (!validateFields()) return; // Validar los campos antes de continuar
         const clienteData = {
             name: editedData.nombre,
@@ -539,26 +574,19 @@ const asociarGerenteCliente = async (cli) => {
                     'Content-Type': 'application/json',
                 },
             });
-            console.log("usuarioto insano",clienteData)
             setClienteAgregadoAhorita(clienteData)
-            //por alguna razon no se esta guardando el objeto de data la primera vez
 
 
             await fetchClientes();
-            /*if (clientes.length > 0 && clienteAgregadoAhorita?.email) {
-                const clienteEncontrado = clientes.find(cliente => cliente.email === clienteAgregadoAhorita.email);
-                if (clienteEncontrado && clienteEncontrado !== clienteGuardar) {
-                    setClienteGuardar(clienteEncontrado);
-                }
-            }*/
+
             setShowModal(false);
             setEditedData({ nombre: '', apellidos: '', correo: '', telefono: '', estado: 'ACTIVO' });
             await asociarGerenteCliente(clienteData);
 
-
+            await fetchClientesEspecificos();
             Swal.fire({
                 title: "Registro Exitoso",
-                text: `El cliente ha sido registrado correctamente. Su contraseña es: ${clienteData.password}`,
+                text: `El cliente ha sido registrado correctamente. Recuerdale que su contraseña es su nombre: ${clienteData.password}`,
                 icon: "success",
                 confirmButtonColor: "#018180",
             });
@@ -575,15 +603,23 @@ const asociarGerenteCliente = async (cli) => {
         
     };
         
-    console.log("correoooooooooooooo: ",correoAgente)
-    console.log("dataaaaaa: ",agentes)
-    useEffect(()=>{
+    
+   /* useEffect(()=>{
         const agenteIdBuscar = agentes.find(ag => ag.email == correoAgente);
         setAgenteIdParaBusqueda(1)
         console.log("Ira:",agenteIdBuscar)
-    },[])
+    },[])*/
 
 
+    /*useEffect(() => {
+        fetchClientesEspecificos();
+    }, []);*/
+    useEffect(() => {
+        if (AgenteAgregadoAhorita && AgenteAgregadoAhorita.id) {
+            console.log("Agente encontrado:", AgenteAgregadoAhorita);
+            fetchClientesEspecificos();
+        }
+    }, [AgenteAgregadoAhorita,clienteAgregadoAhorita]); // ✅ Se ejecuta cuando el estado cambie
     
 
     
