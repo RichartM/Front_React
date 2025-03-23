@@ -152,6 +152,8 @@ const StyledWrapper = styled.div`
 
 export default function TablaCliente() {
     const [clientes, setClientes] = useState([]);
+    const [clientesExclusivos, setClientesExclusivos] = useState([]);
+
     const [filteredClientes, setFilteredClientes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -173,20 +175,25 @@ export default function TablaCliente() {
     const [AgenteAgregadoAhorita, setAgenteAgregadoAhorita] = useState({})
 
     const [agentes, setAgentes] = useState([])
+    const token = localStorage.getItem("token");
+    const [correoAgente, setCorreoAgente] = useState("")
+    const [agenteIdParaBusqueda,setAgenteIdParaBusqueda] = useState([])
 
 
     const fetchClientes = async () => {
         const token = localStorage.getItem("token");
-
+    
         if (token) {
             try {
                 const response = await axios.get("http://localhost:8080/cliente/buscar", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-
+    
                 setClientes(response.data);
-                setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
-
+                setFilteredClientes(response.data);
+    
+                return response.data; // ⬅️ Retornamos los datos actualizados
+    
             } catch (error) {
                 console.error("Error al obtener clientes:", error);
             } finally {
@@ -197,6 +204,10 @@ export default function TablaCliente() {
             setLoading(false);
         }
     };
+
+
+    
+    
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -211,14 +222,12 @@ export default function TablaCliente() {
         }
     }, []);  // 🔄 Se ejecuta solo una vez al montar el componente
     // ✅ Llamamos a fetchClientes cuando el componente se monta
-    useEffect(() => {
-        fetchClientes();
-    }, []);
+    
 
 
-    useEffect(() => {
+    /*useEffect(() => {
         setFilteredClientes(clientes);
-    }, [clientes]);
+    }, [clientes]);*/
 
 
 
@@ -237,8 +246,7 @@ export default function TablaCliente() {
         else if (page === "next" && currentPage < totalPages) setCurrentPage(currentPage + 1);
         else if (typeof page === "number" && page >= 1 && page <= totalPages) setCurrentPage(page);
     };
-    console.log("holaaaaas")
-    console.log(clientes)
+    
 
 
 
@@ -379,50 +387,137 @@ export default function TablaCliente() {
 
         return Object.keys(newErrors).length === 0;
     };
-    useEffect(() => {
-        const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
-        if (agenteEncontrado) {
-            setAgenteAgregadoAhorita(agenteEncontrado);
+    
+    const fetchAgentes = async () => {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            try {
+                const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                setAgentes(response.data);
+                setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
+
+            } catch (error) {
+                console.error("Error al obtener clientes:", error);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            console.log("No se encontró el token");
+            setLoading(false);
         }
-    }, [clienteAgregadoAhorita, clienteGuardar]);  // 🔄 Se ejecuta solo cuando cambian estos valores
-
-    console.log("cuscando clienteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
-
-    useEffect(() => {
-        const clienteEncontrado = clientes.find(cliente => cliente.email === clienteAgregadoAhorita.email);
-        if (clienteEncontrado) {
-            setClienteGuardar(clienteEncontrado);
-        }
-    }, [clientes, clienteAgregadoAhorita]);  // 🔄 Se ejecuta solo cuando cambian estos valores
-
-    const asociarGerenteCliente = async () => {
-
-
-        try {
-            await axios.put(`http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${AgenteAgregadoAhorita.id}&idCliente=${clienteGuardar.id}`, { //quité esto : AgenteAgregadoAhorita, clienteGuardar
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            console.log("ya se asocio tu")
-
-        } catch (error) {
-            console.error("Error en el registro:", error);
-            Swal.fire({
-                title: "Error",
-                text: "No se pudo completar el registro. Inténtalo de nuevo.",
-                icon: "error",
-                confirmButtonColor: "#d33",
-            });
-        }
-
     };
 
 
+    
 
-    const handleAddCliente = async () => {
+
+    useEffect(() => {
+        fetchAgentes();
+    }, []);
+
+
+
+    useEffect(() => {
+        if (agentes.length > 0 && correoAgente) {
+            const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
+            if (agenteEncontrado && agenteEncontrado !== AgenteAgregadoAhorita) {
+                setAgenteAgregadoAhorita(agenteEncontrado);
+            }
+        }
+    }, [agentes, correoAgente]); // se dispara solo cuando agentes o correoAgente cambian
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    
+useEffect(() => {
+    fetchClientes();
+}, []);
+    
+    useEffect(() => {
+        if (clientes.length > 0 && clienteAgregadoAhorita?.email) {
+            const clienteEncontrado = clientes.find(cliente => cliente.email === clienteAgregadoAhorita.email);
+            if (clienteEncontrado && clienteEncontrado !== clienteGuardar) {
+                setClienteGuardar(clienteEncontrado);
+            }
+        }
+    }, [clientes, clienteAgregadoAhorita]); // se dispara solo cuando clientes o clienteAgregadoAhorita cambian
+    
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const asociarGerenteCliente = async (cli) => {
+    try {
+        // 1. Obtenemos los clientes actualizados
+        const clientesActualizados = await fetchClientes();
+
+        // 2. Buscamos el cliente recién agregado en la lista más reciente
+        let clienteEncontrado = clientesActualizados?.find(cliente => cliente.email === cli.email);
+
+        console.log("Clientes actualizados:", clientesActualizados);
+        console.log("Cliente a buscar:", cli.email);
+
+        // 3. Verificamos si lo encontramos
+        if (clienteEncontrado) {
+            setClienteGuardar(clienteEncontrado);
+        }
+
+        const clienteAMover = clienteEncontrado || clienteGuardar;
+        if (!clienteAMover || !AgenteAgregadoAhorita) {
+            console.error("Faltan datos: cliente o agente no definidos.");
+            Swal.fire({
+                title: "Error",
+                text: "Faltan datos para asociar el cliente al gerente. Revisa la información.",
+                icon: "warning",
+                confirmButtonColor: "#d33",
+            });
+            return;
+        }
+
+        // 4. Hacemos la solicitud PUT al backend
+        await axios.put(
+            `http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${AgenteAgregadoAhorita.id}&idCliente=${clienteAMover.id}`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}` ,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        console.log("✅ Cliente asociado exitosamente al nuevo agente.");
+        Swal.fire({
+            title: "Éxito",
+            text: "El cliente fue asociado al gerente correctamente.",
+            icon: "success",
+            confirmButtonColor: "#3085d6",
+        });
+
+    } catch (error) {
+        console.error("❌ Error en el registro:", error);
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo completar el registro. Inténtalo de nuevo.",
+            icon: "error",
+            confirmButtonColor: "#d33",
+        });
+    }
+};
+
+
+
+
+
+
+    //const token = localStorage.getItem("token");
+    //const [correoAgente, setCorreoAgente] = useState("")
+
+
+    const handleAddCliente = async (c) => {
+        console.log("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",c.id)
         if (!validateFields()) return; // Validar los campos antes de continuar
         const clienteData = {
             name: editedData.nombre,
@@ -435,10 +530,6 @@ export default function TablaCliente() {
         };
 
 
-        console.log("Datos enviados:", clienteData); // ✅ Verifica que password sea el nombre
-        console.log("Datos enviados:", clienteData.name); // ✅ Verifica que password sea el nombre
-        console.log("Datos enviados:", clienteData.password); // ✅ Verifica que password sea el nombre
-
 
 
         try {
@@ -448,18 +539,22 @@ export default function TablaCliente() {
                     'Content-Type': 'application/json',
                 },
             });
-
+            console.log("usuarioto insano",clienteData)
             setClienteAgregadoAhorita(clienteData)
+            //por alguna razon no se esta guardando el objeto de data la primera vez
 
 
             await fetchClientes();
+            /*if (clientes.length > 0 && clienteAgregadoAhorita?.email) {
+                const clienteEncontrado = clientes.find(cliente => cliente.email === clienteAgregadoAhorita.email);
+                if (clienteEncontrado && clienteEncontrado !== clienteGuardar) {
+                    setClienteGuardar(clienteEncontrado);
+                }
+            }*/
             setShowModal(false);
             setEditedData({ nombre: '', apellidos: '', correo: '', telefono: '', estado: 'ACTIVO' });
-            await asociarGerenteCliente();
+            await asociarGerenteCliente(clienteData);
 
-            /*useEffect(() => {
-                asociarGerenteCliente();
-            }, []);*/
 
             Swal.fire({
                 title: "Registro Exitoso",
@@ -477,58 +572,21 @@ export default function TablaCliente() {
                 confirmButtonColor: "#d33",
             });
         }
-
+        
     };
+        
+    console.log("correoooooooooooooo: ",correoAgente)
+    console.log("dataaaaaa: ",agentes)
+    useEffect(()=>{
+        const agenteIdBuscar = agentes.find(ag => ag.email == correoAgente);
+        setAgenteIdParaBusqueda(1)
+        console.log("Ira:",agenteIdBuscar)
+    },[])
 
 
+    
 
-
-    const token = localStorage.getItem("token");
-    const [correoAgente, setCorreoAgente] = useState("")
-
-
-
-
-
-
-    const fetchAgentes = async () => {
-        const token = localStorage.getItem("token");
-
-        if (token) {
-            try {
-                const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                setAgentes(response.data);
-                //setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
-
-            } catch (error) {
-                console.error("Error al obtener clientes:", error);
-            } finally {
-                setLoading(false);
-            }
-        } else {
-            console.log("No se encontró el token");
-            setLoading(false);
-        }
-    };
-
-    // ✅ Llamamos a fetchClientes cuando el componente se monta
-    useEffect(() => {
-        fetchAgentes();
-    }, []);
-
-
-
-    console.log("El cliente a guardar es:", clienteGuardar)
-    console.log("El cliente a guardar es:", AgenteAgregadoAhorita)
-
-
-
-
-
-
+    
     return (
         <>
             <GlobalStyle />
@@ -625,7 +683,7 @@ export default function TablaCliente() {
                                     <CustomButton variant="secondary" onClick={() => setShowModal(false)}>
                                         Cancelar
                                     </CustomButton>
-                                    <CustomButton variant="primary" onClick={handleAddCliente} className="submit">
+                                    <CustomButton variant="primary" onClick={(()=>{handleAddCliente(clienteGuardar)})} className="submit">
                                         Registrar
                                     </CustomButton>
 
