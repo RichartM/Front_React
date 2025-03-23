@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { Form } from 'react-bootstrap';
 import Nav from 'react-bootstrap/Nav';
 import { Container, Row, Col, Card, Table, Modal, Button } from 'react-bootstrap';
@@ -185,7 +185,43 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
   const [targetAgenteId, setTargetAgenteId] = useState("");
   const [targetAgenteAll, setTargetAgenteAll] = useState("");
 
+  const [clientess,setClientess] = useState([])
+  console.log("agentess")
+  console.log("agentess",agente)
+  console.log("agentess",agentes)
+  const fetchClientesEspecificos = async () => {
+      const token = localStorage.getItem("token");
+  
+      if (token) {
+          try {
+              const response = await axios.get(`http://localhost:8080/clientes-agente/buscarClienteDelAgente?idAgente=${agente.id}`, {
+                  headers: { Authorization: `Bearer ${token}` },
+              });
+  
+              setClientess(response.data);
+              //console.log("dataaaaaInsalubre",clientes)
+              //setFilteredClientes(response.data);
+  
+              return response.data; // ⬅️ Retornamos los datos actualizados
+  
+          } catch (error) {
+              console.error("Error al obtener clientes:", error);
+          } finally {
+              //setLoading(false);
+          }
+      } else {
+          console.log("No se encontró el token");
+          setLoading(false);
+      }
+  };
 
+  useEffect(() => {
+    fetchClientesEspecificos();
+    }, [onHide]
+  ); // ✅ Se ejecuta cuando el estado cambie
+  
+
+  console.log("ya hay",clientess)
 
   const handleTransfer = () => {
     if (selectedClientId && targetAgenteId) {
@@ -205,13 +241,13 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
 
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
-      <Modal.Header closeButton>
-        <Modal.Title>Clientes de {agente.nombre}</Modal.Title>
+      <Modal.Header >
+        <Modal.Title>Clientes de {agente.name}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {agente.clientes && agente.clientes.length > 0 ? (
+        {clientess && clientess.length > 0 ? (
           <>
-            <p>Total de clientes: {agente.clientes.length}</p>
+            <p>Total de clientes: {clientess.length}</p>
             <StyledTable striped hover className="mt-2">
             <CustomTableHeader>
                             <thead>
@@ -224,9 +260,9 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
               </CustomTableHeader>
 
               <tbody>
-                {agente.clientes.map(cliente => (
+                {clientess.map(cliente => (
                   <tr key={cliente.id}>
-                    <td>{cliente.nombre}</td>
+                    <td>{cliente.name}</td>
                     <td>
                       <Form.Select
                         value={selectedClientId === cliente.id ? targetAgenteId : ""}
@@ -240,7 +276,7 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
                           .filter(a => a.id !== agente.id)
                           .map(a => (
                             <option key={a.id} value={a.id}>
-                              {a.nombre} {a.apellidos}
+                              {a.name} {a.lastname}
                             </option>
                           ))
                         }
@@ -272,7 +308,7 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
                     .filter(a => a.id !== agente.id)
                     .map(a => (
                       <option key={a.id} value={a.id}>
-                        {a.nombre} {a.apellidos}
+                        {a.name} {a.lastname}
                       </option>
                     ))
                   }
@@ -294,7 +330,8 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
         )}
       </Modal.Body>
       <Modal.Footer>
-        <CustomButton variant="secondary" onClick={onHide}>
+        <CustomButton variant="secondary" onClick={() => { onHide();  setClientess(null);}}
+        >
           Cerrar
         </CustomButton>
       </Modal.Footer>
