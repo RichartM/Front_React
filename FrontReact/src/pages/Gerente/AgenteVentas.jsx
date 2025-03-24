@@ -369,6 +369,7 @@ function AgenteVentas() {
     setAgentes([...agentes, { ...nuevoAgente, id: Date.now(), clientes: [] }]);
   };
 
+  console.log("Hola migos espeonque esto ya sirva")
   const handleEdit = (agente) => {
     console.log("telefonooooooooooooooooo:")
     console.log(agente)
