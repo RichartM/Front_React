@@ -235,9 +235,9 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
     if (targetAgenteAll) {
       onTransferAll(agente.id, parseInt(targetAgenteAll, 10));
       setTargetAgenteAll("");
+      onHide(); // Cerrar el modal después de transferir
     }
   };
-
 
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
@@ -250,13 +250,12 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
             <p>Total de clientes: {clientess.length}</p>
             <StyledTable striped hover className="mt-2">
             <CustomTableHeader>
-                            <thead>
+           
                 <tr>
                   <th>Nombre Cliente</th>
-                  <th>Transferir a</th>
+                  <th>Transferir a </th>
                   <th>Acción</th>
                 </tr>
-              </thead>
               </CustomTableHeader>
 
               <tbody>
@@ -510,9 +509,67 @@ function AgenteVentas() {
 
 
 
-  const handleToggleStatus = (agente) => {
+  const handleToggleStatus = async (agente) => {
+    // Si se está intentando activar el agente, permitirlo directamente
+    if (agente.state === false) {
+      confirmToggleStatus(agente);
+      return;
+    }
+  
+    // Si se está intentando desactivar, verificar si tiene clientes
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `http://localhost:8080/clientes-agente/buscarClienteDelAgente?idAgente=${agente.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      const clientes = response.data;
+  
+      if (clientes && clientes.length > 0) {
+        // Mostrar el modal de transferencia
+        setSelectedAgenteForClientes(agente);
+        setShowClientesModal(true);
+        
+        Swal.fire({
+          title: "Transferencia requerida",
+          text: "Debes transferir todos los clientes antes de desactivar al agente.",
+          icon: "warning",
+          confirmButtonColor: "#018180",
+          customClass: { confirmButton: 'btn-swal-confirmar' },
+          buttonsStyling: false
+        });
+      } else {
+        // No hay clientes, proceder con la desactivación
+        confirmToggleStatus(agente);
+      }
+    } catch (error) {
+      console.error("Error al obtener clientes:", error);
+      // Si hay error al verificar clientes, permitir desactivación con advertencia
+      Swal.fire({
+        title: "Advertencia",
+        text: "No se pudo verificar los clientes. ¿Deseas continuar con la desactivación?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, desactivar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+          confirmButton: 'btn-swal-confirmar',
+          cancelButton: 'btn-swal-cancelar'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          confirmToggleStatus(agente);
+        }
+      });
+    }
+  };
+  
+  // Función para confirmar y ejecutar el cambio de estado
+  const confirmToggleStatus = (agente) => {
     Swal.fire({
-      title: `¿Estás seguro de ${agente.state === true ? 'desactivar' : 'activar'} a ${agente.name}?`,
+      title: `¿Estás seguro de ${agente.state ? 'desactivar' : 'activar'} a ${agente.name}?`,
       text: "Esta acción cambiará su estado.",
       icon: "warning",
       showCancelButton: true,
@@ -525,23 +582,75 @@ function AgenteVentas() {
         cancelButton: 'btn-swal-cancelar',
       },
       buttonsStyling: false,
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        const updatedAgente = { ...agente, state: agente.state === true ? false : true };
-        console.log("datos del modificado " + agente.name)
-        setAgentes(agentes.map(a => a.id === agente.id ? updatedAgente : a));
-
-        Swal.fire({
-          title: "¡Hecho!",
-          text: `El estado de ${agente.nombre} ha sido cambiado.`,
-          icon: "success",
-          confirmButtonColor: "#018180",
-          customClass: { confirmButton: 'btn-swal-confirmar' },
-          buttonsStyling: false,
-        });
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            throw new Error('No se encontró el token de autenticación');
+          }
+  
+          // Preparamos los datos para la actualización
+          const updateData = {
+            state: !agente.state,
+            // Incluye otros campos necesarios para la actualización
+            name: agente.name,
+            lastname: agente.lastname,
+            surname: agente.surname,
+            email: agente.email,
+            telephone: agente.telephone
+          };
+  
+          const response = await AgenteVentasService.updateAgente(
+            agente.id, 
+            updateData, 
+            token
+          );
+  
+          // Actualizar el estado local solo si la API respondió correctamente
+          setAgentes(prevAgentes => 
+            prevAgentes.map(a => a.id === agente.id ? { ...a, state: !a.state } : a)
+          );
+  
+          Swal.fire({
+            title: "¡Hecho!",
+            text: `El estado de ${agente.name} ha sido cambiado.`,
+            icon: "success",
+            confirmButtonColor: "#018180",
+            customClass: { confirmButton: 'btn-swal-confirmar' },
+            buttonsStyling: false,
+          });
+        } catch (error) {
+          console.error('Error al actualizar el estado del agente:', error);
+          
+          let errorMessage = 'No se pudo cambiar el estado del agente';
+          if (error.response) {
+            // El servidor respondió con un código de estado fuera del rango 2xx
+            errorMessage = error.response.data.message || errorMessage;
+          } else if (error.request) {
+            // La solicitud fue hecha pero no se recibió respuesta
+            errorMessage = 'No se recibió respuesta del servidor';
+          } else {
+            // Algo pasó al configurar la solicitud
+            errorMessage = error.message || errorMessage;
+          }
+  
+          Swal.fire({
+            title: "Error",
+            text: errorMessage,
+            icon: "error",
+            confirmButtonColor: "#018180",
+            customClass: { confirmButton: 'btn-swal-confirmar' },
+            buttonsStyling: false,
+          });
+        }
       }
     });
   };
+  
+ 
+
+
 
   // Al transferir un cliente, actualiza el agente (modal) para que muestre el nuevo total de clientes (0 si se transfirió todo)
   const handleTransferCliente = (clienteId, fromAgenteId, toAgenteId) => {
@@ -582,31 +691,45 @@ function AgenteVentas() {
   };
 
   const handleTransferAllClientes = (fromAgenteId, toAgenteId) => {
+    const token = localStorage.getItem('token');
     const fromAgent = agentes.find(a => a.id === fromAgenteId);
-    const clientesToTransfer = fromAgent ? (fromAgent.clientes || []) : [];
-    const toAgent = agentes.find(a => a.id === toAgenteId);
-    setAgentes(prevAgentes => {
-      const newAgentes = prevAgentes.map(agente => {
-        if (agente.id === fromAgenteId) {
-          return { ...agente, clientes: [] };
-        }
-        if (agente.id === toAgenteId) {
-          return { ...agente, clientes: [...(agente.clientes || []), ...clientesToTransfer] };
-        }
-        return agente;
+    
+    axios.post(`http://localhost:8080/clientes-agente/transferAllClientes?idAgenteOrigen=${fromAgenteId}&idAgenteDestino=${toAgenteId}`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(response => {
+      // Actualizar el estado local
+      const toAgent = agentes.find(a => a.id === toAgenteId);
+      setAgentes(prevAgentes => {
+        return prevAgentes.map(agente => {
+          if (agente.id === fromAgenteId) {
+            return { ...agente, clientes: [] };
+          }
+          if (agente.id === toAgenteId) {
+            // Aquí podrías actualizar los clientes si es necesario
+            return agente;
+          }
+          return agente;
+        });
       });
+      
+      Swal.fire({
+        title: "Transferencia realizada",
+        text: `Todos los clientes han sido transferidos.`,
+        icon: "success",
+        confirmButtonColor: "#018180",
+        customClass: { confirmButton: 'btn-swal-confirmar' },
+        buttonsStyling: false
+      });
+      
+      // Ahora que los clientes han sido transferidos, permitir desactivar el agente
       if (selectedAgenteForClientes && selectedAgenteForClientes.id === fromAgenteId) {
-        setSelectedAgenteForClientes(newAgentes.find(a => a.id === fromAgenteId));
+        confirmToggleStatus(selectedAgenteForClientes);
       }
-      return newAgentes;
-    });
-    Swal.fire({
-      title: "Transferencia realizada",
-      html: `<p>Se transfirieron ${clientesToTransfer.length} clientes de ${fromAgent?.nombre} a ${toAgent?.nombre}.</p>`,
-      icon: "success",
-      confirmButtonColor: "#018180",
-      customClass: { confirmButton: 'btn-swal-confirmar' },
-      buttonsStyling: false
+    })
+    .catch(error => {
+      console.error('Error al transferir clientes:', error);
+      Swal.fire('Error', 'No se pudieron transferir los clientes', 'error');
     });
   };
 
