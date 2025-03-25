@@ -184,6 +184,7 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [targetAgenteId, setTargetAgenteId] = useState("");
   const [targetAgenteAll, setTargetAgenteAll] = useState("");
+  const [agenteParaTransferirDesdeModal,setAgenteParaTransferirDesdeModal] = useState("")
 
   const [clientess,setClientess] = useState([])
   console.log("agentess")
@@ -223,21 +224,103 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
 
   console.log("ya hay",clientess)
 
-  const handleTransfer = () => {
-    if (selectedClientId && targetAgenteId) {
+  const handleTransfer = (age,cli) => {
+    console.log("Quien se va a cambiar?")
+    console.log("Agente handler ",age)
+    console.log("Cliente handler",cli)
+
+    const asociarGerenteCliente = async () => {
+      try {
+  
+          // 4. Hacemos la solicitud PUT al backend
+          await axios.put(
+              `http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${age}&idCliente=${cli.id}`,
+              {},
+              {
+                  headers: {
+                      Authorization: `Bearer ${localStorage.getItem('token')}` ,
+                      'Content-Type': 'application/json',
+                  },
+              }
+          );
+  
+          console.log("✅ Cliente asociado exitosamente al nuevo agente.");
+          Swal.fire({
+              title: "Éxito",
+              text: "El cliente fue asociado al gerente correctamente.",
+              icon: "success",
+              confirmButtonColor: "#3085d6",
+          });
+  
+      } catch (error) {
+          console.error("❌ Error en el registro:", error);
+          Swal.fire({
+              title: "Error",
+              text: "No se pudo completar el registro. Inténtalo de nuevo.",
+              icon: "error",
+              confirmButtonColor: "#d33",
+          });
+      }
+  };
+
+
+    asociarGerenteCliente(age,cli)
+
+
+    /*if (selectedClientId && targetAgenteId) {
       onTransfer(selectedClientId, agente.id, parseInt(targetAgenteId, 10));
       setSelectedClientId(null);
       setTargetAgenteId("");
-    }
+    }*/
   };
 
-  const handleTransferAll = () => {
-    if (targetAgenteAll) {
-      onTransferAll(agente.id, parseInt(targetAgenteAll, 10));
-      setTargetAgenteAll("");
-      onHide(); // Cerrar el modal después de transferir
+  const handleTransferAll = async () => {
+    console.log("Esto es lo que hay en los clientes para cambiarlos todos: ", clientess);
+
+    const asociarGerenteClienteParaTodos = async (age, cli) => {
+        try {
+            await axios.put(
+                `http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${age}&idCliente=${cli}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+        } catch (error) {
+            console.error("❌ Error en el registro:", error);
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo completar el registro. Inténtalo de nuevo.",
+                icon: "error",
+                confirmButtonColor: "#d33",
+            });
+            return false; // Indicar que hubo un error
+        }
+        return true; // Indicar que la transferencia fue exitosa
+    };
+
+    // Ejecutamos todas las solicitudes en paralelo y esperamos a que terminen
+    const resultados = await Promise.all(clientess.map(cliente => 
+        asociarGerenteClienteParaTodos(targetAgenteAll, cliente.id)
+    ));
+
+    // Si todas las solicitudes fueron exitosas, mostramos un solo modal y cerramos
+    if (resultados.every(res => res)) {
+        Swal.fire({
+            title: "Transferencia Exitosa",
+            text: "Los clientes se han transferido correctamente.",
+            icon: "success",
+            confirmButtonColor: "#3085d6",
+        }).then(() => {
+            setTargetAgenteAll(""); // Reiniciar el estado
+            onHide(); // Cerrar el modal después de transferir
+        });
     }
-  };
+};
+
 
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
@@ -268,14 +351,15 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
                         onChange={(e) => {
                           setSelectedClientId(cliente.id);
                           setTargetAgenteId(e.target.value);
+                          console.log("Agente tar: ", targetAgenteId)
                         }}
                       >
-                        <option value="">Selecciona Agente</option>
+                        <option id='agenteParaC' value="">Selecciona Agente</option>
                         {agentes
                           .filter(a => a.id !== agente.id)
                           .map(a => (
                             <option key={a.id} value={a.id}>
-                              {a.name} {a.lastname}
+                              {a.name} {a.lastname} 
                             </option>
                           ))
                         }
@@ -284,7 +368,7 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
                     <td>
                       <CustomButton
                         size="sm"
-                        onClick={handleTransfer}
+                        onClick={(()=>{handleTransfer(targetAgenteId,cliente )})}
                         disabled={!targetAgenteId || selectedClientId !== cliente.id}
                       >
                         Transferir
@@ -693,6 +777,7 @@ function AgenteVentas() {
   const handleTransferAllClientes = (fromAgenteId, toAgenteId) => {
     const token = localStorage.getItem('token');
     const fromAgent = agentes.find(a => a.id === fromAgenteId);
+    console.log("ahorita vamos a ver que chow con lo daos que deben estar por ahi.: ",cl)
     
     axios.post(`http://localhost:8080/clientes-agente/transferAllClientes?idAgenteOrigen=${fromAgenteId}&idAgenteDestino=${toAgenteId}`, {}, {
       headers: { Authorization: `Bearer ${token}` }
