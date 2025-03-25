@@ -245,7 +245,7 @@ const DetallesCocheAgente = () => {
   }
 
   const brand = brands.find((b) => b.id.toString() === brandId);
-  if (!brand) return <p>Marca no encontrada</p>;
+  if (!brand) return <p>Marca no encontrada pero en</p>;
 
   if (!car) return <p>Coche no encontrado</p>;
 

@@ -2,11 +2,12 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { BrandsContext } from '../../context/BrandsContext';
-import CarCard from './CarCard';
+import CarCardCliente from '../Cliente/CardCardCliente';
 import CarCardAgente from '../AgenteVenta/CarCardAgente';
-import VehiculoService from '../../services/AgenteService/VehiculoService';
+import VehiculoService from "../../services/AgenteService/VehiculoService";
+
 import NavAgenteVenta from '../AgenteVenta/NavAgenteVenta';
-import { Margin } from '@mui/icons-material';
+import NavCliente from '../Cliente/NavCliente';
 
 const PageContainer = styled.div`
   padding: 50px;
@@ -49,6 +50,7 @@ const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  
 `;
 
 const CarrosPorMarca = () => {
@@ -56,52 +58,54 @@ const CarrosPorMarca = () => {
   const { brands } = useContext(BrandsContext);
   const [cars, setCars] = useState([]);
   const location = useLocation();
-  const isAgente = location.pathname.includes("/agente"); // Detectamos si es agente
+  const isAgente = location.pathname.includes("/agente");
 
- 
-  
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        console.log("📌 Llamando a la API para obtener vehículos de marca ID:", brandId);
+        console.log("📌 Obteniendo vehículos para marca ID:", brandId);
         const data = await VehiculoService.getVehiclesByBrandId(brandId);
         console.log("📌 Vehículos obtenidos:", data);
   
-        // ✅ Asegurar que los datos no se dupliquen reemplazando completamente el estado
+        // Eliminar duplicados por ID
         setCars([...new Map(data.map(car => [car.id, car])).values()]);
-  
       } catch (error) {
         console.error('❌ Error al obtener vehículos:', error);
       }
     };
   
-    fetchCars();
+    if (brandId) {
+      fetchCars();
+    }
   }, [brandId]);
 
-   // ✅ Buscar la marca en el contexto por ID
-   const brand = brands.find((b) => b.id.toString() === brandId);
-   if (!brands || brands.length === 0) {
-     return <p>Cargando marcas...</p>;
-   }
+  const brand = brands?.find((b) => b.id.toString() === brandId);
   
+  if (!brands || brands.length === 0) {
+    return <p>Cargando marcas...</p>;
+  }
+
+  if (!brand) {
+    return <p>Marca no encontrada en Carros por marca</p>;
+  }
+
   return (
     <PageContainer>
+      <HeaderContainer>
+        {isAgente ? <NavAgenteVenta /> : <NavCliente />}
+        
+        <TitleContainer style={{ marginTop: -100 }}>
+          <BrandTitle>Descubre los {brand.nombre}</BrandTitle>
+          <BrandDescription>{brand.descripcion}</BrandDescription>
+        </TitleContainer>
+      </HeaderContainer>
 
-    <HeaderContainer>
-    <NavAgenteVenta />
-
-  <BrandImage src={brand.logo}  />
-  <TitleContainer style={{marginTop:-100}}>
-    <BrandTitle>Descubre los {brand.nombre}</BrandTitle>
-    <BrandDescription>{brand.descripcion}</BrandDescription>
-  </TitleContainer>
-</HeaderContainer>
       <GridContainer>
         {cars.length > 0 ? (
           cars.map((car) => (
             isAgente ? 
               <CarCardAgente key={car.id} car={car} brandId={brandId} /> :
-              <CarCard key={car.id} car={car} brandId={brandId} />
+              <CarCardCliente key={car.id} car={car} brandId={brandId} />
           ))
         ) : (
           <p>No hay vehículos disponibles para esta marca.</p>

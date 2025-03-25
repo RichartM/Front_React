@@ -4,6 +4,10 @@ import { Container, Card, Table, Modal, Button } from "react-bootstrap";
 import styled from "styled-components";
 import { createGlobalStyle } from "styled-components";
 import AgregarServicios from "./AgregarServicios";
+import { AiOutlineFileSearch } from "react-icons/ai";
+import { GrHostMaintenance } from "react-icons/gr";
+
+
 
 const GlobalStyle = createGlobalStyle`
   .table-header {
@@ -34,7 +38,7 @@ const CustomTableHeader = styled.thead`
       text-align: center;
     }
   `;
- 
+
 const StyledWrapper = styled.div`
   .scrollable-table {
     max-height: 400px;
@@ -71,7 +75,7 @@ const ClienteHistorial = () => {
       <GlobalStyle />
       <NavCliente />
       <Container className="mt-5">
-      <div
+        <div
           style={{
             color: '#018180',
             padding: '12px 25px',
@@ -81,41 +85,37 @@ const ClienteHistorial = () => {
             marginBottom: '20px',
           }}
         >
-        Historial de Compras de tus Autos
+          Historial de Compras de tus Autos
         </div>
         <Card className="mb-4">
           <StyledWrapper>
             <div className="scrollable-table">
-            <CustomTableHeader>
+              <CustomTableHeader>
 
-              <Table striped hover>
-                <thead>
-                  <tr>
-                    <th>Modelo</th>
-                    <th>Año</th>
-                    <th>Última Compra</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {autos.map((auto) => (
-                    <tr key={auto.id}>
-                      <td>{auto.modelo}</td>
-                      <td>{auto.año}</td>
-                      <td>{auto.historial.length > 0 ? auto.historial[0].producto : "Sin compras"}</td>
-                      <td>
-                        <Button variant="info" size="sm" onClick={() => handleVerDetalles(auto)}>
-                          Detalles
-                        </Button>
-                        <Button variant="success" size="sm" className="ms-2" onClick={() => handleVerServicios(auto)}>
-                          Contratar Servicio
-                        </Button>
-                      </td>
+                <Table striped hover>
+                  <thead>
+                    <tr>
+                      <th>Modelo</th>
+                      <th>Año</th>
+                      <th>Última Compra</th>
+                      <th>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
+                  </thead>
+                  <tbody>
+                    {autos.map((auto) => (
+                      <tr key={auto.id}>
+                        <td>{auto.modelo}</td>
+                        <td>{auto.año}</td>
+                        <td>{auto.historial.length > 0 ? auto.historial[0].producto : "Sin compras"}</td>
+                        <td>
+                          <AiOutlineFileSearch size={29} style={{ marginRight: '10px', cursor: 'pointer' }} />
+                          <GrHostMaintenance size={29} style={{ cursor: 'pointer' }} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
 
-              </Table>
+                </Table>
               </CustomTableHeader>
 
             </div>

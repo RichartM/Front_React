@@ -1,16 +1,11 @@
 import React, { useContext, useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { BrandsContext } from "../../context/BrandsContext";
-import ServiciosModal from "../../components/ServiciosModal";
-import NavCliente from "../Cliente/NavCliente";
-import NavAgenteVenta from "../AgenteVenta/NavAgenteVenta";
-import { BsDashCircle, BsX } from "react-icons/bs"; // Aquí agregué BsX
 import VehiculoService from "../../services/AgenteService/VehiculoService";
-
-
-// ... (el resto del código permanece igual)
-
+import ServiciosModal from "../../components/ServiciosModal";
+import NavCliente from "./NavCliente";
+import { BsDashCircle, BsX } from "react-icons/bs";
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -22,7 +17,7 @@ const ContentWrapper = styled.div`
   margin: 0 auto;
   padding: 10px;
   gap: 0px;
-  overflow: hidden; /* Evita el scrollbar no deseado */
+  overflow: hidden;
 `;
 
 const MainContent = styled.div`
@@ -111,9 +106,8 @@ const ServicesListContainer = styled.div`
   flex-grow: 1;
   overflow-y: auto;
   max-height: 300px;
-  padding-right: 20px; /* Espacio para el scrollbar */
+  padding-right: 20px;
 
-  /* Estilo personalizado para el scroll */
   &::-webkit-scrollbar {
     width: 8px;
   }
@@ -154,11 +148,6 @@ const ServicesButton = styled.button`
   &:hover {
     background: #026c6c;
     transform: translateY(-2px);
-  }
-
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
   }
 `;
 
@@ -220,112 +209,115 @@ const CloseButton = styled(BsX)`
   }
 `;
 
-const DetallesCoche = () => {
+const DetallesCocheCliente = () => {
   const { brandId, carId } = useParams();
-  const location = useLocation();
   const { brands } = useContext(BrandsContext);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedServices, setSelectedServices] = useState([]);
+  const navigate = useNavigate();
   const [car, setCar] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const isAgente = location.pathname.includes("/agente");
+  const [showServiciosModal, setShowServiciosModal] = useState(false);
+  const [selectedServices, setSelectedServices] = useState([]);
 
   useEffect(() => {
     const fetchCar = async () => {
       try {
         const data = await VehiculoService.getVehiclesByBrandId(brandId);
         const foundCar = data.find((c) => c.id.toString() === carId);
-        setCar(foundCar);
+        setCar(foundCar || null);
       } catch (error) {
-        console.error("Error obteniendo vehículo:", error);
-      } finally {
-        setLoading(false);
+        console.error("❌ Error obteniendo vehículo:", error);
       }
     };
 
     fetchCar();
   }, [brandId, carId]);
 
-  const handleCompra = () => {
-    if (isAgente) {
-      // Lógica para agente (podría redirigir a selección de cliente)
-      console.log("Proceso de compra para agente");
-    } else {
-      // Lógica para cliente
-      const cliente = JSON.parse(localStorage.getItem('user'));
-      console.log("Proceso de compra para cliente", cliente);
-    }
-  };
+  if (!brands || brands.length === 0) {
+    return <p>Cargando marcas...</p>;
+  }
 
-  if (loading) return <p>Cargando...</p>;
+  const brand = brands.find((b) => b.id.toString() === brandId);
+  if (!brand) return <p>Marca no encontrada pero en clientes</p>;
+
   if (!car) return <p>Coche no encontrado</p>;
+
+  const handleCompra = () => {
+    // Obtener el cliente del localStorage o del contexto de autenticación
+    const cliente = JSON.parse(localStorage.getItem('user')); // Ajusta según tu implementación
+    
+    navigate("/resumen-compra", {
+      state: {
+        cliente: cliente,
+        coche: car,
+        fecha: new Date().toLocaleDateString(),
+        servicios: selectedServices,
+        totalAuto: car.precio,
+        totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
+        totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
+      },
+    });
+  };
 
   return (
     <>
-      {isAgente ? <NavAgenteVenta /> : <NavCliente />}
-
-        <ContentWrapper>
+      <NavCliente />
+      <ContentWrapper>
         <MainContent>
           <LeftSection>
             <CarImage src={car.imagen || "default_image_url.jpg"} alt={car.modelo} />
             <CarInfo>
               <CarTitle>{car.modelo}</CarTitle>
               <CarYear>Año: {car.year}</CarYear>
-              <Price>Precio: ${car.precio?.toLocaleString() || "XXX,XXX"} MXN</Price>
-              <BuyButton onClick={handleCompra}>
-                {isAgente ? "Iniciar Venta" : "Comprar"}
-              </BuyButton>
+              <Price>Precio: ${car.precio.toLocaleString()} MXN</Price>
+              <BuyButton onClick={handleCompra}>Comprar</BuyButton>
             </CarInfo>
           </LeftSection>
 
           <ServicesSection>
-          <ServicesHeader>
-            <ServicesTitle>Servicios</ServicesTitle>
-            <ServicesButton onClick={() => setShowModal(true)}>
-              Agregar Servicios
-            </ServicesButton>
+            <ServicesHeader>
+              <ServicesTitle>Servicios Adicionales</ServicesTitle>
+              <ServicesButton onClick={() => setShowServiciosModal(true)}>
+                Agregar Servicios
+              </ServicesButton>
             </ServicesHeader>
 
-
             <ServicesListContainer>
-            <SelectedServicesList>
-              {selectedServices.length > 0 ? (
-                selectedServices.map((service, index) => (
-                  <SelectedServiceItem key={index}>
-                    {service.name} - ${service.price}
-                    <DeleteIcon 
-                      onClick={() => setSelectedServices(
-                        selectedServices.filter((s) => s.id !== service.id)
-                      )}
-                    />
-                  </SelectedServiceItem>
-                ))
-              ) : (
-                <p>Aún no has seleccionado servicios.</p>
-              )}
-            </SelectedServicesList>
+              <SelectedServicesList>
+                {selectedServices.length > 0 ? (
+                  selectedServices.map((service, index) => (
+                    <SelectedServiceItem key={index}>
+                      {service.name} - ${service.price}
+                      <DeleteIcon
+                        onClick={() =>
+                          setSelectedServices(
+                            selectedServices.filter((s) => s.id !== service.id)
+                          )
+                        }
+                      />
+                    </SelectedServiceItem>
+                  ))
+                ) : (
+                  <p>No has seleccionado servicios adicionales.</p>
+                )}
+              </SelectedServicesList>
             </ServicesListContainer>
           </ServicesSection>
-          </MainContent>
+        </MainContent>
         <DescriptionContainer>
-          {car.description || `🚗 Este ${car.modelo} del ${car.year} es una excelente opción...`}
+          {car.description} 
         </DescriptionContainer>
-        </ContentWrapper>
+      </ContentWrapper>
 
-
-        {showModal && (
-          <ServiciosModal
-            onClose={() => setShowModal(false)}
-            onAddService={setSelectedServices}
-            selectedServices={selectedServices}
-            setSelectedServices={setSelectedServices}
-            closeButton={<CloseButton onClick={() => setShowServiciosModal(false)} />} // Ícono de cierre
-
-          />
-        )}
+      {showServiciosModal && (
+        <ServiciosModal
+          onClose={() => setShowServiciosModal(false)}
+          onAddService={setSelectedServices}
+          selectedServices={selectedServices}
+          setSelectedServices={setSelectedServices}
+          closeButton={<CloseButton onClick={() => setShowServiciosModal(false)} />}
+        />
+      )}
     </>
   );
 };
 
-export default DetallesCoche;
+export default DetallesCocheCliente;

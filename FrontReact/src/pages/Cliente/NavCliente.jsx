@@ -4,7 +4,7 @@ import { Navbar, Nav, Container, Dropdown, Offcanvas } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import homeIcon from "../../img/home.png";
 import styled from "styled-components";
-import MarcasDropdown from "../Cliente/MarcasDropdown";
+import MarcasDropdown from "../Cliente/MarcasDropdownCliente";
 import { usePerfilCliente } from '../../context/PerfilClienteContext';
 
 // Estilos personalizados para los enlaces del navbar
@@ -130,7 +130,7 @@ const NavCliente = () => {
 
               {/* Menú de Marcas - ÚLTIMO */}
               <div className="w-100">
-                <MarcasDropdown tipoUsuario="cliente" />
+                <MarcasDropdown />
               </div>
             </Nav>
           </Offcanvas.Body>
