@@ -62,8 +62,9 @@ const NavCliente = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    updatePerfil(); // Actualiza el perfil al cargar el componente
-  }, [updatePerfil]);
+    updatePerfil();
+  }, []);
+  
 
   const handleLogout = () => {
     localStorage.removeItem("token");

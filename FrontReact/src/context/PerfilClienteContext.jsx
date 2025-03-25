@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useCallback } from "react";
 import axios from "axios";
 
 const PerfilClienteContext = createContext();
@@ -6,17 +6,20 @@ const PerfilClienteContext = createContext();
 export const PerfilClienteProvider = ({ children }) => {
   const [perfil, setPerfil] = useState({});
 
-  const updatePerfil = async () => {
+  const updatePerfil = useCallback(async () => {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.get("http://localhost:8080/api/auth/perfilCliente", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPerfil(response.data);
+
+      if (JSON.stringify(response.data) !== JSON.stringify(perfil)) {
+        setPerfil(response.data);
+      }
     } catch (error) {
       console.error("Error al obtener los datos:", error);
     }
-  };
+  }, [perfil]);
 
   return (
     <PerfilClienteContext.Provider value={{ perfil, updatePerfil }}>
@@ -25,4 +28,4 @@ export const PerfilClienteProvider = ({ children }) => {
   );
 };
 
-export const usePerfilCliente = () => useContext(PerfilClienteContext); // Exporta el hook
+export const usePerfilCliente = () => useContext(PerfilClienteContext);
