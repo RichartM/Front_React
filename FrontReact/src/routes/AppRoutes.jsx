@@ -9,6 +9,7 @@ import RecuperarContraseña from "../pages/Auth/RecuperarContraseña";
 import ResetPassword from "../pages/Auth/ResetPassword";
 import ChangePassword from "../pages/Auth/ChangePassword";
 import LandingPage from '../pages/LandingPage/LandingPage';
+import CarrosPorMarcaLanding from '../pages/LandingPage/CarrosPorMarcaLanding.jsx';
 
 // Layouts protegidos
 import GerenteLayout from '../layouts/GerenteLayout';
@@ -34,6 +35,7 @@ import TablaCliente from '../pages/AgenteVenta/TablaCliente';
 import DetallesCocheAgente from '../pages/AgenteVenta/DetallesCocheAgente';
 import ResumenCompra from '../pages/AgenteVenta/ResumenCompra.jsx'
 import EditPerfilAgente from '../pages/AgenteVenta/EditPerfilAgente.jsx'; // Editar perfil para agentes
+import DetallesCocheLanding from '../pages/LandingPage/DetallesCocheLanding.jsx';
 
 const AppRoutes = () => {
   return (
@@ -48,6 +50,9 @@ const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/landing" element={<LandingPage />} />
+        <Route path="/landing/marca/:brandId" element={<CarrosPorMarcaLanding />} />
+        <Route path="/landing/marca/:brandId/coche/:carId" element={<DetallesCocheLanding/>} />
+
 
         {/* 🔹 Rutas de marcas para Clientes y Agentes */}
         <Route path="/cliente/marca/:brandId" element={<CarrosPorMarca />} />
