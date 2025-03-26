@@ -42,41 +42,46 @@ const AuthServiceProfile = {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Token no encontrado en localStorage");
-
+  
       const role = AuthServiceLogin.getRoleFromToken();
       if (!role) throw new Error("No se pudo determinar el rol del usuario.");
-
-      // 🔹 Determinar el endpoint correcto
-      let endpoint = role === "GERENTE" ? "perfilGerente" : role === "AGENTE" ? "perfilAgente" : "perfilCliente";
-
-      console.log(`🔹 Enviando actualización a: ${API_URL}${endpoint}`);
-      console.log("🔹 Datos enviados:", updatedData);
-
-      if (!updatedData.currentPassword) {
-        throw new Error("Debes ingresar tu contraseña actual para actualizar el perfil.");
-      }
-
+  
+      let endpoint = role === "GERENTE" ? "perfilGerente" : 
+                   role === "AGENTE" ? "perfilAgente" : "perfilCliente";
+  
+      console.log("Datos enviados al backend:", updatedData);
+  
       const response = await axios.put(`${API_URL}${endpoint}`, updatedData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-
-      console.log("✅ Perfil actualizado:", response.data);
+  
+      console.log("Respuesta del servidor:", response.data);
       return response.data;
+  
     } catch (error) {
-      console.error("❌ Error al actualizar perfil:", error.response?.status, error.response?.data);
-
-      if (error.response?.status === 401) {
-        console.warn("⚠ Token inválido o expirado.");
-        throw new Error("Token expirado o inválido.");
+      console.error("Error completo:", error);
+      console.error("Respuesta de error:", error.response);
+      
+      let errorMessage = "Error al actualizar el perfil.";
+      if (error.response) {
+        // El servidor respondió con un status code fuera del rango 2xx
+        errorMessage = error.response.data.message || 
+                      error.response.data.error || 
+                      `Error ${error.response.status}: ${error.response.statusText}`;
+      } else if (error.request) {
+        // La petición fue hecha pero no se recibió respuesta
+        errorMessage = "No se recibió respuesta del servidor";
+      } else {
+        // Algo pasó al configurar la petición
+        errorMessage = error.message;
       }
-
-      throw error.response?.data || "Error al actualizar el perfil.";
+  
+      throw new Error(errorMessage);
     }
   },
-
   // 📌 Cambiar la contraseña después del login obligatorio
   changePassword: async (currentPassword, newPassword) => {
     try {

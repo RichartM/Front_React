@@ -1,29 +1,27 @@
-// src/App.js
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { PerfilProvider } from "./context/PerfilGerenteContext"; // Contexto para gerentes
-import { PerfilClienteProvider } from "./context/PerfilClienteContext"; // Contexto para clientes
-import { PerfilAgenteProvider } from "./context/PerfilAgenteContext"; // Contexto para agentes
+import { PerfilGerenteProvider } from "./context/PerfilGerenteContext"; // Updated import name
+import { PerfilClienteProvider } from "./context/PerfilClienteContext";
+import { PerfilAgenteProvider } from "./context/PerfilAgenteContext";
 
 function App() {
   return (
     <React.StrictMode>
-      {/* Proveedor para gerentes */}
-      <PerfilProvider>
-        {/* Proveedor para clientes */}
+      {/* Updated provider name to match export */}
+      <PerfilGerenteProvider>
         <PerfilClienteProvider>
-          {/* Proveedor para agentes */}
           <PerfilAgenteProvider>
             <BrowserRouter>
               <AppRoutes />
             </BrowserRouter>
           </PerfilAgenteProvider>
         </PerfilClienteProvider>
-      </PerfilProvider>
+      </PerfilGerenteProvider>
     </React.StrictMode>
   );
 }

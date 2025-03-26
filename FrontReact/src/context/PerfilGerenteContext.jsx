@@ -1,29 +1,100 @@
-// src/context/PerfilGerenteContext.js
-import React, { createContext, useState, useContext } from "react";
-import axios from "axios";
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
-const PerfilContext = createContext();
+const PerfilGerenteContext = createContext();
 
-export const PerfilProvider = ({ children }) => {
-  const [perfil, setPerfil] = useState({});
+export const PerfilGerenteProvider = ({ children }) => {
+  const [state, setState] = useState({
+    perfil: {
+      name: '',
+      lastname: '',
+      surname: '',
+      username: '',
+      email: '',
+      rol: '',
+      // Agrega aquí cualquier otro campo necesario
+    },
+    loading: true,
+    error: null,
+    lastUpdate: null // Para controlar la última actualización
+  });
 
-  const updatePerfil = async () => {
+  // Usamos useCallback para memoizar la función y evitar renders innecesarios
+  const updatePerfil = useCallback(async () => {
     const token = localStorage.getItem("token");
-    try {
-      const response = await axios.get("http://localhost:8080/api/auth/perfilCliente", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setPerfil(response.data); // Actualiza el estado con los nuevos datos
-    } catch (error) {
-      console.error("Error al obtener los datos:", error);
+    if (!token) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: 'No hay token disponible'
+      }));
+      return;
     }
-  };
+  
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      
+      const response = await fetch("http://localhost:8080/api/auth/perfilGerente", {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      console.log("Datos recibidos en updatePerfil:", data);
+  
+      // Actualizamos todos los campos del perfil
+      setState({
+        perfil: {
+          name: data.name || '',
+          lastname: data.lastname || '',
+          surname: data.surname || '',
+          username: data.username || '',
+          email: data.email || '',
+          rol: data.rol || '',
+          // Actualiza aquí cualquier otro campo
+        },
+        loading: false,
+        error: null,
+        lastUpdate: new Date() // Marcamos el momento de la actualización
+      });
+      
+    } catch (error) {
+      console.error("Error cargando el perfil:", error);
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: error.message
+      }));
+    }
+  }, []);
+
+  // Cargamos el perfil al montar el componente
+  useEffect(() => {
+    updatePerfil();
+  }, [updatePerfil]);
 
   return (
-    <PerfilContext.Provider value={{ perfil, updatePerfil }}>
+    <PerfilGerenteContext.Provider value={{
+      perfil: state.perfil,
+      updatePerfil,
+      loading: state.loading,
+      error: state.error,
+      lastUpdate: state.lastUpdate // Exportamos lastUpdate para que otros componentes puedan usarlo
+    }}>
       {children}
-    </PerfilContext.Provider>
+    </PerfilGerenteContext.Provider>
   );
 };
 
-export const usePerfil = () => useContext(PerfilContext);
+export const usePerfilGerente = () => {
+  const context = useContext(PerfilGerenteContext);
+  if (!context) {
+    throw new Error('usePerfilGerente debe usarse dentro de un PerfilGerenteProvider');
+  }
+  return context;
+};

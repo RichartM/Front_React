@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { usePerfil } from '../../context/PerfilGerenteContext';
+import { usePerfilGerente } from '../../context/PerfilGerenteContext'; // Cambiado a usePerfilGerente
 import styled from "styled-components";
 import { Form, Container, Spinner, Button, ProgressBar } from "react-bootstrap";
 import Swal from "sweetalert2";
@@ -24,18 +24,36 @@ const StyledButton = styled(Button)`
 `;
 
 const EditPerfil = () => {
-  const [perfil, setPerfil] = useState({});
+  const [perfil, setPerfil] = useState({
+    name: '',
+    lastname: '',
+    surname: '',
+    username: '',
+    email: '',
+    rol: ''
+  });
+  
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { updatePerfil } = usePerfil(); // Obtén la función del contexto
+  
+  // Cambiado a usePerfilGerente para consistencia
+  const { perfil: perfilContext, updatePerfil } = usePerfilGerente();
 
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
         const userData = await AuthServiceProfile.getUserProfile();
-        setPerfil(userData);
+        setPerfil(prev => ({
+          ...prev,
+          name: userData.name || '',
+          lastname: userData.lastname || '',
+          surname: userData.surname || '',
+          username: userData.username || '',
+          email: userData.email || '',
+          rol: userData.rol || ''
+        }));
         setLoading(false);
       } catch (error) {
         Swal.fire({
@@ -50,6 +68,13 @@ const EditPerfil = () => {
 
     loadUserProfile();
   }, []);
+
+  // Sincroniza con el contexto cuando esté disponible
+  useEffect(() => {
+    if (perfilContext && perfilContext.name) {
+      setPerfil(prev => ({ ...prev, ...perfilContext }));
+    }
+  }, [perfilContext]);
 
   const handleChange = (e) => {
     setPerfil({ ...perfil, [e.target.name]: e.target.value });
@@ -73,33 +98,33 @@ const EditPerfil = () => {
       return;
     }
   
-    const updatedData = { ...perfil, currentPassword, newPassword };
-  
     try {
-      const response = await AuthServiceProfile.updateUserProfile(updatedData);
+      const response = await AuthServiceProfile.updateUserProfile({
+        ...perfil,
+        currentPassword,
+        newPassword: newPassword || undefined
+      });
   
-      // 🔹 Verificar si la respuesta es válida
-      if (response && response.message) {
+      if (response) {
+        setPerfil(prev => ({
+          ...prev,
+          ...response
+        }));
+        await updatePerfil(); // Esto actualizará el contexto
+
         Swal.fire({
           title: "Éxito",
-          text: response.message, // Muestra el mensaje de éxito del backend
+          text: "Perfil actualizado correctamente",
           icon: "success",
           confirmButtonColor: "#018180",
         });
-  
-        // Actualizar el contexto o estado local si es necesario
-        await updatePerfil();
-      } else {
-        throw new Error("Respuesta inesperada del servidor.");
       }
     } catch (error) {
-      console.error("Error al actualizar el perfil:", error);
-  
-      // 🔹 Mostrar un mensaje de error más específico
-      const errorMessage = error.response?.data?.message || error.message || "Hubo un problema al actualizar el perfil.";
+      console.error("Error detallado en el componente:", error);
+      
       Swal.fire({
         title: "Error",
-        text: errorMessage,
+        text: error.message || "Hubo un problema al actualizar el perfil.",
         icon: "error",
         confirmButtonColor: "#018180",
       });
@@ -121,26 +146,54 @@ const EditPerfil = () => {
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Nombre</Form.Label>
-          <Form.Control type="text" name="name" value={perfil.name || ""} onChange={handleChange} />
+          <Form.Control 
+            type="text" 
+            name="name" 
+            value={perfil.name || ""} 
+            onChange={handleChange} 
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Apellido</Form.Label>
-          <Form.Control type="text" name="lastname" value={perfil.lastname || ""} onChange={handleChange} />
+          <Form.Control 
+            type="text" 
+            name="lastname" 
+            value={perfil.lastname || ""} 
+            onChange={handleChange} 
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Segundo Apellido</Form.Label>
-          <Form.Control type="text" name="surname" value={perfil.surname || ""} onChange={handleChange} />
+          <Form.Control 
+            type="text" 
+            name="surname" 
+            value={perfil.surname || ""} 
+            onChange={handleChange} 
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Username</Form.Label>
-          <Form.Control type="text" name="username" value={perfil.username || ""} onChange={handleChange} />
+          <Form.Control 
+            type="text" 
+            name="username" 
+            value={perfil.username || ""} 
+            onChange={handleChange} 
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Email</Form.Label>
-          <Form.Control type="email" name="email" value={perfil.email || ""} onChange={handleChange} />
+          <Form.Control 
+            type="email" 
+            name="email" 
+            value={perfil.email || ""} 
+            onChange={handleChange} 
+          />
         </Form.Group>
 
-        {/* 🔹 Sección de Contraseña */}
         <Form.Group className="mb-3">
           <Form.Label>Contraseña Actual</Form.Label>
           <Form.Control
@@ -163,7 +216,11 @@ const EditPerfil = () => {
           {newPassword && (
             <ProgressBar
               now={passwordStrength * 25}
-              variant={passwordStrength === 0 ? "danger" : passwordStrength === 1 ? "warning" : passwordStrength === 2 ? "info" : "success"}
+              variant={
+                passwordStrength === 0 ? "danger" : 
+                passwordStrength === 1 ? "warning" : 
+                passwordStrength === 2 ? "info" : "success"
+              }
               className="mt-2"
             />
           )}

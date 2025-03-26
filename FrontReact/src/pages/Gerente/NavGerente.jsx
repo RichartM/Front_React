@@ -1,10 +1,10 @@
-import React, { useEffect, useCallback } from "react";
-import { usePerfil } from "../../context/PerfilGerenteContext"; // Ajusta la ruta según tu estructura
+import React, { useEffect, useState, useCallback } from "react";
+import { usePerfilGerente } from '../../context/PerfilGerenteContext';
 import { Navbar, Nav, Container, Dropdown, Offcanvas } from "react-bootstrap";
 import homeIcon from "../../img/home.png";
 import styled from "styled-components";
 
-// Estilos para la línea debajo del enlace al hacer hover
+// Estilos
 const StyledNavLink = styled(Nav.Link)`
   color: #000 !important;
   position: relative;
@@ -38,7 +38,6 @@ const StyledNavLink = styled(Nav.Link)`
   }
 `;
 
-// Componente personalizado para el toggle del Dropdown
 const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   <StyledNavLink
     href=""
@@ -53,18 +52,23 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const NavPrincipal = () => {
-  const { perfil, updatePerfil } = usePerfil();
+    const { perfil, loading, error, updatePerfil } = usePerfilGerente();
+  
+  // Actualiza el estado local cuando el contexto cambie
+  useEffect(() => {
+    updatePerfil();
+  }, [updatePerfil]);
 
   // Memoiza updatePerfil para evitar que cambie en cada renderizado
   const memoizedUpdatePerfil = useCallback(() => {
-    if (!perfil.name) { // Solo actualiza si el perfil no está cargado
-      updatePerfil();
-    }
+      if (!perfil.name) { // Solo actualiza si el perfil no está cargado
+          updatePerfil();
+      }
   }, [perfil.name, updatePerfil]);
 
   // Ejecuta memoizedUpdatePerfil solo una vez al montar el componente
   useEffect(() => {
-    memoizedUpdatePerfil();
+      memoizedUpdatePerfil();
   }, [memoizedUpdatePerfil]);
 
   const handleLogout = () => {
@@ -93,10 +97,8 @@ const NavPrincipal = () => {
           <img src={homeIcon} alt="home" style={{ width: "80px", height: "40px" }} />
         </Navbar.Brand>
 
-        {/* Botón hamburguesa */}
         <Navbar.Toggle aria-controls="offcanvasNavbar" />
 
-        {/* Offcanvas móviles */}
         <Navbar.Offcanvas
           id="offcanvasNavbar"
           aria-labelledby="offcanvasNavbarLabel"
@@ -115,7 +117,6 @@ const NavPrincipal = () => {
                     <i className="bi bi-person-circle fs-2 me-2"></i>
                     Perfil
                   </Dropdown.Toggle>
-                  {/* Aquí mostramos el nombre y rol */}
                   <Dropdown.Menu align="end">
                     <Dropdown.Item href="/gerente/editPerfil">
                       <i className="bi bi-person-gear fs-6"></i> Editar perfil
@@ -139,7 +140,6 @@ const NavPrincipal = () => {
           </Offcanvas.Body>
         </Navbar.Offcanvas>
 
-        {/* Navbar PC */}
         <Navbar.Collapse id="basic-navbar-nav" className="d-none d-lg-flex">
           <Nav className="me-auto">
             <StyledNavLink href="/gerente/panelControl">Panel de control</StyledNavLink>
@@ -151,10 +151,10 @@ const NavPrincipal = () => {
           <Nav className="d-flex align-items-center gap-3">
             <div className="d-flex flex-column text-end me-3">
               <span style={{ fontWeight: "500", fontSize: "16px", color: "#018180" }}>
-                {perfil.email}
+                {perfil?.email || "Usuario no identificado"}
               </span>
               <span style={{ fontWeight: "700", fontSize: "18px", color: "#000" }}>
-                {perfil.name} - {perfil.rol}
+                {perfil?.name ? `${perfil.name} - ${perfil.rol}` : "Usuario"}
               </span>
             </div>
 
@@ -163,7 +163,6 @@ const NavPrincipal = () => {
                 <Dropdown.Toggle as={CustomToggle}>
                   <i className="bi bi-person-circle fs-2"></i>
                 </Dropdown.Toggle>
-
                 <Dropdown.Menu align="end">
                   <Dropdown.Item href="/gerente/editPerfil">
                     <i className="bi bi-person-gear fs-6"></i> Editar perfil
