@@ -70,7 +70,6 @@ export default function HistorialVentas() {
                             style={{
                                 color: '#018180',
                                 padding: '12px 25px',
-                                fontSize: '1.4rem',
                                 fontWeight: 'bold',
                                 cursor: 'pointer',
                                 backgroundColor: activeTab === 'historial' ? '#d0f0f0' : 'transparent',
@@ -83,8 +82,7 @@ export default function HistorialVentas() {
                             onClick={() => setActiveTab('espera')}
                             style={{
                                 color: '#018180',
-                                padding: '12px 25px',
-                                fontSize: '1.4rem',
+                                padding: '10px 20px',
                                 fontWeight: 'bold',
                                 cursor: 'pointer',
                                 backgroundColor: activeTab === 'espera' ? '#d0f0f0' : 'transparent',
