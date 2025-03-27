@@ -4,7 +4,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
 import Swal from 'sweetalert2';
 import BootstrapPagination from '../../components/common/BootstrapPagination';
-import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
+import FiltroBuscador from '../../components/FILTROS/FiltroBuscador';
 import axios from "axios";
 
 const CustomTableHeader = styled.thead`
@@ -31,9 +31,7 @@ const CustomButton = styled(Button)`
 
 const GlobalStyle = createGlobalStyle`
 
-    body {
-    overflow: hidden; /* 🔒 Bloquea la barra de desplazamiento del navegador */
-  }
+ 
   .swal2-popup {
     background-color: rgb(255, 255, 255);
     color: black;

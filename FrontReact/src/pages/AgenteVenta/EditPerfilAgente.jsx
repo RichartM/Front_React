@@ -8,7 +8,7 @@ import AuthServiceAgente from "../../services/AgenteService/AuthServiceAgente";
 
 const StyledContainer = styled(Container)`
   max-width: 500px;
-  margin: 50px auto;
+  margin: 100px auto; /* ← Aquí lo subimos de 50px a 120px */
   padding: 20px;
   background: white;
   border-radius: 10px;
@@ -48,7 +48,7 @@ const EditPerfilAgente = () => {
         setLoading(false);
       }
     };
-    
+
 
     loadUserProfile();
   }, []);
@@ -86,7 +86,7 @@ const EditPerfilAgente = () => {
         currentPassword,
         ...(newPassword && { newPassword }),
       });
-      
+
 
       await updatePerfil();
       setCurrentPassword("");
@@ -119,19 +119,30 @@ const EditPerfilAgente = () => {
 
   return (
     <StyledContainer>
+      <p style={{ top: '10%' }}></p>
       <h2 className="text-center" style={{ color: "#018180" }}>Editar Perfil ({perfil.rol})</h2>
       <Form onSubmit={handleSubmit}>
-        {["name", "lastname", "surname", "email"].map((field) => (
-          <Form.Group key={field} className="mb-3">
-            <Form.Label>{field.charAt(0).toUpperCase() + field.slice(1)}</Form.Label>
-            <Form.Control
-              type={field === "email" ? "email" : "text"}
-              name={field}
-              value={perfil[field] || ""}
-              onChange={handleChange}
-            />
-          </Form.Group>
-        ))}
+        {["name", "lastname", "surname", "email"].map((field) => {
+          const labelMap = {
+            name: "Nombre",
+            lastname: "Apellido Paterno",
+            surname: "Apellido Materno",
+            email: "Correo Electrónico"
+          };
+
+          return (
+            <Form.Group key={field} className="mb-3">
+              <Form.Label>{labelMap[field]}</Form.Label>
+              <Form.Control
+                type={field === "email" ? "email" : "text"}
+                name={field}
+                value={perfil[field] || ""}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          );
+        })}
+
 
         <Form.Group className="mb-3">
           <Form.Label>Contraseña Actual</Form.Label>
@@ -149,7 +160,7 @@ const EditPerfilAgente = () => {
             type="password"
             value={newPassword}
             onChange={handlePasswordChange}
-            placeholder="Dejar en blanco si no quieres cambiar"
+            placeholder="Opcional"
           />
           {newPassword && (
             <>
@@ -157,8 +168,8 @@ const EditPerfilAgente = () => {
                 now={passwordStrength * 25}
                 variant={
                   passwordStrength === 0 ? "danger" :
-                  passwordStrength === 1 ? "warning" :
-                  passwordStrength === 2 ? "info" : "success"
+                    passwordStrength === 1 ? "warning" :
+                      passwordStrength === 2 ? "info" : "success"
                 }
                 className="mt-2"
               />

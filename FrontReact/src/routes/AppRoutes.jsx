@@ -36,6 +36,7 @@ import DetallesCocheAgente from '../pages/AgenteVenta/DetallesCocheAgente';
 import ResumenCompra from '../pages/AgenteVenta/ResumenCompra.jsx'
 import EditPerfilAgente from '../pages/AgenteVenta/EditPerfilAgente.jsx'; // Editar perfil para agentes
 import DetallesCocheLanding from '../pages/LandingPage/DetallesCocheLanding.jsx';
+import HistorialVentas from '../pages/AgenteVenta/HistorialVentas.jsx';
 
 const AppRoutes = () => {
   return (
@@ -85,6 +86,8 @@ const AppRoutes = () => {
               <Route index element={<Navigate to="/agente/tablaCliente" replace />} />
               <Route path="tablaCliente" element={<TablaCliente />} />
               <Route path="editPerfil" element={<EditPerfilAgente />} />
+              <Route path="historialventas" element={<HistorialVentas />} />
+
 
             </Route>
 

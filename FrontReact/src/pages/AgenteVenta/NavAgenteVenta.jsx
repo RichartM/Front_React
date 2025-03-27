@@ -124,7 +124,7 @@ const NavAgenteVenta = () => {
           <Nav className="me-auto">
             <StyledNavLink href="/agente/tablaCliente">Clientes</StyledNavLink>
             <MarcasDropdownAgente tipoUsuario="agente" />
-            <StyledNavLink href="/agente/historial-ventas">Historial de Ventas</StyledNavLink>
+            <StyledNavLink href="/agente/historialventas">Historial de Ventas</StyledNavLink>
           </Nav>
           <div className="d-flex flex-column text-end me-3">
             <span style={{ fontWeight: "500", fontSize: "16px", color: "#018180" }}>
