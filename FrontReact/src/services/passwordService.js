@@ -19,13 +19,22 @@ export const requestPasswordReset = async (email) => {
 
 /**
  * 📌 Restablecer contraseña con el token enviado por correo
- * @param {string} token - Token de recuperación
+ * @param {string} token - Token de recuperación (JWT)
  * @param {string} newPassword - Nueva contraseña
  * @returns {Promise<string>} - Mensaje del servidor
  */
 export const resetPassword = async (token, newPassword) => {
     try {
-        const response = await axios.post(`${API_URL}reset-password`, { token, newPassword });
+        const response = await axios.post(
+            `${API_URL}reset-password`,
+            { newPassword }, // el token no va aquí, va en el header
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // ✅ token en el header
+                    "Content-Type": "application/json"
+                }
+            }
+        );
         return response.data;
     } catch (error) {
         console.error("Error al restablecer la contraseña:", error.response?.data || error.message);
@@ -53,7 +62,12 @@ export const changePassword = async (newPassword) => {
         const response = await axios.post(
             `${API_URL}change-password`,
             { newPassword },
-            { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            }
         );
 
         return response.data;
