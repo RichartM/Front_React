@@ -98,21 +98,85 @@ const SeleccionarClienteModal = ({ isOpen, onClose, onSelect }) => {
   const [loading, setLoading] = useState(true);
   const [filteredClientes, setFilteredClientes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [AgenteAgregadoAhorita, setAgenteAgregadoAhorita] = useState({})
+      const [correoAgente, setCorreoAgente] = useState("")
+      const [agentes, setAgentes] = useState([])
+  
+
+      const fetchAgentes = async () => {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            try {
+                const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                setAgentes(response.data);
+                //setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
+                return response.data
+
+            } catch (error) {
+                console.error("Error al obtener clientes:", error);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            console.log("No se encontró el token");
+            setLoading(false);
+        }
+    };
 
 
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchClientes();
-    }
-  }, [isOpen]);
+      useEffect(() => {
+          const token = localStorage.getItem("token");
+          if (token) {
+              try {
+                  const payloadBase64 = token.split('.')[1];
+                  const payload = JSON.parse(atob(payloadBase64));
+                  setCorreoAgente(payload.sub);
+              } catch (error) {
+                  console.error("Error al decodificar el token:", error);
+              }
+          }
+      }, []);
+
+      useEffect(() => {
+        fetchAgentes();
+    }, []);
+  
+   useEffect(() => {
+          if (agentes.length > 0 && correoAgente) {
+              const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
+              if (agenteEncontrado) {
+                  console.log("si se encontroo el chido agente")
+                  setAgenteAgregadoAhorita(agenteEncontrado);
+              } else {
+                  console.log("No se encontró el agente con ese correo");
+              }
+          }
+      }, [correoAgente,agentes]);
+
+        useEffect(() => {
+              if (AgenteAgregadoAhorita && AgenteAgregadoAhorita.id) {
+                  console.log("Agente encontrado:", AgenteAgregadoAhorita);
+                  //fetchClientesEspecificos();
+              }
+          }, [AgenteAgregadoAhorita]); // ✅ Se ejecuta cuando el estado cambie
+          
+
+          
+
+
+  
 
   const fetchClientes = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
-      const response = await axios.get("http://localhost:8080/cliente/buscar", {
+      const response = await axios.get(`http://localhost:8080/clientes-agente/buscarClienteDelAgente?idAgente=${AgenteAgregadoAhorita.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -126,6 +190,12 @@ const SeleccionarClienteModal = ({ isOpen, onClose, onSelect }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchClientes();
+    }
+  }, [isOpen, AgenteAgregadoAhorita]); // ✅ Se ejecuta cuando el modal se abre o el agente cambia
 
    useEffect(() => {
           setFilteredClientes(clientes);

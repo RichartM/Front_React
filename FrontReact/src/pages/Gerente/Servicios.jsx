@@ -271,7 +271,7 @@ export default function Servicios() {
     name: '',
     price: '',
     description: '',
-    modalidad_id: modalidades.length > 0 ? modalidades[0] : {}, // Primer modalidad seleccionada por defecto
+    modalidad: modalidades.length > 0 ? modalidades[0] : {}, // Primer modalidad seleccionada por defecto
     estate: true,
   });
 
@@ -339,7 +339,7 @@ export default function Servicios() {
       name: servicio.name,
       price: servicio.price,
       description: servicio.description,
-      modalidad_id: servicio.modalidad_id,
+      modalidad: servicio.modalidad,
       estate: servicio.estate,
     });
     setEditModal(true);
@@ -351,7 +351,7 @@ export default function Servicios() {
       name: '', 
       price: '',
       description: '',
-      modalidad_id: "", // Primer modalidad seleccionada por defecto
+      modalidad: "", // Primer modalidad seleccionada por defecto
       estate: true,
     });
   };
@@ -451,7 +451,7 @@ export default function Servicios() {
       name: editedData.name,
       price: editedData.price,
       description: editedData.description,
-      modalidad_id: editedData.modalidad_id,
+      modalidad: editedData.modalidad,
       estate: editedData.estate,
     };
 
@@ -487,6 +487,8 @@ export default function Servicios() {
   };
 
   const agregarservicio = (nuevoServicio) => {
+    console.log("holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    console.log(nuevoServicio)
     nuevoServicio.nomenclatura = nomGenerada
     if (validateFields()) {
       axios.post('http://localhost:8080/servicios/crear', nuevoServicio, {
@@ -503,7 +505,7 @@ export default function Servicios() {
 
           Swal.fire({
             title: "¡Agregado!",
-            text: "El servicio ha sido agregado con éxito.",
+            text: "El servicio ha sido agregado con éxitooooo.",
             icon: "success",
             confirmButtonColor: "#018180",
             customClass: { confirmButton: "btn-swal-confirmar" },
@@ -713,10 +715,10 @@ export default function Servicios() {
                   <Form.Group className="mb-3">
                     <Form.Label>Periodo</Form.Label>
                     <Form.Select
-                      value={editedData.modalidad_id ? JSON.stringify(editedData.modalidad_id) : "default"} // Convierte el objeto modalidad_id a cadena JSON
+                      value={editedData.modalidad ? JSON.stringify(editedData.modalidad) : "default"} // Convierte el objeto modalidad_id a cadena JSON
                       onChange={(e) => {
                         if (e.target.value !== "default") {
-                          setEditedData({ ...editedData, modalidad_id: JSON.parse(e.target.value) });
+                          setEditedData({ ...editedData, modalidad: JSON.parse(e.target.value) });
                         }
                       }}
                       className="input"

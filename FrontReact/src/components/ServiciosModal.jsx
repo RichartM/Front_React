@@ -195,6 +195,9 @@ const ServiciosModal = ({ onClose, selectedServices, setSelectedServices }) => {
                   <ServiceCheckbox onClick={() => {handleToggleService(service),console.log(service)}}>
                     <div>
                       <ServiceTitle>{service.name}</ServiceTitle>
+                      <ServiceTitle>{service.modalidad.nombre}</ServiceTitle> 
+
+
                       <ServiceDescription>{service.description}</ServiceDescription>
                     </div>
                     {console.log(selectedServices)}
