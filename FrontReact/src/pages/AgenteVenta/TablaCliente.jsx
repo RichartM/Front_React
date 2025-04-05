@@ -219,8 +219,7 @@ export default function TablaCliente() {
                 console.error("Error al decodificar el token:", error);
             }
         }
-    }, []);  // 🔄 Se ejecuta solo una vez al montar el componente
-    // ✅ Llamamos a fetchClientes cuando el componente se monta
+    }, []);  
     
 
 

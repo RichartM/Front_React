@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import NavCliente from "./NavCliente";
 import { Container, Card, Table, Modal, Button } from "react-bootstrap";
 import styled from "styled-components";
@@ -6,6 +6,7 @@ import { createGlobalStyle } from "styled-components";
 import AgregarServicios from "./AgregarServicios";
 import { AiOutlineFileSearch } from "react-icons/ai";
 import { GrHostMaintenance } from "react-icons/gr";
+import axios from 'axios'
 
 
 
@@ -70,6 +71,95 @@ const ClienteHistorial = () => {
     setShowServicioModal(true);
   };
 
+
+
+  const [userId, setUserId] = useState("")
+  const [correo,setCorreoAgente] = useState("")
+  const [historialVentas,setHistorialVentas] = useState([])
+  const [clientes,setClientes] = useState([])
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+        try {
+            const payloadBase64 = token.split('.')[1];
+            const payload = JSON.parse(atob(payloadBase64));
+            setCorreoAgente(payload.sub);
+        } catch (error) {
+
+            console.error("Error al decodificar el token:", error);
+        }
+    }
+}, []);
+
+const fetchClientes = async () => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+      try {
+          const response = await axios.get("http://localhost:8080/cliente/buscar", {
+              headers: { Authorization: `Bearer ${token}` },
+          });
+
+          setClientes(response.data);
+          console.log("dataaaaaInsalubre",response.data)
+          //setFilteredClientes(response.data);
+
+          return response.data; // ⬅️ Retornamos los datos actualizados
+
+      } catch (error) {
+          console.error("Error al obtener clientes:", error);
+      } finally {
+          //setLoading(false);
+      }
+  } else {
+      console.log("No se encontró el token");
+      //setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchClientes();
+    }, []);
+
+    useEffect(() => {
+      if (correo && clientes.length > 0) {
+        const cliente = clientes.find(cli => cli.email === correo);
+        if (cliente) {
+          setUserId(cliente.id);
+          console.log("idddddddddddddddddddddddddd: ",cliente.id)
+        } else {
+          console.warn("Cliente no encontrado con el correo:", correo);
+        }
+      }
+    }, [correo, clientes]); // <- depende de ambos
+    
+
+    //setUserId(clientes.find(cli => cli.correo === correo));
+
+    const ventasHistorial = async () => {
+  const token = localStorage.getItem("token");
+  console.log("consultando el historial")
+  if (token /*&& agenteAgregadoAhorita*/) {
+      try {
+          const response = await axios.get(`http://localhost:8080/ventas/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+          });
+          setHistorialVentas(response.data);
+          console.log("informacion reelevante del server ",response.data)
+      } catch (error) {
+          console.error("Error al obtener historial de ventas:", error);
+      }
+  }
+};
+
+useEffect(() => {
+  if (userId) {
+    ventasHistorial();
+  }
+}, [userId]);
+
+
   return (
     <>
       <GlobalStyle />
@@ -95,18 +185,26 @@ const ClienteHistorial = () => {
                 <Table striped hover>
                   <thead>
                     <tr>
-                      <th>Modelo</th>
-                      <th>Año</th>
-                      <th>Última Compra</th>
-                      <th>Acciones</th>
+                    <th>Modelo</th>
+          <th>Marca</th>
+          <th>Placa</th>
+          <th>Precio (MXN)</th>
+          <th>Fecha</th>
+          <th>Cantida de Servicios </th>
+
+          <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {autos.map((auto) => (
+                    {historialVentas.map((auto) => (
                       <tr key={auto.id}>
-                        <td>{auto.modelo}</td>
-                        <td>{auto.año}</td>
-                        <td>{auto.historial.length > 0 ? auto.historial[0].producto : "Sin compras"}</td>
+                        <td>{auto.vehiculo.modelo}</td>
+                        <td>{auto.vehiculo.marca.nombre}</td>
+                        <td>{auto.vehiculo.matricula}</td>
+                        <td>${auto.price}</td>
+                        <td>{auto.date}</td>
+
+                        <td>{auto.vehiculo.ventaServicios?.length}</td>
                         <td>
                           <AiOutlineFileSearch size={29} style={{ marginRight: '10px', cursor: 'pointer' }} />
                           <GrHostMaintenance size={29} style={{ cursor: 'pointer' }} />

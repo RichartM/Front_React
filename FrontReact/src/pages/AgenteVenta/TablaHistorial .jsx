@@ -39,7 +39,9 @@ const StyledTable = styled(Table)`
 `;
 
 const TablaHistorial = ({ historial = [] }) => {
+  console.log("data",historial)
   return (
+    
     <StyledTable striped bordered hover responsive>
       <thead>
         <tr>
@@ -52,13 +54,13 @@ const TablaHistorial = ({ historial = [] }) => {
         </tr>
       </thead>
       <tbody>
-        {historial.map((auto, i) => (
+        {historial?.map((auto, i) => (
           <tr key={i}>
-            <td>{auto.modelo}</td>
-            <td>{auto.marca}</td>
-            <td>{auto.cliente}</td>
-            <td>${auto.precioVenta.toLocaleString()}</td>
-            <td>{auto.fechaVenta}</td>
+            <td>{auto?.vehiculo.modelo}</td>
+            <td>{auto?.vehiculo.marca.nombre}</td>
+            <td>{auto?.cliente.name}</td>
+            <td>${auto?.precioFinal}</td>
+            <td>{auto?.date}</td>
             <td>
               <Button className="btn-ver">
                 <FaEye />

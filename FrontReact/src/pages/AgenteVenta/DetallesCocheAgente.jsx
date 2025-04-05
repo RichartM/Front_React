@@ -7,6 +7,10 @@
   import SeleccionarClienteModal from "./SeleccionarClienteModal";
   import NavAgenteVenta from "./NavAgenteVenta";
   import { BsDashCircle, BsX } from "react-icons/bs"; // Importar el ícono de cierre
+  import Swal from 'sweetalert2';
+  import { createGlobalStyle } from "styled-components";
+  import axios from 'axios'
+
 
   const ContentWrapper = styled.div`
     display: flex;
@@ -215,6 +219,50 @@
       color: #018180;
     }
   `;
+ 
+  const GlobalStyle = createGlobalStyle`
+  .swal2-popup {
+    background-color: rgb(255, 255, 255) !important;
+    color: black !important;
+    border-radius: 10px !important;
+  }
+
+   .swal2-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espacio entre botones */
+  }
+
+
+  .btn-swal-confirmar {
+    background-color: #018180 !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 5px !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+  }
+
+  .btn-swal-confirmar:hover {
+    background-color: rgb(5, 110, 110) !important;
+  }
+
+  .btn-swal-cancelar {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 5px !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+  }
+
+  .btn-swal-cancelar:hover {
+    background-color: #c82333 !important;
+  }
+`;
+
 
   const DetallesCocheAgente = () => {
     const { brandId, carId } = useParams();
@@ -225,7 +273,141 @@
     const [showClienteModal, setShowClienteModal] = useState(true);
     const [selectedServices, setSelectedServices] = useState([]);
     const [selectedCliente, setSelectedCliente] = useState(null);
+    const [selectedAgente, setSelectedAgente] = useState(null)
+    const [correoAgente,setCorreoAgente] = useState("")
+    const [agentes,setAgentes] = useState([])
+    const [agenteAgregadoAhorite,setAgenteAgregadoAhorita] = useState(null)
+    const [venta,setVenta] = useState(
+      {
+        date :new Date(),
+        cliente:{},
+        vehiculo:{},
+        agente:{}
+      }
+    )
+    const [autoAct, setAutoct] = useState(null)
     
+
+
+    const venderUnAutoInsano = async () => {
+      try {
+          await axios.post('http://localhost:8080/ventas/vender', venta, {
+              headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                  'Content-Type': 'application/json',
+              },
+          });
+          
+
+          
+          Swal.fire({
+              title: "Registro Exitoso",
+              text: 'Gracias por comprar con nosotros, eres insano',
+              icon: "success",
+              confirmButtonColor: "#018180",
+          });
+
+      } catch (error) {
+          console.error("Error en el registro:", error);
+          Swal.fire({
+              title: "Error",
+              text: "No se pudo completar el registro. Inténtalo de nuevo.",
+              icon: "error",
+              confirmButtonColor: "#d33",
+          });
+      }
+      
+  };
+
+  const ActualizarEstadoDeUnAutoInsano = async () => {
+    //setAutoct(venta.vehiculo)
+    //setAutoct((prevAuto)=>({...prevAuto, estado:3}))
+    const autoActualizado = {
+      ...venta.vehiculo,
+      estado: {id:3,nombre:'Vendido'},
+  };
+    try {
+        await axios.put(`http://localhost:8080/vehiculo/actualizar/${venta.vehiculo.id}`, autoActualizado, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        
+
+        
+        
+
+    } catch (error) {
+        console.error("Error Al cambiar el estado del auto:", error);
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo completar el registro. Inténtalo de nuevo.",
+            icon: "error",
+            confirmButtonColor: "#d33",
+        });
+    }
+    
+};
+
+
+
+
+    const fetchAgentes = async () => {
+            const token = localStorage.getItem("token");
+    
+            if (token) {
+                try {
+                    const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+    
+                    setAgentes(response.data);
+                    //setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
+                    return response.data
+    
+                } catch (error) {
+                    console.error("Error al obtener clientes:", error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                console.log("No se encontró el token");
+                setLoading(false);
+            }
+        };
+
+        useEffect(() => {
+                fetchAgentes();
+            }, []);
+
+    useEffect(() => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                try {
+                    const payloadBase64 = token.split('.')[1];
+                    const payload = JSON.parse(atob(payloadBase64));
+                    setCorreoAgente(payload.sub);
+                } catch (error) {
+                    console.error("Error al decodificar el token:", error);
+                }
+            }
+        }, []);  // 🔄 Se ejecuta solo una vez al montar el componente
+        // ✅ Llamamos a fetchClientes cuando el componente se monta
+  
+      useEffect(() => {
+              if (agentes.length > 0 && correoAgente) {
+                  const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
+                  if (agenteEncontrado) {
+                      setAgenteAgregadoAhorita(agenteEncontrado);
+                      setVenta((prevVenta) => ({...prevVenta,  agente: agenteEncontrado }));
+
+                  } else {
+                      console.log("No se encontró el agente con ese correo");
+                  }
+              }
+          }, [agentes, correoAgente]);
+          //console.log("sdsdsadsdsddsdsds",AgenteAgregadoAhorita.id)
 
     useEffect(() => {
       const fetchCar = async () => {
@@ -233,6 +415,8 @@
           const data = await VehiculoService.getVehiclesByBrandId(brandId);
           const foundCar = data.find((c) => c.id.toString() === carId);
           setCar(foundCar || null);
+          setVenta((prevVenta) => ({...prevVenta,  vehiculo: foundCar }));
+
         } catch (error) {
           console.error("❌ Error obteniendo vehículo:", error);
         }
@@ -252,6 +436,8 @@
 
     const handleClienteSeleccionado = (cliente) => {
       setSelectedCliente(cliente);
+      setVenta((prevVenta) => ({...prevVenta,  cliente: cliente }));
+
       setShowClienteModal(false);
     };
 
@@ -271,22 +457,70 @@
         return;
       }
     
-      navigate("/resumen-compra", {
-        state: {
-          cliente: selectedCliente,
-          coche: car,
-          fecha: new Date().toLocaleDateString(),
-          servicios: selectedServices,
-          totalAuto: car.precio,
-          totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
-          totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
+      // Mostramos la alerta con SweetAlert2
+      Swal.fire({
+        title:"¡Gran elección!",
+        text: "¿Desea continuar con la compra?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar",
+        customClass: {
+          confirmButton: 'btn-swal-confirmar',
+          cancelButton: 'btn-swal-cancelar'
         },
+        buttonsStyling: false, // Esto evita que SweetAlert2 sobrescriba los estilos
+        reverseButtons: true
+      
+      
+      
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Si el usuario confirma la compra, redirigimos a la página de resumen
+          navigate("/resumen-compra", {
+            state: {
+              cliente: selectedCliente,
+              coche: car,
+              fecha: new Date().toLocaleDateString(),
+              servicios: selectedServices,
+              totalAuto: car.precio,
+              totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
+              totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
+              agente: agenteAgregadoAhorite
+            },
+          });
+          //console.log("Objeto de la venta desdel el dulce alert")
+          //console.log(venta);
+          //useEffect(()=>{
+            venderUnAutoInsano()
+            ActualizarEstadoDeUnAutoInsano()
+          //},[])
+        } else {
+          // Si el usuario cancela, no pasa nada
+          console.log("Compra cancelada por el usuario");
+        }
       });
     };
     
+    
+
+    //setVenta((venta)=>venta.cliente = selectedCliente)
+    //setVenta((venta)=>venta.agente = agenteAgregadoAhorite)
+    //setVenta((venta)=>venta.vehiculo= car)
+
+    console.log("Datos a registrar de la venta")
+    console.log(selectedCliente);
+    console.log(agenteAgregadoAhorite)
+    console.log(car)
+    
+    
+    
+
 
     return (
       <>
+          <GlobalStyle />
+
         <NavAgenteVenta />
         <ContentWrapper>
           <MainContent>
@@ -338,6 +572,7 @@
             {car.description}
           </DescriptionContainer>
         </ContentWrapper>
+        
 
         {showServiciosModal && (
           <ServiciosModal

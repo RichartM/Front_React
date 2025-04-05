@@ -1,63 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TablaHistorial from './TablaHistorial ';
 import TablaEnEspera from './TablaEnEspera ';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import FiltroBuscador from '../../components/FILTROS/FiltroBuscador'
-
-// Datos simulados de ejemplo (puedes reemplazarlos por datos reales desde una API)
-const historialFake = [
-    {
-      modelo: 'Sedan-X1',
-      marca: 'Toyota',
-      cliente: 'Carlos Pérez',
-      precioVenta: 350000,
-      fechaVenta: '2024-12-01',
-    },
-    {
-      modelo: 'SUV-A2',
-      marca: 'Ford',
-      cliente: 'Ana Gómez',
-      precioVenta: 450000,
-      fechaVenta: '2025-01-10',
-    },
-  ];
-  
-
-  const enEsperaFake = [
-    {
-      id: 1,
-      modelo: "Aveo Sedán",
-      marca: "Chevrolet",
-      placa: "XYZ-123",
-      precio: 280000,
-      color: "Blanco",
-      descripcion: "Compacto de ciudad",
-      correo: "juanPerez@gmail.com"
-    },
-    {
-      id: 2,
-      modelo: "Versa",
-      marca: "Nissan",
-      placa: "ABC-456",
-      precio: 310000,
-      color: "Gris",
-      descripcion: "Económico y eficiente",
-      correo: "juanPerez@gmail.com"
-    }
-  ];
-  
+import axios from 'axios'
 
 export default function HistorialVentas() {
     const [activeTab, setActiveTab] = useState('historial');
+    const [historialVentas, setHistorialVentas] = useState(null);
+    const [agentes, setAgentes] = useState([]);
+    const [correoAgente, setCorreoAgente] = useState(null);
+    const [agenteAgregadoAhorita, setAgenteAgregadoAhorita] = useState(null);
+    const [enEsperaFake, setEnEsperaFake] = useState([]); // Placeholder temporal
 
-    const handleAprobar = (id) => {
-        console.log("Aprobando auto con ID:", id);
-        // Aquí va la lógica para aprobar (actualizar estado en base de datos)
+    const ventasHistorial = async () => {
+        const token = localStorage.getItem("token");
+        console.log("consultando el historial")
+        if (token /*&& agenteAgregadoAhorita*/) {
+            try {
+                const response = await axios.get(`http://localhost:8080/ventas/${agenteAgregadoAhorita.id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setHistorialVentas(response.data);
+                console.log("informacion reelevante del server ",response.data)
+            } catch (error) {
+                console.error("Error al obtener historial de ventas:", error);
+            }
+        }
     };
 
-    const handleEliminar = (id) => {
-        console.log("Eliminando auto con ID:", id);
-        // Aquí va la lógica para eliminar (petición DELETE o similar)
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const payloadBase64 = token.split('.')[1];
+                const payload = JSON.parse(atob(payloadBase64));
+                setCorreoAgente(payload.sub);
+            } catch (error) {
+                console.error("Error al decodificar el token:", error);
+            }
+        }
+    }, []);
+
+    const fetchAgentes = async () => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setAgentes(response.data);
+            } catch (error) {
+                console.error("Error al obtener agentes:", error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        fetchAgentes();
+    }, []);
+
+    useEffect(() => {
+        if (agentes.length > 0 && correoAgente) {
+            const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
+            if (agenteEncontrado) {
+                setAgenteAgregadoAhorita(agenteEncontrado);
+                console.log("Ya cambio agente agregadoa ahirita");
+
+            } else {
+                console.log("No se encontró el agente con ese correo");
+            }
+        }
+    }, [agentes, correoAgente]);
+
+    useEffect(() => {
+        if (agenteAgregadoAhorita) {
+            ventasHistorial();
+        }
+    }, [agenteAgregadoAhorita]);
+
+    const handleAprobar = (autoId) => {
+        console.log("Aprobar auto con ID:", autoId);
+        // lógica para aprobar
+    };
+
+    const handleEliminar = (autoId) => {
+        console.log("Eliminar auto con ID:", autoId);
+        // lógica para eliminar
     };
 
     return (
@@ -76,7 +105,7 @@ export default function HistorialVentas() {
                                 borderRadius: '5px',
                             }}
                         >
-                            Historial
+                            Historial Insano
                         </div>
                         <div
                             onClick={() => setActiveTab('espera')}
@@ -110,7 +139,7 @@ export default function HistorialVentas() {
                     </Row>
 
                     {activeTab === 'historial' && (
-                        <TablaHistorial historial={historialFake} />
+                        <TablaHistorial historial={historialVentas} />
                     )}
                     {activeTab === 'espera' && (
                         <TablaEnEspera autos={enEsperaFake} onAprobar={handleAprobar} onEliminar={handleEliminar} />
@@ -118,5 +147,6 @@ export default function HistorialVentas() {
                 </Card.Body>
             </Card>
         </Container>
+
     );
 }
