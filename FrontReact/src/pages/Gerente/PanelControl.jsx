@@ -154,6 +154,9 @@ export default function PanelControl() {
 
     ///OBTENIENDO LOS MODELOS DE LA BASE DE DARTO
     const [modelosReales, setModelosREales] = useState([])
+    const [autosVendidos,setAutosVendidos] = useState([])
+    const [autosVendEspe, setAutosVendEspe] = useState([])
+    const a = []
   
     useEffect(() => {
       const token = localStorage.getItem('token'); // Obtener el token del localStorage
@@ -172,6 +175,40 @@ export default function PanelControl() {
       }
     }, []);
 
+const buscarAutosVendidos = async () => {
+      const token = localStorage.getItem("token");
+    
+      if (token) {
+          try {
+              const response = await axios.get(" http://localhost:8080/vehiculo/estados?estados=Vendido", {
+                  headers: { Authorization: `Bearer ${token}` },
+              });
+    
+              console.log("respuesta del api con los autos vendidos: ",response.data)
+              setAutosVendidos(response.data);
+              return response.data
+    
+          } catch (error) {
+              console.error("Error al obtener clientes:", error);
+          } finally {
+              //setLoading(false);
+          }
+      } else {
+          console.log("No se encontró el token");
+          //setLoading(false);
+      }
+    };
+    
+    
+    useEffect(() => {
+      buscarAutosVendidos();
+    }, []);
+
+    a.push(...modelosReales)
+    a.push(...autosVendidos)
+
+    console.log("data de los autos: ",a)
+    //setAutosVendEspe(autosVendidos)
   return (
       <>
                 <GlobalStyle />
@@ -229,7 +266,7 @@ export default function PanelControl() {
                                   </CustomTableHeader>
 
                                   <tbody>
-                                      {modelosReales.map((marca, index) => (
+                                      {a.map((marca, index) => (
                                           <tr key={index}>
                                               <td>{marca.modelo}</td>
                                               <td>{marca.marca.nombre}</td>

@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation,useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { BrandsContext } from "../../context/BrandsContext";
 import ServiciosModal from "../../components/ServiciosModal";
@@ -7,6 +7,9 @@ import NavCliente from "../Cliente/NavCliente";
 import NavAgenteVenta from "../AgenteVenta/NavAgenteVenta";
 import { BsDashCircle, BsX } from "react-icons/bs"; // Aquí agregué BsX
 import VehiculoService from "../../services/AgenteService/VehiculoService";
+import axios from  'axios'
+import Swal from 'sweetalert2';
+
 
 
 // ... (el resto del código permanece igual)
@@ -228,6 +231,8 @@ const DetallesCoche = () => {
   const [selectedServices, setSelectedServices] = useState([]);
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [autosEnEspera, setAutosEnEspera] = useState([])
 
   const isAgente = location.pathname.includes("/agente");
 
@@ -247,6 +252,194 @@ const DetallesCoche = () => {
     fetchCar();
   }, [brandId, carId]);
 
+
+///Agregado para compra onine back
+const [selectedCliente, setSelectedCliente] = useState(null);
+    const [selectedAgente, setSelectedAgente] = useState(null)
+    const [correoAgente,setCorreoAgente] = useState("")
+    const [agentes,setAgentes] = useState([])
+    const [agenteAgregadoAhorite,setAgenteAgregadoAhorita] = useState(null)
+    const [cliente,setCliente] = useState(null)
+    const [venta,setVenta] = useState(
+      {
+        date :new Date(),
+        cliente:{},
+        vehiculo:{},
+        agente:{}
+      }
+    )
+    const [autoAct, setAutoct] = useState(null)
+    
+
+
+    const venderUnAutoInsano = async () => {
+      try {
+          await axios.post('http://localhost:8080/ventas/vender', venta, {
+              headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                  'Content-Type': 'application/json',
+              },
+          });
+          
+
+          
+          Swal.fire({
+              title: "Registro Exitoso",
+              text: 'Gracias por comprar con nosotros, eres insano',
+              icon: "success",
+              confirmButtonColor: "#018180",
+          });
+
+      } catch (error) {
+          console.error("Error en el registro:", error);
+          Swal.fire({
+              title: "Error",
+              text: "No se pudo completar el registro. Inténtalo de nuevo.",
+              icon: "error",
+              confirmButtonColor: "#d33",
+          });
+      }
+      
+  };
+
+  const ActualizarEstadoDeUnAutoInsano = async () => {
+    //setAutoct(venta.vehiculo)
+    //setAutoct((prevAuto)=>({...prevAuto, estado:3}))
+    const autoActualizado = {
+      ...venta.vehiculo,
+      estado: {id:2,nombre:'En espera'},
+  };
+    try {
+        await axios.put(`http://localhost:8080/vehiculo/actualizar/${venta.vehiculo.id}`, autoActualizado, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        
+
+        
+        
+
+    } catch (error) {
+        console.error("Error Al cambiar el estado del auto:", error);
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo completar el registro. Inténtalo de nuevo.",
+            icon: "error",
+            confirmButtonColor: "#d33",
+        });
+    }
+    
+};
+
+
+
+
+    const fetchClientes = async () => {
+            const token = localStorage.getItem("token");
+    
+            if (token) {
+                try {
+                    const response = await axios.get("http://localhost:8080/cliente/buscar", {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+    
+                    console.log("respuesta del api con los clientes: ",response.data)
+                    setSelectedCliente(response.data);
+                    //setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
+                    return response.data
+    
+                } catch (error) {
+                    console.error("Error al obtener clientes:", error);
+                } finally {
+                    //setLoading(false);
+                }
+            } else {
+                console.log("No se encontró el token");
+                //setLoading(false);
+            }
+        };
+
+        useEffect(() => {
+                fetchClientes();
+            }, []);
+
+    useEffect(() => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                try {
+                    const payloadBase64 = token.split('.')[1];
+                    const payload = JSON.parse(atob(payloadBase64));
+                    setCorreoAgente(payload.sub);
+                } catch (error) {
+                    console.error("Error al decodificar el token:", error);
+                }
+            }
+        }, []);  // 🔄 Se ejecuta solo una vez al montar el componente
+        // ✅ Llamamos a fetchClientes cuando el componente se monta
+  
+      useEffect(() => {
+              if (selectedCliente?.length > 0 && correoAgente) {
+                  const agenteEncontrado = selectedCliente.find(agente => agente.email === correoAgente);
+                  if (agenteEncontrado) {
+                      setCliente(agenteEncontrado);
+                      setVenta((prevVenta) => ({...prevVenta,  cliente: agenteEncontrado }));
+
+                  } else {
+                      console.log("No se encontró el agente con ese correo");
+                  }
+              }
+          }, [selectedCliente, correoAgente]);
+          //console.log("sdsdsadsdsddsdsds",AgenteAgregadoAhorita.id)
+
+    useEffect(() => {
+      const fetchCar = async () => {
+        try {
+          const data = await VehiculoService.getVehiclesByBrandId(brandId);
+          const foundCar = data.find((c) => c.id.toString() === carId);
+          setCar(foundCar || null);
+          setVenta((prevVenta) => ({...prevVenta,  vehiculo: foundCar }));
+
+        } catch (error) {
+          console.error("❌ Error obteniendo vehículo:", error);
+        }
+      };
+
+      fetchCar();
+    }, [brandId, carId]);
+
+    /*const handleClienteSeleccionado = (cliente) => {
+      setSelectedCliente(cliente);
+      setVenta((prevVenta) => ({...prevVenta,  cliente: cliente }));
+
+    };*/
+
+
+///Fin Agregado compra online back
+
+useEffect(() => {
+  setVenta((prevVenta) => ({...prevVenta,  agente: venta.cliente.agente }));
+}, [selectedCliente, correoAgente]);
+
+console.log("desde la viata de cliente, datos de venta")
+console.log(selectedCliente)
+console.log(car)
+console.log(venta)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const handleCompra = () => {
     if (isAgente) {
       // Lógica para agente (podría redirigir a selección de cliente)
@@ -257,6 +450,61 @@ const DetallesCoche = () => {
       console.log("Proceso de compra para cliente", cliente);
     }
   };
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const vendeYa = () =>{
+  console.log("mira man, en teoria ya se debe vender")
+  Swal.fire({
+          title:"¡Gran elección!",
+          text: "¿Desea continuar con la compra?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Aceptar",
+          cancelButtonText: "Cancelar",
+          customClass: {
+            confirmButton: 'btn-swal-confirmar',
+            cancelButton: 'btn-swal-cancelar'
+          },
+          buttonsStyling: false, // Esto evita que SweetAlert2 sobrescriba los estilos
+          reverseButtons: true
+        
+        
+        
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Si el usuario confirma la compra, redirigimos a la página de resumen
+            navigate("/resumen-compra", {
+              state: {
+                cliente: selectedCliente,
+                coche: car,
+                fecha: new Date().toLocaleDateString(),
+                servicios: selectedServices,
+                totalAuto: car.precio,
+                totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
+                totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
+                agente: agenteAgregadoAhorite
+              },
+            });
+            //console.log("Objeto de la venta desdel el dulce alert")
+            //console.log(venta);
+            //useEffect(()=>{
+              venderUnAutoInsano()
+              ActualizarEstadoDeUnAutoInsano()
+            //},[])
+          } else {
+            // Si el usuario cancela, no pasa nada
+            console.log("Compra cancelada por el usuario");
+          }
+        });
+}
+
+
+
+
+
 
   if (loading) return <p>Cargando...</p>;
   if (!car) return <p>Coche no encontrado</p>;
@@ -273,7 +521,9 @@ const DetallesCoche = () => {
               <CarTitle>{car.modelo}</CarTitle>
               <CarYear>Año: {car.year}</CarYear>
               <Price>Precio: ${car.precio?.toLocaleString() || "XXX,XXX"} MXN</Price>
-              <BuyButton onClick={handleCompra}>
+              <BuyButton onClick={()=>{
+                vendeYa();
+              }}>
                 {isAgente ? "Iniciar Venta" : "Comprar"}
               </BuyButton>
             </CarInfo>
@@ -283,7 +533,7 @@ const DetallesCoche = () => {
           <ServicesHeader>
             <ServicesTitle>Servicios</ServicesTitle>
             <ServicesButton onClick={() => setShowModal(true)}>
-              Agregar Servicios
+              Agregar Servicios 
             </ServicesButton>
             </ServicesHeader>
 

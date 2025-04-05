@@ -12,13 +12,14 @@ export default function HistorialVentas() {
     const [correoAgente, setCorreoAgente] = useState(null);
     const [agenteAgregadoAhorita, setAgenteAgregadoAhorita] = useState(null);
     const [enEsperaFake, setEnEsperaFake] = useState([]); // Placeholder temporal
+    const [autosEnEspera,setAutosEnEspera] = useState([])
 
     const ventasHistorial = async () => {
         const token = localStorage.getItem("token");
         console.log("consultando el historial")
         if (token /*&& agenteAgregadoAhorita*/) {
             try {
-                const response = await axios.get(`http://localhost:8080/ventas/${agenteAgregadoAhorita.id}`, {
+                const response = await axios.get(`http://localhost:8080/ventas/porAgente/${agenteAgregadoAhorita.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setHistorialVentas(response.data);
@@ -89,6 +90,40 @@ export default function HistorialVentas() {
         // lógica para eliminar
     };
 
+
+
+
+
+
+    const buscarAutosEnEspera = async () => {
+      const token = localStorage.getItem("token");
+    
+      if (token) {
+          try {
+              const response = await axios.get(" http://localhost:8080/vehiculo/estados?estados=En espera", {
+                  headers: { Authorization: `Bearer ${token}` },
+              });
+    
+              console.log("respuesta del api con los autos en espera: ",response.data)
+              setAutosEnEspera(response.data);
+              return response.data
+    
+          } catch (error) {
+              console.error("Error al obtener clientes:", error);
+          } finally {
+              //setLoading(false);
+          }
+      } else {
+          console.log("No se encontró el token");
+          //setLoading(false);
+      }
+    };
+    
+    
+    useEffect(() => {
+      buscarAutosEnEspera();
+    }, []);
+
     return (
         <Container style={{ marginTop: "100px", marginBottom: "40px" }}>
             <Row className="mb-4">
@@ -142,7 +177,7 @@ export default function HistorialVentas() {
                         <TablaHistorial historial={historialVentas} />
                     )}
                     {activeTab === 'espera' && (
-                        <TablaEnEspera autos={enEsperaFake} onAprobar={handleAprobar} onEliminar={handleEliminar} />
+                        <TablaEnEspera autos={autosEnEspera} onAprobar={handleAprobar} onEliminar={handleEliminar} />
                     )}
                 </Card.Body>
             </Card>

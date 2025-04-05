@@ -103,9 +103,10 @@ const CarrosPorMarca = () => {
       <GridContainer>
         {cars.length > 0 ? (
           cars.map((car) => (
-            isAgente ? 
+            (car.estado.id ===1) ? 
               <CarCardAgente key={car.id} car={car} brandId={brandId} /> :
-              <CarCardCliente key={car.id} car={car} brandId={brandId} />
+              <h1>No hay vehículos disponibles para esta marca.</h1>
+
           ))
         ) : (
           <p>No hay vehículos disponibles para esta marca.</p>

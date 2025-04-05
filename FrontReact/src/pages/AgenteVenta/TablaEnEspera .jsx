@@ -48,7 +48,7 @@ const TablaEnEspera = ({ autos = [], onAprobar }) => {
         <tr>
           <th>Modelo</th>
           <th>Marca</th>
-          <th>Cliente</th>
+          <th>Matricula</th>
           <th>Precio (MXN)</th>
           <th>Correo</th>
           <th>Acciones</th>
@@ -58,8 +58,8 @@ const TablaEnEspera = ({ autos = [], onAprobar }) => {
         {autos.map((auto, i) => (
           <tr key={i}>
             <td>{auto.modelo}</td>
-            <td>{auto.marca}</td>
-            <td>{auto.cliente || auto.nombre || "Sin nombre"}</td>
+            <td>{auto.marca.nombre}</td>
+            <td>{auto.matricula || auto.nombre || "Sin nombre"}</td>
             <td>${auto.precio.toLocaleString()}</td>
             <td>{auto.correo}</td>
             <td>

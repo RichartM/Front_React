@@ -142,7 +142,7 @@ useEffect(() => {
   console.log("consultando el historial")
   if (token /*&& agenteAgregadoAhorita*/) {
       try {
-          const response = await axios.get(`http://localhost:8080/ventas/${userId}`, {
+          const response = await axios.get(`http://localhost:8080/ventas/porCliente/${userId}`, {
               headers: { Authorization: `Bearer ${token}` },
           });
           setHistorialVentas(response.data);
