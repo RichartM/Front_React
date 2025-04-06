@@ -59,6 +59,7 @@ const CarrosPorMarca = () => {
   const [cars, setCars] = useState([]);
   const location = useLocation();
   const isAgente = location.pathname.includes("/agente");
+  const [noHay,setNoHay] = useState(false)
 
   useEffect(() => {
     const fetchCars = async () => {
@@ -100,18 +101,20 @@ const CarrosPorMarca = () => {
         </TitleContainer>
       </HeaderContainer>
 
-      <GridContainer>
+      <GridContainer >
         {cars.length > 0 ? (
           cars.map((car) => (
             (car.estado.id ===1) ? 
               <CarCardAgente key={car.id} car={car} brandId={brandId} /> :
-              <h1>No hay vehículos disponibles para esta marca.</h1>
+              console.log("no hay marcas")
 
           ))
         ) : (
-          <p>No hay vehículos disponibles para esta marca.</p>
+          <h1>No hay vehículos disponibles para esta marca.</h1>
         )}
       </GridContainer>
+      {noHay?( <center><h1>No hay vehículos disponibles para esta marca.</h1></center>):( <center><h1>No hay vehículos disponibles para esta marca.</h1></center>)}
+
     </PageContainer>
   );
 };
