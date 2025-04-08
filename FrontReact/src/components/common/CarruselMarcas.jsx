@@ -105,11 +105,6 @@ const CarruselMarcas = () => {
                 <Col key={idx} md={4} className="d-flex justify-content-center">
                   <div className="brand-container">
                     <img className="d-block" src={brand.img} alt={brand.name} />
-                    <div className="brand-button-container">
-                      <Button className="button" onClick={() => navigate(brand.route)}>
-                        Ver {brand.name}
-                      </Button>
-                    </div>
                   </div>
                 </Col>
               ))}
