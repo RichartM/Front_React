@@ -207,7 +207,7 @@ const ClienteHistorial = () => {
                         <td>{auto.vehiculo.ventaServicios?.length}</td>
                         <td>
                           <AiOutlineFileSearch
-                            size={29}
+                            size={35}
                             style={{ marginRight: '10px', cursor: 'pointer' }}
                             onClick={() => handleVerDetalles(auto)}
                           />

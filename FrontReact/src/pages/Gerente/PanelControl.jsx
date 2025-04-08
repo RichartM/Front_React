@@ -344,7 +344,7 @@ export default function PanelControl() {
             </Modal.Header>
             <Modal.Body>
               <div className="scrollable-table">
-                <Table striped bordered hover>
+                <Table striped  hover>
                   <CustomTableHeader>
                     <tr>
                       <th>Modelo</th>

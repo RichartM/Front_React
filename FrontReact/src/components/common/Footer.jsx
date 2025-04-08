@@ -20,8 +20,8 @@ const Footer = () => {
     >
      
       {/* Información del footer */}
-      <p>© 2023 SEGA. Todos los derechos reservados.</p>
-      <p>Contacto: info@sega.com | Teléfono: +123 456 789</p>
+      <p>© 2025 SEGA. Todos los derechos reservados.</p>
+      <p>Contacto: info@sega.com | Teléfono: +52  777 168 3807</p>
        {/* Contenedor de imágenes en una sola línea */}
        <div style={{ display: "flex", flexWrap:"wraps" ,gap: "20px", justifyContent: "center", marginBottom: "10px" }}>
        <img src={Mercedes} alt="Mercedes Logo" style={{ width: "200px" }} />
