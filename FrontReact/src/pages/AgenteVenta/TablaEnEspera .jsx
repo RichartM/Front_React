@@ -43,7 +43,7 @@ const StyledTable = styled(Table)`
 
 const TablaEnEspera = ({ autos = [], onAprobar }) => {
   return (
-    <StyledTable striped bordered hover responsive>
+    <StyledTable striped  hover responsive>
       <thead>
         <tr>
           <th>Modelo</th>

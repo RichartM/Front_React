@@ -140,7 +140,7 @@ export default function HistorialVentas() {
                                 borderRadius: '5px',
                             }}
                         >
-                            Historial Insano
+                            Historial
                         </div>
                         <div
                             onClick={() => setActiveTab('espera')}

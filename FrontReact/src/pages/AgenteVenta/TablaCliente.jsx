@@ -800,10 +800,10 @@ const fetchClientesEspecificos = async () => {
                                                 <td>{cliente.telephone}</td>
                                                 <td>{cliente.estado === "ACTIVO" ? "Activo" : "Desactivado"}</td>
                                                 <td>
-                                                    <BsPencilSquare className="text-primary fs-4" onClick={() => handleEdit(cliente)} />
+                                                    <BsPencilSquare className="text-primary fs-2" onClick={() => handleEdit(cliente)} />
                                                     {cliente.estado === "ACTIVO"
-                                                        ? <BsToggleOn className="text-success fs-3" onClick={() => handleToggleStatus(cliente)} />
-                                                        : <BsToggleOff className="text-danger fs-3" onClick={() => handleToggleStatus(cliente)} />}
+                                                        ? <BsToggleOn className="text-success fs-1" onClick={() => handleToggleStatus(cliente)} />
+                                                        : <BsToggleOff className="text-danger fs-1" onClick={() => handleToggleStatus(cliente)} />}
                                                 </td>
                                             </tr>
                                         ))}

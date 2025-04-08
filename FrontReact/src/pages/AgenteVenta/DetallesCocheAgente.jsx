@@ -301,8 +301,8 @@
 
           
           Swal.fire({
-              title: "Registro Exitoso",
-              text: 'Gracias por comprar con nosotros, eres insano',
+              title: "Registro exitoso",
+              text: 'Gracias por comprar con nosotros',
               icon: "success",
               confirmButtonColor: "#018180",
           });

@@ -1,5 +1,5 @@
-import React from "react";
-import { Table, Button } from "react-bootstrap";
+import React, { useState } from "react";
+import { Table, Button, Modal } from "react-bootstrap";
 import styled from "styled-components";
 import { FaEye } from "react-icons/fa6";
 
@@ -39,38 +39,73 @@ const StyledTable = styled(Table)`
 `;
 
 const TablaHistorial = ({ historial = [] }) => {
-  console.log("data",historial)
+  const [showModal, setShowModal] = useState(false);
+  const [detalleSeleccionado, setDetalleSeleccionado] = useState(null);
+
+  const handleVerDetalles = (auto) => {
+    setDetalleSeleccionado(auto);
+    setShowModal(true);
+  };
+
   return (
-    
-    <StyledTable striped bordered hover responsive>
-      <thead>
-        <tr>
-          <th>Modelo</th>
-          <th>Marca</th>
-          <th>Cliente</th>
-          <th>Precio (MXN)</th>
-          <th>Fecha</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {historial?.map((auto, i) => (
-          <tr key={i}>
-            <td>{auto?.vehiculo.modelo}</td>
-            <td>{auto?.vehiculo.marca.nombre}</td>
-            <td>{auto?.cliente.name}</td>
-            <td>${auto?.precioFinal}</td>
-            <td>{auto?.date}</td>
-            <td>
-              <Button className="btn-ver">
-                <FaEye />
-                Ver detalles
-              </Button>
-            </td>
+    <>
+      <StyledTable striped hover responsive>
+        <thead>
+          <tr>
+            <th>Modelo</th>
+            <th>Marca</th>
+            <th>Cliente</th>
+            <th>Precio (MXN)</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
           </tr>
-        ))}
-      </tbody>
-    </StyledTable>
+        </thead>
+        <tbody>
+          {historial?.map((auto, i) => (
+            <tr key={i}>
+              <td>{auto?.vehiculo.modelo}</td>
+              <td>{auto?.vehiculo.marca.nombre}</td>
+              <td>{auto?.cliente.name}</td>
+              <td>${auto?.precioFinal}</td>
+              <td>{auto?.date}</td>
+              <td>
+                <Button className="btn-ver" onClick={() => handleVerDetalles(auto)}>
+                  <FaEye />
+                  Ver detalles
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </StyledTable>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
+            Detalles del Vehículo
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {detalleSeleccionado ? (
+            <div>
+              <p><strong>Modelo:</strong> {detalleSeleccionado.vehiculo.modelo}</p>
+              <p><strong>Marca:</strong> {detalleSeleccionado.vehiculo.marca.nombre}</p>
+              <p><strong>Cliente:</strong> {detalleSeleccionado.cliente.name}</p>
+              <p><strong>Precio Final:</strong> ${detalleSeleccionado.precioFinal}</p>
+              <p><strong>Fecha:</strong> {detalleSeleccionado.date}</p>
+              {/* Puedes añadir más campos si los tienes */}
+            </div>
+          ) : (
+            <p>No hay datos disponibles.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 };
 

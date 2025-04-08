@@ -7,7 +7,7 @@ import CardAutosEspera from './CardsInformativos/CardAutosEspera'
 import CardAutosDisponibles from './CardsInformativos/CardAutosDiponibles'
 import CardAutosVendidos from './CardsInformativos/CardAutosVendidos'
 import CardTotalAutos from './CardsInformativos/CardTotalAutos'
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from "axios"
 
 const CustomTableHeader = styled.thead`
@@ -152,138 +152,233 @@ const StyledWrapper = styled.div`
 
 export default function PanelControl() {
 
-    ///OBTENIENDO LOS MODELOS DE LA BASE DE DARTO
-    const [modelosReales, setModelosREales] = useState([])
-    const [autosVendidos,setAutosVendidos] = useState([])
-    const [autosVendEspe, setAutosVendEspe] = useState([])
-    const a = []
-  
-    useEffect(() => {
-      const token = localStorage.getItem('token'); // Obtener el token del localStorage
-      if (token) {
-        axios.get(' http://localhost:8080/vehiculo/estados?estados=Disponible&estados=En espera', {
-          headers: {
-            Authorization: `Bearer ${token}`, // Incluir el token en el header
-          },
+  ///OBTENIENDO LOS MODELOS DE LA BASE DE DARTO
+  const [modelosReales, setModelosREales] = useState([])
+  const [autosVendidos, setAutosVendidos] = useState([])
+  const [autosVendEspe, setAutosVendEspe] = useState([])
+  const a = []
+  const [showHistorialModal, setShowHistorialModal] = useState(false);
+  const [historialVentas, setHistorialVentas] = useState([]);
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token'); // Obtener el token del localStorage
+    if (token) {
+      axios.get(' http://localhost:8080/vehiculo/estados?estados=Disponible&estados=En espera', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Incluir el token en el header
+        },
+      })
+        .then(response => {
+          setModelosREales(response.data);
         })
-          .then(response => {
-            setModelosREales(response.data);
-          })
-          .catch(error => {
-            console.error('Error al obtener los modelos:', error);
-          });
+        .catch(error => {
+          console.error('Error al obtener los modelos:', error);
+        });
+    }
+  }, []);
+
+  /*
+  USA ESTE PARA REMPLAZAR EL ENPOINT TOMI
+  const obtenerHistorialVentas = async () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await axios.get("http://localhost:8080/ventas/todas", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("Ventas:", response.data);
+        setHistorialVentas(response.data);
+        setShowHistorialModal(true);
+      } catch (error) {
+        console.error("Error al obtener el historial de ventas:", error);
       }
-    }, []);
+    }
+  };
+  */
 
-const buscarAutosVendidos = async () => {
-      const token = localStorage.getItem("token");
-    
-      if (token) {
-          try {
-              const response = await axios.get(" http://localhost:8080/vehiculo/estados?estados=Vendido", {
-                  headers: { Authorization: `Bearer ${token}` },
-              });
-    
-              console.log("respuesta del api con los autos vendidos: ",response.data)
-              setAutosVendidos(response.data);
-              return response.data
-    
-          } catch (error) {
-              console.error("Error al obtener clientes:", error);
-          } finally {
-              //setLoading(false);
-          }
-      } else {
-          console.log("No se encontró el token");
-          //setLoading(false);
+  //Aqui solo los simule
+  const obtenerHistorialVentas = async () => {
+    const ventasDummy = [
+      {
+        vehiculo: { modelo: "Civic", marca: { nombre: "Honda" } },
+        cliente: { name: "Juan Pérez" },
+        agente: { name: "Carlos Mendoza" },
+        date: "2024-04-01",
+        precioFinal: 275000,
+      },
+      {
+        vehiculo: { modelo: "Corolla", marca: { nombre: "Toyota" } },
+        cliente: { name: "Laura Sánchez" },
+        agente: { name: "Ana Torres" },
+        date: "2024-04-03",
+        precioFinal: 290000,
+      },
+    ];
+  
+    setHistorialVentas(ventasDummy);
+    setShowHistorialModal(true);
+  };
+  
+
+
+  const buscarAutosVendidos = async () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await axios.get(" http://localhost:8080/vehiculo/estados?estados=Vendido", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log("respuesta del api con los autos vendidos: ", response.data)
+        setAutosVendidos(response.data);
+        return response.data
+
+      } catch (error) {
+        console.error("Error al obtener clientes:", error);
+      } finally {
+        //setLoading(false);
       }
-    };
-    
-    
-    useEffect(() => {
-      buscarAutosVendidos();
-    }, []);
+    } else {
+      console.log("No se encontró el token");
+      //setLoading(false);
+    }
+  };
 
-    a.push(...modelosReales)
-    a.push(...autosVendidos)
 
-    console.log("data de los autos: ",a)
-    //setAutosVendEspe(autosVendidos)
+  useEffect(() => {
+    buscarAutosVendidos();
+  }, []);
+
+  a.push(...modelosReales)
+  a.push(...autosVendidos)
+
+  console.log("data de los autos: ", a)
+  //setAutosVendEspe(autosVendidos)
   return (
-      <>
-                <GlobalStyle />
-                <Container>
+    <>
+      <GlobalStyle />
+      <Container>
 
-                <div className="cards-wrapper">
-    <CardAutosEspera />
-    <CardAutosDisponibles />
-    <CardAutosVendidos />
-    <CardTotalAutos />
-</div>
-
-
-                <p></p>
-                <div
-          style={{
-            color: '#018180',
-            padding: '12px 25px',
-            fontSize: '1.4rem',
-            fontWeight: 'bold',
-            display: 'inline-block',
-            marginBottom: '20px',
-          }}
-        >
-          AUTOS VENDIDOS Y EN ESPERA
+        <div className="cards-wrapper">
+          <CardAutosEspera />
+          <CardAutosDisponibles />
+          <CardAutosVendidos />
+          <CardTotalAutos />
         </div>
-                    <Card>
-                        <Row className="mb-3">
-                            <Col className="d-flex justify-content-start">
-                                <FiltroBuscador  placeholder="Buscar..." />
-    
-                            </Col>
-                        </Row>
-                        <Row className="mb-1">
-                        
-                        </Row>
-    
-    
-    
 
-    
-                        <StyledWrapper>
-                            <div className="scrollable-table">
-                            <Table striped  hover className="mt-2">
-                                  <CustomTableHeader>
-                                      <tr>
-                                          <th>Modelo</th>
-                                          <th>Marca</th>
-                                          <th>Placa</th>
-                                          <th>Precio (MXN)</th>
-                                          <th>Año</th>
-                                          <th>Color</th>
-                                          <th>Estado</th>
-                                      </tr>
-                                  </CustomTableHeader>
 
-                                  <tbody>
-                                      {a.map((marca, index) => (
-                                          <tr key={index}>
-                                              <td>{marca.modelo}</td>
-                                              <td>{marca.marca.nombre}</td>
-                                              <td>{marca.matricula}</td>
-                                              <td>{marca.precio}</td>
-                                              <td>{marca.year}</td>
-                                              <td>{marca.color}</td>
-                                              <td><i className="bi bi-question-circle"></i> {marca.estado.nombre}</td>
-                                          </tr>
-                                      ))}
-                                  </tbody>
-                              </Table>
+        <p></p>
+        <div className="d-flex justify-content-between align-items-center mb-3 px-3">
+          <div
+            style={{
+              color: '#018180',
+              fontSize: '1.4rem',
+              fontWeight: 'bold',
+            }}
+          >
+            AUTOS VENDIDOS Y EN ESPERA
+          </div>
+          <CustomButton onClick={obtenerHistorialVentas}>
+            Ver histórico de ventas
+          </CustomButton>
+        </div>
 
-                            </div>
-                        </StyledWrapper>
-                    </Card>
-                </Container>
-            </>
+
+        <Card>
+          <Row className="mb-3">
+            <Col className="d-flex justify-content-start">
+              <FiltroBuscador placeholder="Buscar..." />
+
+            </Col>
+          </Row>
+          <Row className="mb-1">
+
+          </Row>
+
+
+
+
+
+          <StyledWrapper>
+            <div className="scrollable-table">
+              <Table striped hover className="mt-2">
+                <CustomTableHeader>
+                  <tr>
+                    <th>Modelo</th>
+                    <th>Marca</th>
+                    <th>Placa</th>
+                    <th>Precio (MXN)</th>
+                    <th>Año</th>
+                    <th>Color</th>
+                    <th>Estado <i className="bi bi-question-circle"></i></th>
+                  </tr>
+                </CustomTableHeader>
+
+                <tbody>
+                  {a.map((marca, index) => (
+                    <tr key={index}>
+                      <td>{marca.modelo}</td>
+                      <td>{marca.marca.nombre}</td>
+                      <td>{marca.matricula}</td>
+                      <td>{marca.precio}</td>
+                      <td>{marca.year}</td>
+                      <td>{marca.color}</td>
+                      <td> {marca.estado.nombre}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+
+            </div>
+          </StyledWrapper>
+        </Card>
+        <Modal show={showHistorialModal} onHide={() => setShowHistorialModal(false)} size="lg" centered>
+          <StyledWrapper>
+            <Modal.Header closeButton>
+              <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
+                Historial de Ventas
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="scrollable-table">
+                <Table striped bordered hover>
+                  <CustomTableHeader>
+                    <tr>
+                      <th>Modelo</th>
+                      <th>Marca</th>
+                      <th>Cliente</th>
+                      <th>Vendedor</th>
+                      <th>Fecha</th>
+                      <th>Precio (MXN)</th>
+                    </tr>
+                  </CustomTableHeader>
+                  <tbody>
+                    {historialVentas.map((venta, i) => (
+                      <tr key={i}>
+                        <td>{venta.vehiculo?.modelo}</td>
+                        <td>{venta.vehiculo?.marca?.nombre}</td>
+                        <td>{venta.cliente?.name}</td>
+                        <td>{venta.agente?.name}</td>
+                        <td>{venta.date}</td>
+                        <td>${venta.precioFinal}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowHistorialModal(false)}>
+                Cerrar
+              </Button>
+            </Modal.Footer>
+          </StyledWrapper>
+        </Modal>
+
+      </Container>
+    </>
   )
 }

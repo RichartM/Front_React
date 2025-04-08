@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import NavCliente from "./NavCliente";
 import { Container, Card, Table, Modal, Button } from "react-bootstrap";
 import styled from "styled-components";
@@ -65,7 +65,7 @@ const ClienteHistorial = () => {
     setSelectedAuto(auto);
     setShowDetalleModal(true);
   };
-
+  
   const handleVerServicios = (auto) => {
     setSelectedAuto(auto);
     setShowServicioModal(true);
@@ -74,90 +74,90 @@ const ClienteHistorial = () => {
 
 
   const [userId, setUserId] = useState("")
-  const [correo,setCorreoAgente] = useState("")
-  const [historialVentas,setHistorialVentas] = useState([])
-  const [clientes,setClientes] = useState([])
+  const [correo, setCorreoAgente] = useState("")
+  const [historialVentas, setHistorialVentas] = useState([])
+  const [clientes, setClientes] = useState([])
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-        try {
-            const payloadBase64 = token.split('.')[1];
-            const payload = JSON.parse(atob(payloadBase64));
-            setCorreoAgente(payload.sub);
-        } catch (error) {
-
-            console.error("Error al decodificar el token:", error);
-        }
-    }
-}, []);
-
-const fetchClientes = async () => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
       try {
-          const response = await axios.get("http://localhost:8080/cliente/buscar", {
-              headers: { Authorization: `Bearer ${token}` },
-          });
+        const payloadBase64 = token.split('.')[1];
+        const payload = JSON.parse(atob(payloadBase64));
+        setCorreoAgente(payload.sub);
+      } catch (error) {
 
-          setClientes(response.data);
-          console.log("dataaaaaInsalubre",response.data)
-          //setFilteredClientes(response.data);
+        console.error("Error al decodificar el token:", error);
+      }
+    }
+  }, []);
 
-          return response.data; // ⬅️ Retornamos los datos actualizados
+  const fetchClientes = async () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await axios.get("http://localhost:8080/cliente/buscar", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setClientes(response.data);
+        console.log("dataaaaaInsalubre", response.data)
+        //setFilteredClientes(response.data);
+
+        return response.data; // ⬅️ Retornamos los datos actualizados
 
       } catch (error) {
-          console.error("Error al obtener clientes:", error);
+        console.error("Error al obtener clientes:", error);
       } finally {
-          //setLoading(false);
+        //setLoading(false);
       }
-  } else {
+    } else {
       console.log("No se encontró el token");
       //setLoading(false);
-  }
-};
+    }
+  };
 
-useEffect(() => {
-  fetchClientes();
-    }, []);
+  useEffect(() => {
+    fetchClientes();
+  }, []);
 
-    useEffect(() => {
-      if (correo && clientes.length > 0) {
-        const cliente = clientes.find(cli => cli.email === correo);
-        if (cliente) {
-          setUserId(cliente.id);
-          console.log("idddddddddddddddddddddddddd: ",cliente.id)
-        } else {
-          console.warn("Cliente no encontrado con el correo:", correo);
-        }
+  useEffect(() => {
+    if (correo && clientes.length > 0) {
+      const cliente = clientes.find(cli => cli.email === correo);
+      if (cliente) {
+        setUserId(cliente.id);
+        console.log("idddddddddddddddddddddddddd: ", cliente.id)
+      } else {
+        console.warn("Cliente no encontrado con el correo:", correo);
       }
-    }, [correo, clientes]); // <- depende de ambos
-    
+    }
+  }, [correo, clientes]); // <- depende de ambos
 
-    //setUserId(clientes.find(cli => cli.correo === correo));
 
-    const ventasHistorial = async () => {
-  const token = localStorage.getItem("token");
-  console.log("consultando el historial")
-  if (token /*&& agenteAgregadoAhorita*/) {
+  //setUserId(clientes.find(cli => cli.correo === correo));
+
+  const ventasHistorial = async () => {
+    const token = localStorage.getItem("token");
+    console.log("consultando el historial")
+    if (token /*&& agenteAgregadoAhorita*/) {
       try {
-          const response = await axios.get(`http://localhost:8080/ventas/porCliente/${userId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-          });
-          setHistorialVentas(response.data);
-          console.log("informacion reelevante del server ",response.data)
+        const response = await axios.get(`http://localhost:8080/ventas/porCliente/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setHistorialVentas(response.data);
+        console.log("informacion reelevante del server ", response.data)
       } catch (error) {
-          console.error("Error al obtener historial de ventas:", error);
+        console.error("Error al obtener historial de ventas:", error);
       }
-  }
-};
+    }
+  };
 
-useEffect(() => {
-  if (userId) {
-    ventasHistorial();
-  }
-}, [userId]);
+  useEffect(() => {
+    if (userId) {
+      ventasHistorial();
+    }
+  }, [userId]);
 
 
   return (
@@ -185,14 +185,14 @@ useEffect(() => {
                 <Table striped hover>
                   <thead>
                     <tr>
-                    <th>Modelo</th>
-          <th>Marca</th>
-          <th>Placa</th>
-          <th>Precio (MXN)</th>
-          <th>Fecha</th>
-          <th>Cantida de Servicios </th>
+                      <th>Modelo</th>
+                      <th>Marca</th>
+                      <th>Placa</th>
+                      <th>Precio (MXN)</th>
+                      <th>Fecha</th>
+                      <th>Cantida de Servicios </th>
 
-          <th>Acciones</th>
+                      <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -206,8 +206,11 @@ useEffect(() => {
 
                         <td>{auto.vehiculo.ventaServicios?.length}</td>
                         <td>
-                          <AiOutlineFileSearch size={29} style={{ marginRight: '10px', cursor: 'pointer' }} />
-                          <GrHostMaintenance size={29} style={{ cursor: 'pointer' }} />
+                          <AiOutlineFileSearch
+                            size={29}
+                            style={{ marginRight: '10px', cursor: 'pointer' }}
+                            onClick={() => handleVerDetalles(auto)}
+                          />
                         </td>
                       </tr>
                     ))}
@@ -222,30 +225,115 @@ useEffect(() => {
       </Container>
 
       {/* Modal para Detalles de Compra */}
-      <Modal show={showDetalleModal} onHide={() => setShowDetalleModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Detalles de la Compra</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedAuto && selectedAuto.historial.length > 0 ? (
-            <>
-              <p><strong>Modelo:</strong> {selectedAuto.modelo}</p>
-              <p><strong>Año:</strong> {selectedAuto.año}</p>
-              <p><strong>Producto:</strong> {selectedAuto.historial[0].producto}</p>
-              <p><strong>Fecha:</strong> {selectedAuto.historial[0].fecha}</p>
-              <p><strong>Precio:</strong> {selectedAuto.historial[0].precio}</p>
-              <p><strong>Estado:</strong> {selectedAuto.historial[0].estado}</p>
-            </>
+      <Modal show={showDetalleModal} onHide={() => setShowDetalleModal(false)} size="lg" centered>
+  <StyledWrapper>
+    <Modal.Header closeButton>
+      <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
+        Detalles de la Compra
+      </Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      {selectedAuto ? (
+        <>
+          <p><strong>Modelo:</strong> {selectedAuto.vehiculo.modelo}</p>
+          <p><strong>Marca:</strong> {selectedAuto.vehiculo.marca.nombre}</p>
+          <p><strong>Matrícula:</strong> {selectedAuto.vehiculo.matricula}</p>
+          <p><strong>Precio:</strong> ${selectedAuto.price}</p>
+          <p><strong>Fecha de Compra:</strong> {selectedAuto.date}</p>
+
+          <hr />
+          <h5 style={{ color: "#018180" }}>Servicios Contratados</h5>
+          {selectedAuto.vehiculo.ventaServicios?.length > 0 ? (
+            <Table striped bordered hover size="sm">
+              <thead>
+                <tr>
+                  <th>Servicio</th>
+                  <th>Descripción</th>
+                  <th>Precio (MXN)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedAuto.vehiculo.ventaServicios.map((serv, idx) => (
+                  <tr key={idx}>
+                    <td>{serv.nombre}</td>
+                    <td>{serv.descripcion}</td>
+                    <td>${serv.precio}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           ) : (
-            <p>No hay detalles de compra disponibles.</p>
+            <p>No hay servicios contratados para este auto.</p>
           )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDetalleModal(false)}>
-            Cerrar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        </>
+      ) : (
+        <p>No hay información disponible.</p>
+      )}
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={() => setShowDetalleModal(false)}>
+        Cerrar
+      </Button>
+    </Modal.Footer>
+  </StyledWrapper>
+</Modal>
+
+
+      {/* Modal para Detalles de Compra */}
+      <Modal show={showDetalleModal} onHide={() => setShowDetalleModal(false)} size="lg" centered>
+  <StyledWrapper>
+    <Modal.Header closeButton>
+      <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
+        Detalles de la Compra
+      </Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      {selectedAuto ? (
+        <>
+          <p><strong>Modelo:</strong> {selectedAuto.vehiculo.modelo}</p>
+          <p><strong>Marca:</strong> {selectedAuto.vehiculo.marca.nombre}</p>
+          <p><strong>Matrícula:</strong> {selectedAuto.vehiculo.matricula}</p>
+          <p><strong>Precio:</strong> ${selectedAuto.price}</p>
+          <p><strong>Fecha de Compra:</strong> {selectedAuto.date}</p>
+
+          <hr />
+          <h5 style={{ color: "#018180" }}>Servicios Contratados</h5>
+          {selectedAuto.vehiculo.ventaServicios?.length > 0 ? (
+            <Table striped bordered hover size="sm">
+              <thead>
+                <tr>
+                  <th>Servicio</th>
+                  <th>Descripción</th>
+                  <th>Precio (MXN)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedAuto.vehiculo.ventaServicios.map((serv, idx) => (
+                  <tr key={idx}>
+                    <td>{serv.nombre}</td>
+                    <td>{serv.descripcion}</td>
+                    <td>${serv.precio}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          ) : (
+            <p>No hay servicios contratados para este auto.</p>
+          )}
+        </>
+      ) : (
+        <p>No hay información disponible.</p>
+      )}
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={() => setShowDetalleModal(false)}>
+        Cerrar
+      </Button>
+    </Modal.Footer>
+  </StyledWrapper>
+</Modal>
+
+
 
       {/* Modal para contratar servicio */}
       <Modal show={showServicioModal} onHide={() => setShowServicioModal(false)} centered>
