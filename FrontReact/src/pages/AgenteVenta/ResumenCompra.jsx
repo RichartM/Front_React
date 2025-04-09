@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -115,11 +114,16 @@ const FooterNote = styled.p`
 `;
 
 const ResumenCompraScreen = () => {
-  const { state } = useLocation();
+  const [resumen, setResumen] = useState(null);
 
-  if (!state) {
-    return <p>No hay información disponible.</p>;
-  }
+  useEffect(() => {
+    const data = localStorage.getItem("resumenCompra");
+    if (data) {
+      setResumen(JSON.parse(data));
+    }
+  }, []);
+
+  if (!resumen) return <p>No hay información disponible.</p>;
 
   const {
     cliente,
@@ -129,82 +133,70 @@ const ResumenCompraScreen = () => {
     totalServicios,
     totalFinal,
     agente
-  } = state;
-
-  
+  } = resumen;
 
   const handleGeneratePDF = () => {
     const doc = new jsPDF();
-  
-    // Título
+
     doc.setFontSize(16);
     doc.setFont(undefined, "bold");
     doc.text("Factura de Venta de Automóvil", 70, 20);
-  
-    // Fecha y folio
+
     const fechaEmision = new Date().toLocaleDateString("es-MX");
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
     doc.text("Fecha de emisión: ", 14, 30);
     doc.setFont(undefined, "normal");
     doc.text(fechaEmision, 50, 30);
-  
+
     doc.setFont(undefined, "bold");
     doc.text("Folio de compra:", 14, 38);
     doc.setFont(undefined, "normal");
     doc.text("000000", 50, 38);
-  
-    // Vendedor y comprador
+
     doc.setFont(undefined, "bold");
     doc.text("Vendedor:", 14, 46);
     doc.setFont(undefined, "normal");
-    doc.text(agente.name+" "+agente.lastname, 50, 46);
-  
+    doc.text(agente.name + " " + agente.lastname, 50, 46);
+
     doc.setFont(undefined, "bold");
     doc.text("Comprador:", 14, 54);
     doc.setFont(undefined, "normal");
-    doc.text(cliente?.name+" "+cliente?.lastname || "Cliente", 50, 54);
-  
-    // Info del auto
+    doc.text(cliente?.name + " " + cliente?.lastname || "Cliente", 50, 54);
+
     doc.setFont(undefined, "bold");
     doc.text("Marca:", 14, 66);
     doc.setFont(undefined, "normal");
     doc.text(coche.marca.nombre, 40, 66);
-  
+
     doc.setFont(undefined, "bold");
     doc.text("Modelo:", 14, 74);
     doc.setFont(undefined, "normal");
     doc.text(`${coche.modelo} ${coche.year}`, 40, 74);
-  
+
     doc.setFont(undefined, "bold");
     doc.text("Placa:", 14, 82);
     doc.setFont(undefined, "normal");
     doc.text(coche.matricula || "AX33400X", 40, 82);
-  
-    // Tabla
+
     autoTable(doc, {
       head: [["Concepto", "Precio"]],
       body: [
         ["Automóvil", `$${totalAuto.toLocaleString()}`],
         ["Servicios", `$${servicios.reduce((acc, s) => acc + (parseFloat(s.price) || 0), 0).toLocaleString()}`]
       ],
-      
       startY: 95,
       styles: { halign: "center" },
       headStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
       margin: { left: 14, right: 14 },
     });
-  
+
     const afterTableY = doc.lastAutoTable.finalY;
-  
-    // Total a pagar
+
     doc.setFont(undefined, "bold");
     doc.setFontSize(13);
-   // doc.text(`Total a pagar: $${totalFinal.toLocaleString()}`, 135, afterTableY + 10);
-   doc.text(`Total a pagar: $${(+totalAuto + servicios.reduce((acc, s) => acc + Number(s.price), 0)).toLocaleString()}`, 135, afterTableY + 10);
+    doc.text(`Total a pagar: $${totalFinal.toLocaleString()}`, 135, afterTableY + 10);
 
-  
-    // Mensaje final
     doc.setFontSize(10);
     doc.setTextColor(255, 0, 0);
     doc.setFont(undefined, "normal");
@@ -213,18 +205,18 @@ const ResumenCompraScreen = () => {
       14,
       afterTableY + 20
     );
-  
-    // Firma / empresa
+
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, "bold");
     doc.setFontSize(14);
     doc.text("S E G A", 95, afterTableY + 40, { align: "center" });
+
     doc.save("Factura_Compra.pdf");
   };
-  
+
   return (
     <Container>
-      <Title>Detalles de la compra</Title>
+      <Title>Detalles de la compra </Title>
 
       <ContentRow>
         <Column>
@@ -235,7 +227,7 @@ const ResumenCompraScreen = () => {
         </Column>
 
         <Column>
-          <SectionTitle style={{justifyContent: 'center'}}>Información del vehículo</SectionTitle>
+          <SectionTitle>Información del vehículo</SectionTitle>
           <Line />
           <InfoItem><Bold>Marca:</Bold> {coche.marca.nombre}</InfoItem>
           <InfoItem><Bold>Modelo:</Bold> {coche.modelo}</InfoItem>
@@ -262,11 +254,12 @@ const ResumenCompraScreen = () => {
       <PricesSection>
         <SectionTitle>Precios</SectionTitle>
         <Line />
-        {console.log("data services precios :",servicios)}
-        <PriceRow><Bold>Subtotal :</Bold> ${totalAuto.toLocaleString()}</PriceRow>
-        <PriceRow><Bold>+ servicios:</Bold> ${servicios.reduce((acc, s) => acc + Number(s.price), 0).toLocaleString()}</PriceRow>
-        <PriceRow><Bold>Total:</Bold> ${(+totalAuto + servicios.reduce((acc, s) => acc + Number(s.price), 0)).toLocaleString()}</PriceRow>
-        </PricesSection>
+        <PriceRow><Bold>Subtotal:</Bold> ${totalAuto.toLocaleString()}</PriceRow>
+        <PriceRow><Bold>+ Servicios:</Bold> ${parseInt(totalServicios,10).toLocaleString()}</PriceRow>
+        <PriceRow><Bold>Total:</Bold> ${(
+    parseInt(totalAuto, 10) + parseInt(totalServicios, 10)
+  ).toLocaleString()}</PriceRow>
+      </PricesSection>
 
       <DownloadRow>
         <DownloadButton onClick={handleGeneratePDF}>Descargar Factura</DownloadButton>

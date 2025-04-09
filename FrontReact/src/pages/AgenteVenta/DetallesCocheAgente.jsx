@@ -485,26 +485,33 @@
       
       }).then((result) => {
         if (result.isConfirmed) {
-          // Si el usuario confirma la compra, redirigimos a la página de resumen
-          navigate("/resumen-compra", {
-            state: {
-              cliente: selectedCliente,
-              coche: car,
-              fecha: new Date().toLocaleDateString(),
-              servicios: selectedServices,
-              totalAuto: car.precio,
-              totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
-              totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
-              agente: agenteAgregadoAhorite
-            },
-          });
-          //console.log("Objeto de la venta desdel el dulce alert")
-          //console.log(venta);
-          //useEffect(()=>{
-            venderUnAutoInsano()
-            ActualizarEstadoDeUnAutoInsano()
-          //},[])
-        } else {
+          // Creamos el objeto con los datos de la venta
+          const resumenVenta = {
+            cliente: selectedCliente,
+            coche: car,
+            fecha: new Date().toLocaleDateString(),
+            servicios: selectedServices,
+            totalAuto: car.precio,
+            totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
+            totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
+            agente: agenteAgregadoAhorite
+          };
+        
+          // Guardamos en localStorage
+          localStorage.setItem("resumenCompra", JSON.stringify(resumenVenta));
+        
+          // Abrimos nueva pestaña
+          window.open("/resumen-compra", "_blank");
+        
+          // Realizamos las acciones necesarias
+          venderUnAutoInsano();
+          ActualizarEstadoDeUnAutoInsano();
+        
+          // Redireccionamos la pestaña actual
+          window.location.href = "http://localhost:5173/agente/tablaCliente";
+        }
+        
+         else {
           // Si el usuario cancela, no pasa nada
           console.log("Compra cancelada por el usuario");
         }

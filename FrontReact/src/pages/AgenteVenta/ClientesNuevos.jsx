@@ -52,11 +52,76 @@ console.log("esto trae los auts: ",autos)
 const [clienteSinAgente, setClientesSinAgente] = useState([])
 const [ventas, setVentas] = useState([])
 const [ventasSinAgente, setVentasSinAgente] = useState([]);
+const [correoAgente, setCorreoAgente] = useState(null);
+const [agentes,setAgentes] = useState([])
+const [agenteAgregadoAhorita, setAgenteAgregadoAhorita] = useState(null);
+
+const fetchAgentes = async () => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+      try {
+          const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+              headers: { Authorization: `Bearer ${token}` },
+          });
+
+          setAgentes(response.data);
+          //setFilteredClientes(response.data); // ✅ Actualizamos ambos estados
+          return response.data
+
+      } catch (error) {
+          console.error("Error al obtener clientes:", error);
+      } finally {
+      //setLoading(false);
+      }
+  } else {
+      console.log("No se encontró el token");
+      //setLoading(false);
+  }
+};
+
+useEffect(() => {
+      fetchAgentes();
+  }, []);
 
 
+
+
+  useEffect(() => {
+              const token = localStorage.getItem("token");
+              if (token) {
+                  try {
+                      const payloadBase64 = token.split('.')[1];
+                      const payload = JSON.parse(atob(payloadBase64));
+                      setCorreoAgente(payload.sub);
+                  } catch (error) {
+                      console.error("Error al decodificar el token:", error);
+                  }
+              }
+          }, []);  // 🔄 Se ejecuta solo una vez al montar el componente
+          // ✅ Llamamos a fetchClientes cuando el componente se monta
+
+
+          console.log("id del agente agregado ahorita: ",agenteAgregadoAhorita)
+
+
+useEffect(() => {
+                if (agentes.length > 0 && correoAgente) {
+                    const agenteEncontrado = agentes.find(agente => agente.email === correoAgente);
+                    if (agenteEncontrado) {
+                        setAgenteAgregadoAhorita(agenteEncontrado);
+                        //setVenta((prevVenta) => ({...prevVenta,  agente: agenteEncontrado }));
+  
+                    } else {
+                        console.log("No se encontró el agente con ese correo");
+                    }
+                }
+            }, [agentes, correoAgente]);
 
 
   const ActualizarEstadoDeUnAutoInsano = async (au) => {
+
+    console.log("Esto es lo que trae el auto: ",au)
 
     const autoActualizado = {
       ...au.vehiculo,
@@ -64,7 +129,7 @@ const [ventasSinAgente, setVentasSinAgente] = useState([]);
     };
     
     try {
-        await axios.put(`http://localhost:8080/vehiculo/actualizar/${au.vehiculo.id}`, autoActualizado, {
+        await axios.put(`http://localhost:8080/vehiculo/actualizar/${au.venta.vehiculo.id}`, autoActualizado, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json',
@@ -88,6 +153,45 @@ const [ventasSinAgente, setVentasSinAgente] = useState([]);
 };
 
 
+
+
+
+
+const asociarGerenteCliente = async (ve) => {
+
+  console.log("esto trae el asociar cliente: ",ve," y el agente: ",agenteAgregadoAhorita)
+    try {
+        // 1. Obtenemos los clientes actualizados
+
+
+        // 4. Hacemos la solicitud PUT al backend
+        await axios.put(
+            `http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${agenteAgregadoAhorita.id}&idCliente=${ve.cliente.id}`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}` ,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+    } catch (error) {
+        console.error("❌ Error en el registro:", error);
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo completar el registro. Inténtalo de nuevo.",
+            icon: "error",
+            confirmButtonColor: "#d33",
+        });
+    }
+};
+
+
+
+
+
+console.log("datos insanos de las ventas asndjsadnsja ",ventas)
 const ventasHistorial = async () => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -130,9 +234,8 @@ useEffect(() => {
 
 useEffect(() => {
   const coincidencias = [];
-
   clienteSinAgente.forEach(cliente => {
-    const venta = ventas.find(v => v.id === cliente.id);
+    const venta = ventas.find(v => v.cliente.id === cliente.id);
     if (venta) {
       coincidencias.push({ cliente, venta });
     }
@@ -164,6 +267,8 @@ console.log("ventas sin agente: ",ventasSinAgente)
       if (result.isConfirmed) {
         console.log("verifiacndo que se manipule el registro", auto)
         ActualizarEstadoDeUnAutoInsano(auto)
+        asociarGerenteCliente(auto)
+
         onAprobar(auto.id);
         Swal.fire(
           '¡Atendido!',
@@ -189,11 +294,11 @@ console.log("ventas sin agente: ",ventasSinAgente)
       <tbody>
         {ventasSinAgente.map((auto, i) => (
           <tr key={i}>
-            <td>{auto.vehiculo?.modelo || 'N/A'}</td>
-            <td>{auto.vehiculo?.marca?.nombre || 'N/A'}</td>
+            <td>{auto.venta.vehiculo?.modelo || 'N/A'}</td>
+            <td>{auto.venta.vehiculo?.marca?.nombre || 'N/A'}</td>
             <td>{auto.cliente?.name ? `${auto.cliente.name} ${auto.cliente.lastname}` : 'N/A'}</td>
             <td>{auto.cliente?.email || 'N/A'}</td>
-            <td>${auto.vehiculo?.precio?.toLocaleString() || '0'}</td>
+            <td>${auto.venta?.vehiculo.precio?.toLocaleString() || '0'}</td>
             <td>
               <div className="btn-wrapper">
                 <Button 

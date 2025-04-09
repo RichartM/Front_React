@@ -28,7 +28,7 @@ import ClienteHome from '../pages/Cliente/ClienteHome';
 import CarrosPorMarca from '../pages/Autos/CarrosPorMarca';
 import DetallesCoche from '../pages/Autos/DetallesCoche';
 import EditPerfilCliente from '../pages/Cliente/EditPerfilCliente.jsx'; // Editar perfil para clientes
-
+import ResumenCompraCliente from '../pages/Cliente/ResumenCompraCliente.jsx'; // Resumen de compra para clientes
 
 // Agente
 import TablaCliente from '../pages/AgenteVenta/TablaCliente';
@@ -96,6 +96,8 @@ const AppRoutes = () => {
               <Route index element={<Navigate to="/cliente/home" replace />} />
               <Route path="home" element={<ClienteHome />} />
               <Route path="editPerfil" element={<EditPerfilCliente />} />
+              <Route path="resumen-compra" element={<ResumenCompraCliente />} />
+
               </Route>
           </Route>
         </Route>

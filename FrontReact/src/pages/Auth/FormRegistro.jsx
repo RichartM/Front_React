@@ -10,7 +10,7 @@ const FormRegistro = () => {
     secondName: "",
     firstSurname: "",
     secondSurname: "",
-    phone: "",
+    telephone: "",
     email: "",
   });
 
@@ -23,40 +23,41 @@ const FormRegistro = () => {
     e.preventDefault();
 
     try {
-        const clienteData = {
-            name: formData.firstName,
-            surname: formData.secondName,
-            lastname: formData.firstSurname,
-            username: formData.email, // ✅ Usamos el email como username
-            email: formData.email,
-            password: formData.firstName, // ✅ La contraseña será el nombre
-        };
+      const clienteData = {
+        name: formData.firstName,
+        surname: formData.secondName,
+        lastname: formData.firstSurname,
+        username: formData.email, // ✅ Usamos el email como username
+        email: formData.email,
+        telephone: formData.telephone,
+        password: formData.firstName, // ✅ La contraseña será el nombre
+      };
 
-        await AuthServiceRegister.registerCliente(clienteData);
+      await AuthServiceRegister.registerCliente(clienteData);
 
-        Swal.fire({
-            title: "Registro Exitoso",
-            text: "Se ha registrado correctamente el cliente. Su contraseña es su nombre.",
-            icon: "success",
-            confirmButtonColor: "#018180",
-        }).then(() => {
-            setFormData({
-                firstName: "",
-                secondName: "",
-                firstSurname: "",
-                secondSurname: "",
-                phone: "",
-                email: "",
-            });
+      Swal.fire({
+        title: "Registro Exitoso",
+        text: "Se ha registrado correctamente el cliente. Su contraseña es su nombre.",
+        icon: "success",
+        confirmButtonColor: "#018180",
+      }).then(() => {
+        setFormData({
+          firstName: "",
+          secondName: "",
+          firstSurname: "",
+          secondSurname: "",
+          telephone: "",
+          email: "",
         });
+      });
     } catch (error) {
-        console.error("Error en el registro:", error);
-        Swal.fire({
-            title: "Error",
-            text: "No se pudo completar el registro. Inténtalo de nuevo.",
-            icon: "error",
-            confirmButtonColor: "#d33",
-        });
+      console.error("Error en el registro:", error);
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo completar el registro. Inténtalo de nuevo.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
     }
   };
 
@@ -79,17 +80,18 @@ const FormRegistro = () => {
             <span>Primer nombre</span>
           </label>
           <label>
-            <input
-              required
-              type="text"
-              className="input"
-              placeholder=" "
-              id="secondName"
-              value={formData.secondName}
-              onChange={handleChange}
-            />
+          <input
+  type="text"
+  className="input"
+  placeholder=" "
+  id="secondName"
+  value={formData.secondName || ""}
+  onChange={handleChange}
+/>
+
             <span>Segundo nombre</span>
           </label>
+
         </div>
         <div className="flex">
           <label>
@@ -120,11 +122,11 @@ const FormRegistro = () => {
         <label>
           <input
             required
-            type="phone"
+            type="telephone"
             className="input"
             placeholder=" "
-            id="phone"
-            value={formData.phone}
+            id="telephone"
+            value={formData.telephone}
             onChange={handleChange}
           />
           <span>Teléfono</span>
@@ -155,6 +157,13 @@ const FormRegistro = () => {
 
 
 const StyledWrapper = styled.div`
+.form label .input:placeholder-shown:not(:focus) + span {
+  top: 15px;
+  font-size: 0.9em;
+  font-weight: normal;
+  color: #018180;
+}
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -268,9 +277,11 @@ const StyledWrapper = styled.div`
     font-weight: 600;
   }
 
-  .form label .input:valid + span {
-    color: green;
-  }
+.form label .input:not(:placeholder-shown):not(:focus) + span {
+  color: green;
+}
+
+
 
   .submit {
     border: none;

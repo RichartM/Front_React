@@ -4,7 +4,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { BsPencilSquare, BsToggleOn, BsToggleOff } from "react-icons/bs";
 import Swal from 'sweetalert2';
 import BootstrapPagination from '../../components/common/BootstrapPagination';
-import FiltroBuscador from '../../components/FILTROS/FiltroBuscador';
+import FiltroBuscador from '../../components/filtros/FiltroBuscador';
 import axios from "axios";
 
 const CustomTableHeader = styled.thead`
@@ -223,9 +223,9 @@ export default function TablaCliente() {
     
 
 
-    /*useEffect(() => {
+    useEffect(() => {
         setFilteredClientes(clientes);
-    }, [clientes]);*/
+    }, [clientes]);
 
 
 

@@ -60,15 +60,16 @@ const TablaModelos = ({
     setModelos,
 }) => {
     const filteredModelos = modelos.filter(item =>
-        item.modelo.toLowerCase().includes(searchTerm.toLowerCase())
+        (item?.modelo || "").toLowerCase().includes((searchTerm || "").toLowerCase())
     );
+
     const currentModelos = filteredModelos.slice(
         (currentPage - 1) * recordsPerPage,
         currentPage * recordsPerPage
     );
 
     const toggleStatus = async (item) => {
-        const newState = !item.estadoVehiculo; // Alternar el estado booleano
+        const newState = !item.estadoVehiculo;
 
         try {
             const response = await axios.put(
@@ -83,7 +84,6 @@ const TablaModelos = ({
 
             const updatedItem = response.data;
 
-            // Actualizar el estado local
             setModelos(prevModelos =>
                 prevModelos.map(modelo =>
                     modelo.id === updatedItem.id
@@ -92,7 +92,6 @@ const TablaModelos = ({
                 )
             );
 
-            // Mostrar mensaje de éxito
             Swal.fire({
                 title: "¡Hecho!",
                 text: `El estado del vehículo ha sido actualizado a ${newState ? "Activo" : "Inactivo"}.`,
@@ -114,11 +113,9 @@ const TablaModelos = ({
 
     return (
         <>
-            <div className="d-flex justify-content-end mb-2">
-                {/* Puedes incluir el FiltroBuscador aquí si lo requieres */}
-            </div>
+            <div className="d-flex justify-content-end mb-2"></div>
             <ScrollableContainer>
-            <StyledTable striped hover className="mt-2">
+                <StyledTable striped hover className="mt-2">
                     <CustomTableHeader>
                         <tr>
                             <th>Modelo</th>
@@ -135,7 +132,7 @@ const TablaModelos = ({
                         {currentModelos.map((item) => (
                             <tr key={item.id}>
                                 <td>{item.modelo}</td>
-                                <td>{item.marca.nombre}</td>
+                                <td>{item.marca?.nombre || "N/A"}</td>
                                 <td>{item.matricula}</td>
                                 <td>{item.precio}</td>
                                 <td>{item.year}</td>
@@ -174,5 +171,6 @@ const TablaModelos = ({
         </>
     );
 };
+
 
 export default TablaModelos;

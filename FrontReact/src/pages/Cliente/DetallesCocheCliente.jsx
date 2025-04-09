@@ -240,22 +240,60 @@ const DetallesCocheCliente = () => {
 
   if (!car) return <p>Coche no encontrado</p>;
 
-  const handleCompra = () => {
-    // Obtener el cliente del localStorage o del contexto de autenticación
-    const cliente = JSON.parse(localStorage.getItem('user')); // Ajusta según tu implementación
-    
-    navigate("/resumen-compra", {
-      state: {
+  const handleCompra = async () => {
+    try {
+      // 1. Preparar datos de la compra
+      const cliente = JSON.parse(localStorage.getItem("user"));
+      if (!cliente) {
+        alert("Debes iniciar sesión para completar la compra");
+        navigate("/login");
+        return;
+      }
+  
+      const resumenVenta = {
         cliente: cliente,
         coche: car,
-        fecha: new Date().toLocaleDateString(),
+        fecha: new Date().toISOString(),
         servicios: selectedServices,
         totalAuto: car.precio,
         totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
         totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
-      },
-    });
+      };
+  
+      // 2. Guardar en localStorage y sessionStorage (backup)
+      localStorage.setItem("resumenCompra", JSON.stringify(resumenVenta));
+      sessionStorage.setItem("tempResumenCompra", JSON.stringify(resumenVenta));
+  
+      // 3. Abrir nueva pestaña con el resumen (usando URL absoluta)
+      const nuevaVentana = window.open(
+        `${window.location.origin}/cliente/resumen-compra`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+  
+      // 4. Manejar caso donde el navegador bloquea popups
+      if (!nuevaVentana || nuevaVentana.closed || typeof nuevaVentana.closed === "undefined") {
+        // Primero navegar al resumen
+        navigate("/cliente/resumen-compra");
+        // Luego redirigir a home después de un breve retraso
+        setTimeout(() => {
+          navigate("/cliente/home");
+        }, 100);
+        return;
+      }
+  
+      // 5. Redirigir a home en la pestaña actual
+      setTimeout(() => {
+        navigate("/cliente/home");
+      }, 300); // Pequeño delay para asegurar que la nueva ventana se abrió
+  
+    } catch (error) {
+      console.error("Error en el proceso de compra:", error);
+      alert("Ocurrió un error al procesar tu compra");
+    }
   };
+  
+  
 
   return (
     <>
@@ -266,7 +304,7 @@ const DetallesCocheCliente = () => {
             <CarImage src={car.imagen || "default_image_url.jpg"} alt={car.modelo} />
             <CarInfo>
               <CarTitle>{car.modelo}</CarTitle>
-              <CarYear>Año: {car.year}</CarYear>
+              <CarYear>Añoooo: {car.year}</CarYear>
               <Price>Precio: ${car.precio.toLocaleString()} MXN</Price>
               <BuyButton onClick={handleCompra}>Comprar</BuyButton>
             </CarInfo>

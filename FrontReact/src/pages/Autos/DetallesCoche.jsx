@@ -290,7 +290,7 @@ const [selectedCliente, setSelectedCliente] = useState(null);
           
           Swal.fire({
               title: "Registro Exitoso",
-              text: 'Gracias por comprar con nosotros, eres insano',
+              text: 'Gracias por comprar con nosotros',
               icon: "success",
               confirmButtonColor: "#018180",
           });
@@ -460,51 +460,70 @@ console.log(venta)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const vendeYa = () =>{
-  console.log("mira man, en teoria ya se debe vender")
+const vendeYa = () => {
+  console.log("Iniciando proceso de compra...");
   Swal.fire({
-          title:"¡Gran elección!",
-          text: "¿Desea continuar con la compra?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonText: "Aceptar",
-          cancelButtonText: "Cancelar",
-          customClass: {
-            confirmButton: 'btn-swal-confirmar',
-            cancelButton: 'btn-swal-cancelar'
-          },
-          buttonsStyling: false, // Esto evita que SweetAlert2 sobrescriba los estilos
-          reverseButtons: true
+    title: "¡Gran elección!",
+    text: "¿Desea continuar con la compra?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Aceptar",
+    cancelButtonText: "Cancelar",
+    customClass: {
+      confirmButton: 'btn-swal-confirmar',
+      cancelButton: 'btn-swal-cancelar'
+    },
+    buttonsStyling: false,
+    reverseButtons: true
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      // 1. Preparar datos de la compra
+      const resumenCompra = {
+        cliente: cliente,
+        coche: car,
+        fecha: new Date().toLocaleDateString(),
+        servicios: selectedServices,
+        totalAuto: car.precio,
+        totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
+        totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
+        agente: agenteAgregadoAhorite
+      };
+
+      // 2. Guardar en localStorage y sessionStorage
+      localStorage.setItem("resumenCompra", JSON.stringify(resumenCompra));
+      sessionStorage.setItem("tempResumenCompra", JSON.stringify(resumenCompra));
+
+      // 3. Procesar la venta en el backend primero
+      try {
+        await venderUnAutoInsano();
+        await ActualizarEstadoDeUnAutoInsano();
         
+        // 4. Abrir nueva pestaña con el resumen
+        const nuevaVentana = 
+        window.open(`${window.location.origin}/cliente/resumen-compra`, "_blank");
         
+        // 5. Limpiar el historial de navegación y redirigir
+        if (window.history) {
+          window.history.replaceState(null, null, "/cliente/home");
+        }
+        navigate("/cliente/home", { replace: true });
         
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // Si el usuario confirma la compra, redirigimos a la página de resumen
-            navigate("/resumen-compra", {
-              state: {
-                cliente: selectedCliente,
-                coche: car,
-                fecha: new Date().toLocaleDateString(),
-                servicios: selectedServices,
-                totalAuto: car.precio,
-                totalServicios: selectedServices.reduce((acc, service) => acc + service.price, 0),
-                totalFinal: car.precio + selectedServices.reduce((acc, service) => acc + service.price, 0),
-                agente: agenteAgregadoAhorite
-              },
-            });
-            //console.log("Objeto de la venta desdel el dulce alert")
-            //console.log(venta);
-            //useEffect(()=>{
-              venderUnAutoInsano()
-              ActualizarEstadoDeUnAutoInsano()
-            //},[])
-          } else {
-            // Si el usuario cancela, no pasa nada
-            console.log("Compra cancelada por el usuario");
-          }
+        // 6. Limpiar el resumen después de 5 segundos
+        setTimeout(() => {
+          sessionStorage.removeItem("tempResumenCompra");
+        }, 5000);
+        
+      } catch (error) {
+        console.error("Error al procesar la venta:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Ocurrió un error al procesar la compra. Por favor intente nuevamente.",
+          icon: "error"
         });
-}
+      }
+    }
+  });
+};
 
 
 
