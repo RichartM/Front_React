@@ -42,6 +42,8 @@ const StyledTable = styled(Table)`
 `;
 
 const TablaEnEspera = ({ autos = [], onAprobar }) => {
+  console.log("Insaniiiiisimos",autos)
+  console.log("..................................................................................")
   return (
     <StyledTable striped  hover responsive>
       <thead>
@@ -49,19 +51,21 @@ const TablaEnEspera = ({ autos = [], onAprobar }) => {
           <th>Modelo</th>
           <th>Marca</th>
           <th>Matricula</th>
-          <th>Precio (MXN)</th>
           <th>Correo</th>
+          <th>Precio (MXN)</th>
+          
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         {autos.map((auto, i) => (
           <tr key={i}>
-            <td>{auto.modelo}</td>
-            <td>{auto.marca.nombre}</td>
-            <td>{auto.matricula || auto.nombre || "Sin nombre"}</td>
-            <td>${auto.precio.toLocaleString()}</td>
-            <td>{auto.correo}</td>
+            <td>{auto.vehiculo.modelo}</td>
+            <td>{auto.vehiculo.marca.nombre}</td>
+            <td>{auto.cliente.name+" "+auto.cliente.lastname}</td>
+            
+            <td>{auto.cliente.email}</td>
+            <td>${auto.vehiculo.precio?.toLocaleString()}</td>
             <td>
               <div className="btn-wrapper">
                 <Button className="btn-atender" onClick={() => onAprobar(auto.id)}>

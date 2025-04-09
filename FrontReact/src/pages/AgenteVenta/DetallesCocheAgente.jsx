@@ -282,7 +282,9 @@
         date :new Date(),
         cliente:{},
         vehiculo:{},
-        agente:{}
+        agente:{},
+        total:0,
+        ventaServicios:[]
       }
     )
     const [autoAct, setAutoct] = useState(null)
@@ -290,15 +292,19 @@
 
 
     const venderUnAutoInsano = async () => {
+      const ventaActualizado = {
+        ...venta,
+        ventaServicios : selectedServices.map(s => ({ servicio: { id: s.id } }))
+      };
       try {
-          await axios.post('http://localhost:8080/ventas/vender', venta, {
+          await axios.post('http://localhost:8080/ventas/vender', ventaActualizado, {
               headers: {
                   Authorization: `Bearer ${localStorage.getItem('token')}`,
                   'Content-Type': 'application/json',
               },
           });
           
-
+          console.log("venta data contraa la salubridad ",ventaActualizado)
           
           Swal.fire({
               title: "Registro exitoso",
@@ -324,8 +330,11 @@
     //setAutoct((prevAuto)=>({...prevAuto, estado:3}))
     const autoActualizado = {
       ...venta.vehiculo,
-      estado: {id:3,nombre:'Vendido'},
-  };
+      estado: { id: 3, nombre: 'Vendido' },
+      precio: car.precio // Reemplaza 'nuevoPrecio' con el valor que quieras asignar
+      //ventaServicios : selectedServices.map(s => ({ servicio: { id: s.id } }))
+    };
+    
     try {
         await axios.put(`http://localhost:8080/vehiculo/actualizar/${venta.vehiculo.id}`, autoActualizado, {
             headers: {
@@ -334,7 +343,7 @@
             },
         });
         
-
+        console.log("datos de la venta segun registrados ",autoActualizado)
         
         
 

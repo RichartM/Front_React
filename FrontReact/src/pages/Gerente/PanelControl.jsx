@@ -159,7 +159,7 @@ export default function PanelControl() {
   const a = []
   const [showHistorialModal, setShowHistorialModal] = useState(false);
   const [historialVentas, setHistorialVentas] = useState([]);
-
+  const [ventasCarros,setVentasCarros] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token'); // Obtener el token del localStorage
@@ -232,8 +232,37 @@ export default function PanelControl() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log("respuesta del api con los autos vendidos: ", response.data)
+        console.log("respuesta de carros vendidos: ", response.data)
         setAutosVendidos(response.data);
+        return response.data
+
+      } catch (error) {
+        console.error("Error al obtener clientes:", error);
+      } finally {
+        //setLoading(false);
+      }
+    } else {
+      console.log("No se encontró el token");
+      //setLoading(false);
+    }
+  };
+
+
+
+
+
+
+  const buscarTodasLasVentas = async () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      try {
+        const response = await axios.get(" http://localhost:8080/ventas/obtenerTodas", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log("respuesta del api con los autos vendidos: ", response.data)
+        setVentasCarros(response.data);
         return response.data
 
       } catch (error) {
@@ -250,6 +279,7 @@ export default function PanelControl() {
 
   useEffect(() => {
     buscarAutosVendidos();
+    buscarTodasLasVentas();
   }, []);
 
   a.push(...modelosReales)
@@ -321,12 +351,12 @@ export default function PanelControl() {
                   {a.map((marca, index) => (
                     <tr key={index}>
                       <td>{marca.modelo}</td>
-                      <td>{marca.marca.nombre}</td>
+                      <td>{marca.marca?.nombre}</td>
                       <td>{marca.matricula}</td>
                       <td>{marca.precio}</td>
                       <td>{marca.year}</td>
                       <td>{marca.color}</td>
-                      <td> {marca.estado.nombre}</td>
+                      <td> {marca.estado?.nombre}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -356,14 +386,14 @@ export default function PanelControl() {
                     </tr>
                   </CustomTableHeader>
                   <tbody>
-                    {historialVentas.map((venta, i) => (
+                    {ventasCarros.map((venta, i) => (
                       <tr key={i}>
                         <td>{venta.vehiculo?.modelo}</td>
                         <td>{venta.vehiculo?.marca?.nombre}</td>
-                        <td>{venta.cliente?.name}</td>
-                        <td>{venta.agente?.name}</td>
+                        <td>{venta.cliente?.name+" "+venta.cliente?.lastname}</td>
+                        <td>{venta.agente?.name+" "+venta.agente?.lastname+" "+venta.agente.surname}</td>
                         <td>{venta.date}</td>
-                        <td>${venta.precioFinal}</td>
+                        <td>${venta.vehiculo.precio.toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>

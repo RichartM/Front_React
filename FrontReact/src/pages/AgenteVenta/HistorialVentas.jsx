@@ -77,6 +77,7 @@ export default function HistorialVentas() {
     useEffect(() => {
         if (agenteAgregadoAhorita) {
             ventasHistorial();
+            buscarAutosEnEspera();
         }
     }, [agenteAgregadoAhorita]);
 
@@ -97,10 +98,10 @@ export default function HistorialVentas() {
 
     const buscarAutosEnEspera = async () => {
       const token = localStorage.getItem("token");
-    
+     
       if (token) {
           try {
-              const response = await axios.get(" http://localhost:8080/vehiculo/estados?estados=En espera", {
+              const response = await axios.get(` http://localhost:8080/ventas/agenteAndEstado/${agenteAgregadoAhorita.id}/En espera`, {
                   headers: { Authorization: `Bearer ${token}` },
               });
     
@@ -121,7 +122,9 @@ export default function HistorialVentas() {
     
     
     useEffect(() => {
-      buscarAutosEnEspera();
+        
+        //buscarAutosEnEspera();
+            
     }, []);
 
     return (

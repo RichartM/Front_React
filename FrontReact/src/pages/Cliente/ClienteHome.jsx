@@ -201,10 +201,10 @@ const ClienteHistorial = () => {
                         <td>{auto.vehiculo.modelo}</td>
                         <td>{auto.vehiculo.marca.nombre}</td>
                         <td>{auto.vehiculo.matricula}</td>
-                        <td>${auto.price}</td>
+                        <td>${auto.vehiculo.precio.toLocaleString()}</td>
                         <td>{auto.date}</td>
 
-                        <td>{auto.vehiculo.ventaServicios?.length}</td>
+                        <td>{auto.ventaServicios?.length}</td>
                         <td>
                           <AiOutlineFileSearch
                             size={35}

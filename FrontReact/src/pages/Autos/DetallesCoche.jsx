@@ -265,7 +265,8 @@ const [selectedCliente, setSelectedCliente] = useState(null);
         date :new Date(),
         cliente:{},
         vehiculo:{},
-        agente:{}
+        agente:{},
+        ventaServicios:[]
       }
     )
     const [autoAct, setAutoct] = useState(null)
@@ -273,8 +274,12 @@ const [selectedCliente, setSelectedCliente] = useState(null);
 
 
     const venderUnAutoInsano = async () => {
+      const ventaActualizado = {
+        ...venta,
+        ventaServicios : selectedServices.map(s => ({ servicio: { id: s.id } }))
+      };
       try {
-          await axios.post('http://localhost:8080/ventas/vender', venta, {
+          await axios.post('http://localhost:8080/ventas/vender', ventaActualizado, {
               headers: {
                   Authorization: `Bearer ${localStorage.getItem('token')}`,
                   'Content-Type': 'application/json',

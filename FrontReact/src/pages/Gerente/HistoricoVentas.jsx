@@ -1,9 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Table, Button } from "react-bootstrap";
 import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
+import axios from 'axios'
 
 const HistoricoVentas = ({ show, onHide, agente }) => {
   // Datos de ejemplo para el historial de ventas
+  console.log("prueba para ver si se muestran el id agente: "+agente.id)
+  const [historialVentas,setHistorialVentas] = useState([])
+
+
+  const ventasHistorial = async () => {
+    const token = localStorage.getItem("token");
+    console.log("consultando el historial")
+    if (token /*&& agenteAgregadoAhorita*/) {
+        try {
+            const response = await axios.get(`http://localhost:8080/ventas/porAgente/${agente.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setHistorialVentas(response.data);
+            console.log("informacion reelevante del server para el modal emergente",response.data)
+        } catch (error) {
+            console.error("Error al obtener historial de ventas:", error);
+        }
+    }
+};
+
+ useEffect(() => {
+    ventasHistorial();
+  }, []);
+
+
   const [historicoVentas, setHistoricoVentas] = useState([
     {
       id: 1,
@@ -69,18 +95,16 @@ const HistoricoVentas = ({ show, onHide, agente }) => {
               <th>Cliente</th>
               <th>Fecha de Venta</th>
               <th>Precio</th>
-              <th>Extra</th>
             </tr>
           </thead>
           <tbody>
-            {filteredVentas.map((venta) => (
+            {historialVentas.map((venta) => (
               <tr key={venta.id}>
-                <td>{venta.modelo}</td>
-                <td>{venta.marca}</td>
-                <td>{venta.cliente}</td>
-                <td>{venta.fecha}</td>
-                <td>{venta.precio}</td>
-                <td>{venta.extra}</td>
+                <td>{venta.vehiculo.modelo}</td>
+                <td>{venta.vehiculo.marca.nombre}</td>
+                <td>{venta.cliente.nomre+" "+venta.cliente.lastname}</td>
+                <td>{venta.date}</td>
+                <td>{venta.vehiculo.precio}</td>
               </tr>
             ))}
           </tbody>

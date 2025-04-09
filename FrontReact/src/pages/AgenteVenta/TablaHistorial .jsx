@@ -65,8 +65,8 @@ const TablaHistorial = ({ historial = [] }) => {
             <tr key={i}>
               <td>{auto?.vehiculo.modelo}</td>
               <td>{auto?.vehiculo.marca.nombre}</td>
-              <td>{auto?.cliente.name}</td>
-              <td>${auto?.precioFinal}</td>
+              <td>{auto?.cliente.name+" "+auto.cliente.lastname}</td>
+              <td>${auto?.vehiculo.precio.toLocaleString()}</td>
               <td>{auto?.date}</td>
               <td>
                 <Button className="btn-ver" onClick={() => handleVerDetalles(auto)}>
@@ -90,8 +90,8 @@ const TablaHistorial = ({ historial = [] }) => {
             <div>
               <p><strong>Modelo:</strong> {detalleSeleccionado.vehiculo.modelo}</p>
               <p><strong>Marca:</strong> {detalleSeleccionado.vehiculo.marca.nombre}</p>
-              <p><strong>Cliente:</strong> {detalleSeleccionado.cliente.name}</p>
-              <p><strong>Precio Final:</strong> ${detalleSeleccionado.precioFinal}</p>
+              <p><strong>Cliente:</strong> {detalleSeleccionado.cliente.name+" "+detalleSeleccionado.cliente.lastname}</p>
+              <p><strong>Precio Final:</strong> ${detalleSeleccionado.vehiculo.precio.to}</p>
               <p><strong>Fecha:</strong> {detalleSeleccionado.date}</p>
               {/* Puedes añadir más campos si los tienes */}
             </div>
