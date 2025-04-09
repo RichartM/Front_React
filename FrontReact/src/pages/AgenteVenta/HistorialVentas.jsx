@@ -5,7 +5,7 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
 import BootstrapPagination from '../../components/common/BootstrapPagination';
 import styled from 'styled-components';
-
+import ClientesNuevos from './ClientesNuevos';
 
 import axios from 'axios';
 const CardContainer = styled.div`
@@ -167,6 +167,7 @@ export default function HistorialVentas() {
     }
   }, [agenteAgregadoAhorita]);
 
+
   const handleAprobar = (autoId) => {
     console.log("Aprobar auto con ID:", autoId);
   };
@@ -206,6 +207,19 @@ export default function HistorialVentas() {
             >
               Autos en espera
             </div>
+            <div
+              onClick={() => setActiveTab('newCli')}
+              style={{
+                color: '#018180',
+                padding: '10px 20px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                backgroundColor: activeTab === 'newCli' ? '#d0f0f0' : 'transparent',
+                borderRadius: '5px',
+              }}
+            >
+              Clientes Nuevos
+            </div>
           </div>
         </Col>
       </Row>
@@ -219,6 +233,9 @@ export default function HistorialVentas() {
             {activeTab === 'espera' && (
               <FiltroBuscador onSearch={handleSearchEspera} placeholder="Buscar en autos en espera..." />
             )}
+            {activeTab === 'newCli' && (
+              <FiltroBuscador onSearch={handleSearchEspera} placeholder="Buscar en autos en espera..." />
+            )}
           </Col>
         </Row>
 
@@ -230,6 +247,10 @@ export default function HistorialVentas() {
 
             {activeTab === 'espera' && (
               <TablaEnEspera autos={esperaVisible} onAprobar={handleAprobar} onEliminar={handleEliminar} />
+            )}
+
+            {activeTab === 'newCli' && (
+              <ClientesNuevos autos={esperaVisible} onAprobar={handleAprobar} onEliminar={handleEliminar} />
             )}
           </CardContainer>
           <BootstrapPagination

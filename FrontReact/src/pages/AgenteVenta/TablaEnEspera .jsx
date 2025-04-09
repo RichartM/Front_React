@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState,useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import styled from "styled-components";
 import { BiSolidUserVoice } from "react-icons/bi";
 import Swal from "sweetalert2";
+import axios from 'axios'
 
 const StyledTable = styled(Table)`
   th {
@@ -42,8 +43,108 @@ const StyledTable = styled(Table)`
   }
 `;
 
+
+
+
 const TablaEnEspera = ({ autos = [], onAprobar }) => {
-  const handleAtender = (autoId) => {
+console.log("esto trae los auts: ",autos)
+
+const [clienteSinAgente, setClientesSinAgente] = useState([])
+const [ventas, setVentas] = useState([])
+const [ventasSinAgente, setVentasSinAgente] = useState([]);
+
+
+
+
+  const ActualizarEstadoDeUnAutoInsano = async (au) => {
+
+    const autoActualizado = {
+      ...au.vehiculo,
+      estado: { id: 3, nombre: 'Vendido' }
+    };
+    
+    try {
+        await axios.put(`http://localhost:8080/vehiculo/actualizar/${au.vehiculo.id}`, autoActualizado, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        console.log("carro actualizado ",autoActualizado)
+        
+        
+
+    } catch (error) {
+        console.error("Error Al cambiar el estado del auto:", error);
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo completar el registro. Inténtalo de nuevo.",
+            icon: "error",
+            confirmButtonColor: "#d33",
+        });
+    }
+    
+};
+
+
+const ventasHistorial = async () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/ventas/obtenerTodas`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setVentas(response.data);
+      console.log("ventasTodas :",response.data)
+    } catch (error) {
+      console.error("Error al obtener historial de ventas:", error);
+    }
+  }
+};
+
+
+const clientesSinAg = async () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/cliente/null`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setClientesSinAgente(response.data);
+      console.log("clientesSinAgente :",response.data)
+
+    } catch (error) {
+      console.error("Error al obtener historial de ventas:", error);
+    }
+  }
+};
+
+useEffect(() => {
+  clientesSinAg();
+  ventasHistorial();
+}, []);
+
+
+useEffect(() => {
+  const coincidencias = [];
+
+  clienteSinAgente.forEach(cliente => {
+    const venta = ventas.find(v => v.id === cliente.id);
+    if (venta) {
+      coincidencias.push({ cliente, venta });
+    }
+  });
+
+  setVentasSinAgente(coincidencias);
+}, [clienteSinAgente, ventas]);
+
+console.log("ventas sin agente: ",ventasSinAgente)
+
+
+  const handleAtender = (auto) => {
     Swal.fire({
       title: '¿Atender compra?',
       text: "¿Estás seguro de que deseas atender esta compra del cliente?",
@@ -61,7 +162,9 @@ const TablaEnEspera = ({ autos = [], onAprobar }) => {
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        onAprobar(autoId);
+        console.log("verifiacndo que se manipule el registro", auto)
+        ActualizarEstadoDeUnAutoInsano(auto)
+        onAprobar(auto.id);
         Swal.fire(
           '¡Atendido!',
           'La compra ha sido atendida correctamente.',
@@ -95,7 +198,7 @@ const TablaEnEspera = ({ autos = [], onAprobar }) => {
               <div className="btn-wrapper">
                 <Button 
                   className="btn-atender" 
-                  onClick={() => handleAtender(auto.id)}
+                  onClick={() => handleAtender(auto)}
                 >
                   <BiSolidUserVoice size={16} />
                   Atender
