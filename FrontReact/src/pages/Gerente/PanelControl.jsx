@@ -7,6 +7,8 @@ import CardAutosEspera from './CardsInformativos/CardAutosEspera'
 import CardAutosDisponibles from './CardsInformativos/CardAutosDiponibles'
 import CardAutosVendidos from './CardsInformativos/CardAutosVendidos'
 import CardTotalAutos from './CardsInformativos/CardTotalAutos'
+import BootstrapPagination from '../../components/common/BootstrapPagination';
+
 import { useState, useEffect } from 'react';
 import axios from "axios"
 
@@ -152,14 +154,102 @@ const StyledWrapper = styled.div`
 
 export default function PanelControl() {
 
-  ///OBTENIENDO LOS MODELOS DE LA BASE DE DARTO
-  const [modelosReales, setModelosREales] = useState([])
-  const [autosVendidos, setAutosVendidos] = useState([])
-  const [autosVendEspe, setAutosVendEspe] = useState([])
-  const a = []
+  // Estados principales
+  const [modelosReales, setModelosREales] = useState([]);
+  const [autosVendidos, setAutosVendidos] = useState([]);
+  const [autosCombinados, setAutosCombinados] = useState([]);
   const [showHistorialModal, setShowHistorialModal] = useState(false);
   const [historialVentas, setHistorialVentas] = useState([]);
-  const [ventasCarros,setVentasCarros] = useState([]);
+  const [ventasCarros, setVentasCarros] = useState([]);
+
+  // Estados de búsqueda y paginación
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredAutos, setFilteredAutos] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Estados específicos para el historial
+  const [historialSearchTerm, setHistorialSearchTerm] = useState("");
+  const [filteredHistorial, setFilteredHistorial] = useState([]);
+  const [historialCurrentPage, setHistorialCurrentPage] = useState(1);
+  const historialItemsPerPage = 5;
+
+
+  // Función de búsqueda para el historial
+  const handleHistorialSearch = (term) => {
+    setHistorialSearchTerm(term);
+    setHistorialCurrentPage(1); // Resetear a la primera página al buscar
+    
+    if (!term.trim()) {
+      setFilteredHistorial([]);
+      return;
+    }
+
+    const lowerTerm = term.toLowerCase();
+    const filtered = ventasCarros.filter((venta) => {
+      return (
+        venta.vehiculo?.modelo?.toLowerCase().includes(lowerTerm) ||
+        venta.vehiculo?.marca?.nombre?.toLowerCase().includes(lowerTerm) ||
+        venta.cliente?.name?.toLowerCase().includes(lowerTerm) ||
+        venta.cliente?.lastname?.toLowerCase().includes(lowerTerm) ||
+        venta.agente?.name?.toLowerCase().includes(lowerTerm) ||
+        venta.date?.toLowerCase().includes(lowerTerm) ||
+        venta.vehiculo?.precio?.toString().includes(term)
+      );
+    });
+    
+    setFilteredHistorial(filtered);
+  };
+
+  // Combina los autos cuando se actualizan los modelos o autos vendidos
+  useEffect(() => {
+    setAutosCombinados([...modelosReales, ...autosVendidos]);
+  }, [modelosReales, autosVendidos]);
+
+  // Obtener datos iniciales
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Obtener autos disponibles y en espera
+      axios.get('http://localhost:8080/vehiculo/estados?estados=Disponible&estados=En espera', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then(response => setModelosREales(response.data))
+        .catch(error => console.error('Error al obtener modelos:', error));
+
+      // Obtener autos vendidos
+      buscarAutosVendidos();
+
+      // Obtener historial de ventas
+      buscarTodasLasVentas();
+    }
+  }, []);
+
+  // Función de búsqueda mejorada
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1); // Siempre volver a la página 1 al buscar
+
+    if (!term.trim()) {
+      setFilteredAutos([]);
+      return;
+    }
+
+    const lowerTerm = term.toLowerCase();
+    const filtered = autosCombinados.filter((auto) => {
+      return (
+        auto.modelo?.toLowerCase().includes(lowerTerm) ||
+        auto.marca?.nombre?.toLowerCase().includes(lowerTerm) ||
+        auto.matricula?.toLowerCase().includes(lowerTerm) ||
+        auto.precio?.toString().includes(term) ||
+        auto.year?.toString().includes(term) ||
+        auto.color?.toLowerCase().includes(lowerTerm)
+      );
+    });
+
+    setFilteredAutos(filtered);
+  };
+
 
   useEffect(() => {
     const token = localStorage.getItem('token'); // Obtener el token del localStorage
@@ -178,25 +268,6 @@ export default function PanelControl() {
     }
   }, []);
 
-  /*
-  USA ESTE PARA REMPLAZAR EL ENPOINT TOMI
-  const obtenerHistorialVentas = async () => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      try {
-        const response = await axios.get("http://localhost:8080/ventas/todas", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log("Ventas:", response.data);
-        setHistorialVentas(response.data);
-        setShowHistorialModal(true);
-      } catch (error) {
-        console.error("Error al obtener el historial de ventas:", error);
-      }
-    }
-  };
-  */
 
   //Aqui solo los simule
   const obtenerHistorialVentas = async () => {
@@ -216,11 +287,12 @@ export default function PanelControl() {
         precioFinal: 290000,
       },
     ];
-  
+
     setHistorialVentas(ventasDummy);
     setShowHistorialModal(true);
   };
-  
+
+  // Función de búsqueda mejorada
 
 
   const buscarAutosVendidos = async () => {
@@ -282,11 +354,27 @@ export default function PanelControl() {
     buscarTodasLasVentas();
   }, []);
 
-  a.push(...modelosReales)
-  a.push(...autosVendidos)
 
-  console.log("data de los autos: ", a)
+
   //setAutosVendEspe(autosVendidos)
+
+  // Datos a mostrar (filtrados o todos)
+  const autosAMostrar = searchTerm ? filteredAutos : autosCombinados;
+
+  // Cálculo de paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentAutos = autosAMostrar.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(autosAMostrar.length / itemsPerPage);
+  ///////////////////////////////////////////////////////////////
+  // Datos a mostrar en el historial (filtrados o todos)
+  const historialAMostrar = historialSearchTerm ? filteredHistorial : ventasCarros;
+
+  // Cálculo de paginación para el historial
+  const historialLastItem = historialCurrentPage * historialItemsPerPage;
+  const historialFirstItem = historialLastItem - historialItemsPerPage;
+  const currentHistorial = historialAMostrar.slice(historialFirstItem, historialLastItem);
+  const totalHistorialPages = Math.ceil(historialAMostrar.length / historialItemsPerPage);
   return (
     <>
       <GlobalStyle />
@@ -320,8 +408,10 @@ export default function PanelControl() {
         <Card>
           <Row className="mb-3">
             <Col className="d-flex justify-content-start">
-              <FiltroBuscador placeholder="Buscar..." />
-
+              <FiltroBuscador
+                onSearch={handleSearch}
+                placeholder="Buscar..."
+              />
             </Col>
           </Row>
           <Row className="mb-1">
@@ -348,65 +438,111 @@ export default function PanelControl() {
                 </CustomTableHeader>
 
                 <tbody>
-                  {a.map((marca, index) => (
-                    <tr key={index}>
-                      <td>{marca.modelo}</td>
-                      <td>{marca.marca?.nombre}</td>
-                      <td>{marca.matricula}</td>
-                      <td>{marca.precio}</td>
-                      <td>{marca.year}</td>
-                      <td>{marca.color}</td>
-                      <td> {marca.estado?.nombre}</td>
+                  {currentAutos.length > 0 ? (
+                    currentAutos.map((auto, index) => (
+                      <tr key={index}>
+                        <td>{auto.modelo}</td>
+                        <td>{auto.marca?.nombre}</td>
+                        <td>{auto.matricula}</td>
+                        <td>${auto.precio?.toLocaleString()}</td>
+                        <td>{auto.year}</td>
+                        <td>{auto.color}</td>
+                        <td>{auto.estado?.nombre}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="text-center">
+                        {searchTerm ? "No se encontraron resultados" : "No hay datos disponibles"}
+                      </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
+
               </Table>
 
             </div>
           </StyledWrapper>
+          {/* Paginación */}
+          <BootstrapPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}  // ← Usa setCurrentPage directamente
+          />
         </Card>
+
         <Modal show={showHistorialModal} onHide={() => setShowHistorialModal(false)} size="lg" centered>
-          <StyledWrapper>
-            <Modal.Header closeButton>
-              <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
-                Historial de Ventas
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <div className="scrollable-table">
-                <Table striped  hover>
-                  <CustomTableHeader>
-                    <tr>
-                      <th>Modelo</th>
-                      <th>Marca</th>
-                      <th>Cliente</th>
-                      <th>Vendedor</th>
-                      <th>Fecha</th>
-                      <th>Precio (MXN)</th>
-                    </tr>
-                  </CustomTableHeader>
-                  <tbody>
-                    {ventasCarros.map((venta, i) => (
+        <StyledWrapper>
+          <Modal.Header closeButton>
+            <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
+              Historial de Ventas
+            </Modal.Title>
+          </Modal.Header>
+          
+          {/* Buscador del historial */}
+          <p></p>
+          <div style={{ padding: '0 20px' , top: '10px'}}>
+            <FiltroBuscador
+              onSearch={handleHistorialSearch}
+              placeholder="Buscar en historial..."
+            />
+          </div>
+          
+          <Modal.Body>
+            <div className="scrollable-table">
+              <Table striped hover>
+                <CustomTableHeader>
+                  <tr>
+                    <th>Modelo</th>
+                    <th>Marca</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>Fecha</th>
+                    <th>Precio (MXN)</th>
+                  </tr>
+                </CustomTableHeader>
+                <tbody>
+                  {currentHistorial.length > 0 ? (
+                    currentHistorial.map((venta, i) => (
                       <tr key={i}>
                         <td>{venta.vehiculo?.modelo}</td>
                         <td>{venta.vehiculo?.marca?.nombre}</td>
-                        <td>{venta.cliente?.name+" "+venta.cliente?.lastname}</td>
-                        <td>{venta.agente?.name+" "+venta.agente?.lastname+" "+venta.agente.surname}</td>
+                        <td>{venta.cliente?.name} {venta.cliente?.lastname}</td>
+                        <td>{venta.agente?.name} {venta.agente?.lastname} {venta.agente?.surname}</td>
                         <td>{venta.date}</td>
-                        <td>${venta.vehiculo.precio.toLocaleString()}</td>
+                        <td>${venta.vehiculo?.precio?.toLocaleString()}</td>
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowHistorialModal(false)}>
-                Cerrar
-              </Button>
-            </Modal.Footer>
-          </StyledWrapper>
-        </Modal>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="text-center">
+                        {historialSearchTerm ? "No se encontraron resultados" : "No hay datos disponibles"}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            </div>
+          </Modal.Body>
+          
+          {/* Paginación del historial */}
+          {totalHistorialPages > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+              <BootstrapPagination
+                currentPage={historialCurrentPage}
+                totalPages={totalHistorialPages}
+                onPageChange={setHistorialCurrentPage}
+              />
+            </div>
+          )}
+          
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowHistorialModal(false)}>
+              Cerrar
+            </Button>
+          </Modal.Footer>
+        </StyledWrapper>
+      </Modal>
 
       </Container>
     </>

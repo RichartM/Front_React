@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Table, Button, Modal } from "react-bootstrap";
 import styled from "styled-components";
 import { FaEye } from "react-icons/fa6";
+import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
+
 
 const StyledTable = styled(Table)`
   th {
@@ -48,8 +50,11 @@ const TablaHistorial = ({ historial = [] }) => {
   };
 
   return (
+    
     <>
+    
       <StyledTable striped hover responsive>
+        
         <thead>
           <tr>
             <th>Modelo</th>
@@ -60,22 +65,30 @@ const TablaHistorial = ({ historial = [] }) => {
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          {historial?.map((auto, i) => (
-            <tr key={i}>
-              <td>{auto?.vehiculo.modelo}</td>
-              <td>{auto?.vehiculo.marca.nombre}</td>
-              <td>{auto?.cliente.name+" "+auto.cliente.lastname}</td>
-              <td>${auto?.vehiculo.precio.toLocaleString()}</td>
-              <td>{auto?.date}</td>
-              <td>
-                <Button className="btn-ver" onClick={() => handleVerDetalles(auto)}>
-                  <FaEye />
-                  Ver detalles
-                </Button>
+      <tbody>
+          {historial?.length > 0 ? (
+            historial.map((auto, i) => (
+              <tr key={i}>
+                <td>{auto?.vehiculo.modelo}</td>
+                <td>{auto?.vehiculo.marca.nombre}</td>
+                <td>{auto?.cliente.name+" "+auto.cliente.lastname}</td>
+                <td>${auto?.vehiculo.precio.toLocaleString()}</td>
+                <td>{auto?.date}</td>
+                <td>
+                  <Button className="btn-ver" onClick={() => handleVerDetalles(auto)}>
+                    <FaEye />
+                    Ver detalles
+                  </Button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" className="text-center">
+                No se encontraron resultados
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </StyledTable>
 

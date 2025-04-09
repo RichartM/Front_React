@@ -6,6 +6,10 @@ import { createGlobalStyle } from "styled-components";
 import AgregarServicios from "./AgregarServicios";
 import { AiOutlineFileSearch } from "react-icons/ai";
 import { GrHostMaintenance } from "react-icons/gr";
+import FiltroBuscador from '../../components/Filtros/FiltroBuscador';
+import BootstrapPagination from '../../components/common/BootstrapPagination';
+
+
 import axios from 'axios'
 
 
@@ -54,6 +58,13 @@ const ClienteHistorial = () => {
   const [showDetalleModal, setShowDetalleModal] = useState(false);
   const [selectedAuto, setSelectedAuto] = useState(null);
   const [showServicioModal, setShowServicioModal] = useState(false);
+  const [filteredVentas, setFilteredVentas] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+
 
   const autos = [
     { id: 1, modelo: "Toyota Corolla", año: 2020, historial: [{ producto: "Cambio de Aceite", fecha: "2024-03-10", precio: "$50", estado: "Completado" }] },
@@ -65,10 +76,31 @@ const ClienteHistorial = () => {
     setSelectedAuto(auto);
     setShowDetalleModal(true);
   };
-  
+
   const handleVerServicios = (auto) => {
     setSelectedAuto(auto);
     setShowServicioModal(true);
+  };
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1); // Resetear a la primera página al buscar
+    const lowerTerm = term.toLowerCase();
+
+    const filtered = historialVentas.filter((venta) => {
+      const { modelo, marca, matricula, precio } = venta.vehiculo;
+      const fecha = venta.date;
+
+      return (
+        modelo?.toLowerCase().includes(lowerTerm) ||
+        marca?.nombre?.toLowerCase().includes(lowerTerm) ||
+        matricula?.toLowerCase().includes(lowerTerm) ||
+        precio?.toString().includes(lowerTerm) ||
+        fecha?.toLowerCase().includes(lowerTerm)
+      );
+    });
+
+    setFilteredVentas(filtered);
   };
 
 
@@ -76,6 +108,8 @@ const ClienteHistorial = () => {
   const [userId, setUserId] = useState("")
   const [correo, setCorreoAgente] = useState("")
   const [historialVentas, setHistorialVentas] = useState([])
+  
+
   const [clientes, setClientes] = useState([])
 
   useEffect(() => {
@@ -159,6 +193,17 @@ const ClienteHistorial = () => {
     }
   }, [userId]);
 
+  const ventasAMostrar = searchTerm ? filteredVentas : historialVentas;
+
+  const ventasFiltradas = searchTerm ? filteredVentas : historialVentas;
+
+  // Cálculo de paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentVentas = ventasFiltradas.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(ventasFiltradas.length / itemsPerPage);
+
 
   return (
     <>
@@ -177,12 +222,16 @@ const ClienteHistorial = () => {
         >
           Historial de Compras de tus Autos
         </div>
+
         <Card className="mb-4">
           <StyledWrapper>
             <div className="scrollable-table">
               <CustomTableHeader>
+                <FiltroBuscador onSearch={handleSearch} placeholder="Buscar compra..." />
 
-                <Table striped hover>
+                <hr style={{ borderTop: '1px solid #ccc', margin: '10px 0' }} />
+
+                <Table striped hover className="mt-2">
                   <thead>
                     <tr>
                       <th>Modelo</th>
@@ -190,20 +239,18 @@ const ClienteHistorial = () => {
                       <th>Placa</th>
                       <th>Precio (MXN)</th>
                       <th>Fecha</th>
-                      <th>Cantida de Servicios </th>
-
+                      <th>Cantida de Servicios</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {historialVentas.map((auto) => (
+                    {currentVentas.map((auto) => (
                       <tr key={auto.id}>
                         <td>{auto.vehiculo.modelo}</td>
                         <td>{auto.vehiculo.marca.nombre}</td>
                         <td>{auto.vehiculo.matricula}</td>
                         <td>${auto.vehiculo.precio.toLocaleString()}</td>
                         <td>{auto.date}</td>
-
                         <td>{auto.ventaServicios?.length}</td>
                         <td>
                           <AiOutlineFileSearch
@@ -214,124 +261,134 @@ const ClienteHistorial = () => {
                         </td>
                       </tr>
                     ))}
-                  </tbody>
 
+
+                  </tbody>
                 </Table>
+
+
+
               </CustomTableHeader>
 
             </div>
           </StyledWrapper>
+          <BootstrapPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={paginate}
+          />
         </Card>
       </Container>
 
-      {/* Modal para Detalles de Compra */}
-      <Modal show={showDetalleModal} onHide={() => setShowDetalleModal(false)} size="lg" centered>
-  <StyledWrapper>
-    <Modal.Header closeButton>
-      <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
-        Detalles de la Compra
-      </Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      {selectedAuto ? (
-        <>
-          <p><strong>Modelo:</strong> {selectedAuto.vehiculo.modelo}</p>
-          <p><strong>Marca:</strong> {selectedAuto.vehiculo.marca.nombre}</p>
-          <p><strong>Matrícula:</strong> {selectedAuto.vehiculo.matricula}</p>
-          <p><strong>Precio:</strong> ${selectedAuto.price}</p>
-          <p><strong>Fecha de Compra:</strong> {selectedAuto.date}</p>
-
-          <hr />
-          <h5 style={{ color: "#018180" }}>Servicios Contratados</h5>
-          {selectedAuto.vehiculo.ventaServicios?.length > 0 ? (
-            <Table striped bordered hover size="sm">
-              <thead>
-                <tr>
-                  <th>Servicio</th>
-                  <th>Descripción</th>
-                  <th>Precio (MXN)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedAuto.vehiculo.ventaServicios.map((serv, idx) => (
-                  <tr key={idx}>
-                    <td>{serv.nombre}</td>
-                    <td>{serv.descripcion}</td>
-                    <td>${serv.precio}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          ) : (
-            <p>No hay servicios contratados para este auto.</p>
-          )}
-        </>
-      ) : (
-        <p>No hay información disponible.</p>
-      )}
-    </Modal.Body>
-    <Modal.Footer>
-      <Button variant="secondary" onClick={() => setShowDetalleModal(false)}>
-        Cerrar
-      </Button>
-    </Modal.Footer>
-  </StyledWrapper>
-</Modal>
-
 
       {/* Modal para Detalles de Compra */}
       <Modal show={showDetalleModal} onHide={() => setShowDetalleModal(false)} size="lg" centered>
-  <StyledWrapper>
-    <Modal.Header closeButton>
-      <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
-        Detalles de la Compra
-      </Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      {selectedAuto ? (
-        <>
-          <p><strong>Modelo:</strong> {selectedAuto.vehiculo.modelo}</p>
-          <p><strong>Marca:</strong> {selectedAuto.vehiculo.marca.nombre}</p>
-          <p><strong>Matrícula:</strong> {selectedAuto.vehiculo.matricula}</p>
-          <p><strong>Precio:</strong> ${selectedAuto.price}</p>
-          <p><strong>Fecha de Compra:</strong> {selectedAuto.date}</p>
+        <StyledWrapper>
+          <Modal.Header closeButton>
+            <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
+              Detalles de la Compra
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedAuto ? (
+              <>
+                <p><strong>Modelo:</strong> {selectedAuto.vehiculo.modelo}</p>
+                <p><strong>Marca:</strong> {selectedAuto.vehiculo.marca.nombre}</p>
+                <p><strong>Matrícula:</strong> {selectedAuto.vehiculo.matricula}</p>
+                <p><strong>Precio:</strong> ${selectedAuto.price}</p>
+                <p><strong>Fecha de Compra:</strong> {selectedAuto.date}</p>
 
-          <hr />
-          <h5 style={{ color: "#018180" }}>Servicios Contratados</h5>
-          {selectedAuto.vehiculo.ventaServicios?.length > 0 ? (
-            <Table striped bordered hover size="sm">
-              <thead>
-                <tr>
-                  <th>Servicio</th>
-                  <th>Descripción</th>
-                  <th>Precio (MXN)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedAuto.vehiculo.ventaServicios.map((serv, idx) => (
-                  <tr key={idx}>
-                    <td>{serv.nombre}</td>
-                    <td>{serv.descripcion}</td>
-                    <td>${serv.precio}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          ) : (
-            <p>No hay servicios contratados para este auto.</p>
-          )}
-        </>
-      ) : (
-        <p>No hay información disponible.</p>
-      )}
-    </Modal.Body>
-    <Modal.Footer>
-      <Button variant="secondary" onClick={() => setShowDetalleModal(false)}>
-        Cerrar
-      </Button>
-    </Modal.Footer>
-  </StyledWrapper>
-</Modal>
+                <hr />
+                <h5 style={{ color: "#018180" }}>Servicios Contratados</h5>
+                {selectedAuto.vehiculo.ventaServicios?.length > 0 ? (
+                  <Table striped bordered hover size="sm">
+                    <thead>
+                      <tr>
+                        <th>Servicio</th>
+                        <th>Descripción</th>
+                        <th>Precio (MXN)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedAuto.vehiculo.ventaServicios.map((serv, idx) => (
+                        <tr key={idx}>
+                          <td>{serv.nombre}</td>
+                          <td>{serv.descripcion}</td>
+                          <td>${serv.precio}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                ) : (
+                  <p>No hay servicios contratados para este auto.</p>
+                )}
+              </>
+            ) : (
+              <p>No hay información disponible.</p>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDetalleModal(false)}>
+              Cerrar
+            </Button>
+          </Modal.Footer>
+        </StyledWrapper>
+      </Modal>
+
+
+      {/* Modal para Detalles de Compra */}
+      <Modal show={showDetalleModal} onHide={() => setShowDetalleModal(false)} size="lg" centered>
+        <StyledWrapper>
+          <Modal.Header closeButton>
+            <Modal.Title style={{ color: "#018180", fontWeight: "bold" }}>
+              Detalles de la Compra
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedAuto ? (
+              <>
+                <p><strong>Modelo:</strong> {selectedAuto.vehiculo.modelo}</p>
+                <p><strong>Marca:</strong> {selectedAuto.vehiculo.marca.nombre}</p>
+                <p><strong>Matrícula:</strong> {selectedAuto.vehiculo.matricula}</p>
+                <p><strong>Precio:</strong> ${selectedAuto.price}</p>
+                <p><strong>Fecha de Compra:</strong> {selectedAuto.date}</p>
+
+                <hr />
+                <h5 style={{ color: "#018180" }}>Servicios Contratados</h5>
+                {selectedAuto.vehiculo.ventaServicios?.length > 0 ? (
+                  <Table striped bordered hover size="sm">
+                    <thead>
+                      <tr>
+                        <th>Servicio</th>
+                        <th>Descripción</th>
+                        <th>Precio (MXN)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedAuto.vehiculo.ventaServicios.map((serv, idx) => (
+                        <tr key={idx}>
+                          <td>{serv.nombre}</td>
+                          <td>{serv.descripcion}</td>
+                          <td>${serv.precio}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                ) : (
+                  <p>No hay servicios contratados para este auto.</p>
+                )}
+              </>
+            ) : (
+              <p>No hay información disponible.</p>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDetalleModal(false)}>
+              Cerrar
+            </Button>
+          </Modal.Footer>
+        </StyledWrapper>
+      </Modal>
 
 
 

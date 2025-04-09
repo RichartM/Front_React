@@ -143,7 +143,7 @@ const TablaModelos = ({
                                 <td>{item.estadoVehiculo ? "Activo" : "Inactivo"}</td>
                                 <td>
                                     <BsPencilSquare
-                                        className="text-primary me-2 fs-1"
+                                        className="text-primary me-5 fs-2"
                                         style={{ cursor: "pointer" }}
                                         onClick={() => onEdit(item, false)}
                                     />
