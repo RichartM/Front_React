@@ -247,37 +247,46 @@ useEffect(() => {
 console.log("ventas sin agente: ",ventasSinAgente)
 
 
-  const handleAtender = (auto) => {
-    Swal.fire({
-      title: '¿Atender compra?',
-      text: "¿Estás seguro de que deseas atender esta compra del cliente?",
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#018180',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, atender',
-      cancelButtonText: 'Cancelar',
-      background: '#fff',
-      iconColor: '#018180',
-      customClass: {
-        confirmButton: 'swal-confirm-button',
-        cancelButton: 'swal-cancel-button'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        console.log("verifiacndo que se manipule el registro", auto)
-        ActualizarEstadoDeUnAutoInsano(auto)
-        asociarGerenteCliente(auto)
+const handleAtender = (auto) => {
+  Swal.fire({
+    title: '¿Atender compra?',
+    text: "¿Estás seguro de que deseas atender esta compra del cliente?",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#018180',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, atender',
+    cancelButtonText: 'Cancelar',
+    background: '#fff',
+    iconColor: '#018180',
+    customClass: {
+      confirmButton: 'swal-confirm-button',
+      cancelButton: 'swal-cancel-button'
+    }
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        console.log("verifiacndo que se manipule el registro", auto);
+        await ActualizarEstadoDeUnAutoInsano(auto);
+        await asociarGerenteCliente(auto);
 
-        onAprobar(auto.id);
+        // ✅ Quitamos esa venta del estado
+        setVentasSinAgente(prev => prev.filter(v => v.venta.id !== auto.venta.id));
+
+        onAprobar(auto.id); // (si esto también manipula algo externo, lo puedes mantener)
+
         Swal.fire(
           '¡Atendido!',
           'La compra ha sido atendida correctamente.',
           'success'
         );
+      } catch (error) {
+        console.error("Error durante la atención de la compra:", error);
       }
-    });
-  };
+    }
+  });
+};
+
 
   return (
     <StyledTable striped hover responsive>

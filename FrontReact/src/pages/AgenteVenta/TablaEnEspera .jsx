@@ -53,6 +53,8 @@ const [clienteSinAgente, setClientesSinAgente] = useState([])
 const [ventas, setVentas] = useState([])
 const [ventasSinAgente, setVentasSinAgente] = useState([]);
 
+const [enEspera,setEnEspera] = useState(autos)
+
 
 
 
@@ -165,6 +167,10 @@ console.log("ventas sin agente: ",ventasSinAgente)
         console.log("verifiacndo que se manipule el registro", auto)
         ActualizarEstadoDeUnAutoInsano(auto)
         onAprobar(auto.id);
+
+
+        setEnEspera(prev => prev.filter(v => v.vehiculo.id !== auto.vehiculo.id));
+
         Swal.fire(
           '¡Atendido!',
           'La compra ha sido atendida correctamente.',
@@ -187,7 +193,7 @@ console.log("ventas sin agente: ",ventasSinAgente)
         </tr>
       </thead>
       <tbody>
-        {autos.map((auto, i) => (
+        {enEspera.map((auto, i) => (
           <tr key={i}>
             <td>{auto.vehiculo?.modelo || 'N/A'}</td>
             <td>{auto.vehiculo?.marca?.nombre || 'N/A'}</td>
