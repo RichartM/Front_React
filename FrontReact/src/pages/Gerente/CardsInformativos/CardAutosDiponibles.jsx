@@ -14,7 +14,7 @@ const CardAutosDisponibles = () => {
         console.log("token: "+token)
     
         if (token) {
-          axios.get('http://localhost:8080/vehiculo/estados?estados=Disponible', {
+          axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/estados?estados=Disponible', {
             headers: {
               Authorization: `Bearer ${token}`  // Usar el token en el encabezado
             }

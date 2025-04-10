@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080/api/auth/',
+  baseURL: 'https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/',
 });
 
 instance.interceptors.request.use(

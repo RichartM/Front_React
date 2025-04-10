@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/marcas'; // 🔹 Corrige la "M" mayúscula
+const API_URL = 'https://bwubka276h.execute-api.us-east-1.amazonaws.com/marcas'; // 🔹 Corrige la "M" mayúscula
 
 const AgenteService = {
   getAllBrands: async () => {

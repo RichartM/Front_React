@@ -96,7 +96,7 @@ export default function HistorialVentas() {
     if (token) {
       try {
         const response = await axios.get(
-          `http://localhost:8080/ventas/porAgente/${agenteAgregadoAhorita.id}`,
+          `https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/porAgente/${agenteAgregadoAhorita.id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setHistorialVentas(response.data);
@@ -111,7 +111,7 @@ export default function HistorialVentas() {
     if (token) {
       try {
         const response = await axios.get(
-          `http://localhost:8080/ventas/agenteAndEstado/${agenteAgregadoAhorita.id}/En espera`,
+          `https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/agenteAndEstado/${agenteAgregadoAhorita.id}/En espera`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setAutosEnEspera(response.data);
@@ -139,7 +139,7 @@ export default function HistorialVentas() {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+          const response = await axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/fullAgentes", {
             headers: { Authorization: `Bearer ${token}` },
           });
           setAgentes(response.data);

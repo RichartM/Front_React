@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/vehiculo/marca/id';
+const API_URL = 'https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/marca/id';
 
 const VehiculoService = {
   // ✅ Obtiene vehículos por ID de marca

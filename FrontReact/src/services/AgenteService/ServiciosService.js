@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/servicios"; // Asegúrate de que la URL es la correcta
+const API_URL = "https://bwubka276h.execute-api.us-east-1.amazonaws.com/servicios"; // Asegúrate de que la URL es la correcta
 
 const ServiciosService = {
     //  Obtener todos los servicios

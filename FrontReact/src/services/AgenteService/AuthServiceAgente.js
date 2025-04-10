@@ -1,7 +1,7 @@
 // src/services/AgenteService/AuthServiceAgente.js
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/auth/";
+const API_URL = "https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/";
 
 const getUserProfile = async () => {
   const token = localStorage.getItem("token");

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/servicios'; // Asegúrate de cambiar esta URL a la correcta si es diferente
+const API_URL = 'https://bwubka276h.execute-api.us-east-1.amazonaws.com/servicios'; // Asegúrate de cambiar esta URL a la correcta si es diferente
 
 // Función para obtener todos los servicios
 export const getServicios = (token) => {
@@ -24,7 +24,7 @@ export const addServicio = (nuevoServicio, token) => {
 // Función para actualizar un servicio
 export const updateServicio = (id, updatedServicio, token,noom) => {
     updateServicio.nomenclatura  = noom
-    return axios.put(`http://localhost:8080/servicios/actualizar/${id}`, updatedServicio, {
+    return axios.put(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/servicios/actualizar/${id}`, updatedServicio, {
         headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

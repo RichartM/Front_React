@@ -9,7 +9,7 @@
   export const BrandsProvider = ({ children }) => {
     const [brands, setBrands] = useState([]);
     useEffect(() => {
-      axios.get('http://localhost:8080/marcas/getAll')
+      axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/marcas/getAll')
         .then(response => {
           console.log("📢 Marcas obtenidas en BrandsContext:", response.data);
           setBrands(response.data);

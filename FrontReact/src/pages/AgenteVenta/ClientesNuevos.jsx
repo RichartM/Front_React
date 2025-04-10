@@ -61,7 +61,7 @@ const fetchAgentes = async () => {
 
   if (token) {
       try {
-          const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+          const response = await axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/fullAgentes", {
               headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -129,7 +129,7 @@ useEffect(() => {
     };
     
     try {
-        await axios.put(`http://localhost:8080/vehiculo/actualizar/${au.venta.vehiculo.id}`, autoActualizado, {
+        await axios.put(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/actualizar/${au.venta.vehiculo.id}`, autoActualizado, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ const asociarGerenteCliente = async (ve) => {
 
         // 4. Hacemos la solicitud PUT al backend
         await axios.put(
-            `http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${agenteAgregadoAhorita.id}&idCliente=${ve.cliente.id}`,
+            `https://bwubka276h.execute-api.us-east-1.amazonaws.com/clientes-agente/moverClienteAAgente?idNuevoAgente=${agenteAgregadoAhorita.id}&idCliente=${ve.cliente.id}`,
             {},
             {
                 headers: {
@@ -197,7 +197,7 @@ const ventasHistorial = async () => {
   if (token) {
     try {
       const response = await axios.get(
-        `http://localhost:8080/ventas/obtenerTodas`,
+        `https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/obtenerTodas`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setVentas(response.data);
@@ -214,7 +214,7 @@ const clientesSinAg = async () => {
   if (token) {
     try {
       const response = await axios.get(
-        `http://localhost:8080/cliente/null`,
+        `https://bwubka276h.execute-api.us-east-1.amazonaws.com/cliente/null`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setClientesSinAgente(response.data);

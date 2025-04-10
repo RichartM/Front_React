@@ -15,7 +15,7 @@ const CardTotalAutos = () => {
         console.log("token: "+token)
     
         if (token) {
-          axios.get('http://localhost:8080/vehiculo/estados?estados=disponible&estados=En espera', {
+          axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/estados?estados=disponible&estados=En espera', {
             headers: {
               Authorization: `Bearer ${token}`  // Usar el token en el encabezado
             }

@@ -281,7 +281,7 @@ export default function Servicios() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      axios.get("http://localhost:8080/servicios/obtener", {
+      axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/servicios/obtener", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -491,7 +491,7 @@ export default function Servicios() {
     console.log(nuevoServicio)
     nuevoServicio.nomenclatura = nomGenerada
     if (validateFields()) {
-      axios.post('http://localhost:8080/servicios/crear', nuevoServicio, {
+      axios.post('https://bwubka276h.execute-api.us-east-1.amazonaws.com/servicios/crear', nuevoServicio, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
@@ -550,7 +550,7 @@ export default function Servicios() {
     }).then((result) => {
         if (result.isConfirmed) {
             // Enviar solicitud PUT para actualizar el estado en el backend
-            axios.put(`http://localhost:8080/servicios/estado/${servicio.id}`, { estate: newState }, {
+            axios.put(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/servicios/estado/${servicio.id}`, { estate: newState }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json',
@@ -599,7 +599,7 @@ export default function Servicios() {
     console.log("token: " + token)
 
     if (token) {
-      axios.get('http://localhost:8080/modali/get', {
+      axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/modali/get', {
         headers: {
           Authorization: `Bearer ${token}`  // Usar el token en el encabezado
 

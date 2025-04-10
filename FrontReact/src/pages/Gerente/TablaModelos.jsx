@@ -73,7 +73,7 @@ const TablaModelos = ({
 
         try {
             const response = await axios.put(
-                `http://localhost:8080/vehiculo/estado/${item.id}`,
+                `https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/estado/${item.id}`,
                 { estadoVehiculo: newState },
                 {
                     headers: {

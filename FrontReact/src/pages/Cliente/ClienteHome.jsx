@@ -78,7 +78,7 @@ const ClienteHistorial = () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await axios.get("http://localhost:8080/cliente/buscar", {
+        const response = await axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/cliente/buscar", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setClientes(response.data);
@@ -107,7 +107,7 @@ const ClienteHistorial = () => {
     const token = localStorage.getItem("token");
     if (token && userId) {
       try {
-        const response = await axios.get(`http://localhost:8080/ventas/porCliente/${userId}`, {
+        const response = await axios.get(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/porCliente/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setHistorialVentas(response.data);

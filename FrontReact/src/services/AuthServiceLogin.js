@@ -1,7 +1,7 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 
-const API_URL = "http://localhost:8080/api/auth/";
+const API_URL = "https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/";
 let lastTokenCheck = null; // Almacena la última vez que se verificó el token
 let isLoggingOut = false; // Bandera para evitar múltiples redirecciones
 

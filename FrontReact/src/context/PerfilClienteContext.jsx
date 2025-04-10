@@ -9,7 +9,7 @@ export const PerfilClienteProvider = ({ children }) => {
   const updatePerfil = useCallback(async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get("http://localhost:8080/api/auth/perfilCliente", {
+      const response = await axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/perfilCliente", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -172,7 +172,7 @@ function GerenteMarcaModelo() {
     console.log("token: " + token)
 
 
-    axios.get('http://localhost:8080/modalidad/todos', {
+    axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/modalidad/todos', {
 
     })
       .then(response => {
@@ -190,7 +190,7 @@ function GerenteMarcaModelo() {
   useEffect(() => {
     const token = localStorage.getItem('token'); // Obtener el token del localStorage
     if (token) {
-      axios.get('http://localhost:8080/marcas/getAll', {
+      axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/marcas/getAll', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -265,7 +265,7 @@ function GerenteMarcaModelo() {
     nuevoModelo.marca = selectedMarca; // Usar el estado selectedMarca
     nuevoModelo.estado = { id: 1, nombre: "Disponible" };
 
-    axios.post('http://localhost:8080/vehiculo/crear', nuevoModelo, {
+    axios.post('https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/crear', nuevoModelo, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
@@ -296,7 +296,7 @@ function GerenteMarcaModelo() {
     //setMarcas([...marcas, newMarca]);
     //setShowMarcasModal(false);
     console.log("nueva marca: " + nuevaMarca.nombre)
-    axios.post('http://localhost:8080/marcas/post', nuevaMarca, {
+    axios.post('https://bwubka276h.execute-api.us-east-1.amazonaws.com/marcas/post', nuevaMarca, {
       headers: {
         Authorization: `Bearer  ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
@@ -355,7 +355,7 @@ function GerenteMarcaModelo() {
         } else {
           // Lógica para actualizar modelo
           const response = await axios.put(
-            `http://localhost:8080/vehiculo/actualizar/${selectedItem.id}`,
+            `https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/actualizar/${selectedItem.id}`,
             editedData,
             {
               headers: {
@@ -411,7 +411,7 @@ function GerenteMarcaModelo() {
 
         // Realizar el PUT para actualizar la marca
         const response = await axios.put(
-          `http://localhost:8080/marcas/put/${selectedItem.id}`,
+          `https://bwubka276h.execute-api.us-east-1.amazonaws.com/marcas/put/${selectedItem.id}`,
           updatedMarca,
           {
             headers: {
@@ -459,7 +459,7 @@ function GerenteMarcaModelo() {
 
   const handleToggleStatus = async (marca, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:8080/marcas/editEstado/${marca.id}`, {
+      const response = await fetch(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/marcas/editEstado/${marca.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -534,7 +534,7 @@ function GerenteMarcaModelo() {
     console.log("token: " + token)
 
     if (token) {
-      axios.get('http://localhost:8080/servicios/obtener', {
+      axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/servicios/obtener', {
         headers: {
           Authorization: `Bearer ${token}`  // Usar el token en el encabezado
         }
@@ -557,7 +557,7 @@ function GerenteMarcaModelo() {
   useEffect(() => {
     const token = localStorage.getItem('token'); // Obtener el token del localStorage
     if (token) {
-      axios.get('http://localhost:8080/vehiculo/obtener', {
+      axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/obtener', {
         headers: {
           Authorization: `Bearer ${token}`, // Incluir el token en el header
         },

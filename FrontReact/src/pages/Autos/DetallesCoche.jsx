@@ -279,7 +279,7 @@ const [selectedCliente, setSelectedCliente] = useState(null);
         ventaServicios : selectedServices.map(s => ({ servicio: { id: s.id } }))
       };
       try {
-          await axios.post('http://localhost:8080/ventas/vender', ventaActualizado, {
+          await axios.post('https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/vender', ventaActualizado, {
               headers: {
                   Authorization: `Bearer ${localStorage.getItem('token')}`,
                   'Content-Type': 'application/json',
@@ -315,7 +315,7 @@ const [selectedCliente, setSelectedCliente] = useState(null);
       estado: {id:2,nombre:'En espera'},
   };
     try {
-        await axios.put(`http://localhost:8080/vehiculo/actualizar/${venta.vehiculo.id}`, autoActualizado, {
+        await axios.put(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/actualizar/${venta.vehiculo.id}`, autoActualizado, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ const [selectedCliente, setSelectedCliente] = useState(null);
     
             if (token) {
                 try {
-                    const response = await axios.get("http://localhost:8080/cliente/buscar", {
+                    const response = await axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/cliente/buscar", {
                         headers: { Authorization: `Bearer ${token}` },
                     });
     

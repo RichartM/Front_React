@@ -211,7 +211,7 @@ export default function PanelControl() {
     const token = localStorage.getItem('token');
     if (token) {
       // Obtener autos disponibles y en espera
-      axios.get('http://localhost:8080/vehiculo/estados?estados=Disponible&estados=En espera', {
+      axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/estados?estados=Disponible&estados=En espera', {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then(response => setModelosREales(response.data))
@@ -254,7 +254,7 @@ export default function PanelControl() {
   useEffect(() => {
     const token = localStorage.getItem('token'); // Obtener el token del localStorage
     if (token) {
-      axios.get(' http://localhost:8080/vehiculo/estados?estados=Disponible&estados=En espera', {
+      axios.get(' https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/estados?estados=Disponible&estados=En espera', {
         headers: {
           Authorization: `Bearer ${token}`, // Incluir el token en el header
         },
@@ -300,7 +300,7 @@ export default function PanelControl() {
 
     if (token) {
       try {
-        const response = await axios.get(" http://localhost:8080/vehiculo/estados?estados=Vendido", {
+        const response = await axios.get(" https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/estados?estados=Vendido", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -329,7 +329,7 @@ export default function PanelControl() {
 
     if (token) {
       try {
-        const response = await axios.get(" http://localhost:8080/ventas/obtenerTodas", {
+        const response = await axios.get(" https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/obtenerTodas", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

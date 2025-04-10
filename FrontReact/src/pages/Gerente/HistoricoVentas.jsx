@@ -14,7 +14,7 @@ const HistoricoVentas = ({ show, onHide, agente }) => {
     console.log("consultando el historial")
     if (token /*&& agenteAgregadoAhorita*/) {
         try {
-            const response = await axios.get(`http://localhost:8080/ventas/porAgente/${agente.id}`, {
+            const response = await axios.get(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/porAgente/${agente.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setHistorialVentas(response.data);

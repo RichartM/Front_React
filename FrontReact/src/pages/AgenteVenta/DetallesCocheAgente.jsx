@@ -297,7 +297,7 @@
         ventaServicios : selectedServices.map(s => ({ servicio: { id: s.id } }))
       };
       try {
-          await axios.post('http://localhost:8080/ventas/vender', ventaActualizado, {
+          await axios.post('https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/vender', ventaActualizado, {
               headers: {
                   Authorization: `Bearer ${localStorage.getItem('token')}`,
                   'Content-Type': 'application/json',
@@ -336,7 +336,7 @@
     };
     
     try {
-        await axios.put(`http://localhost:8080/vehiculo/actualizar/${venta.vehiculo.id}`, autoActualizado, {
+        await axios.put(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/actualizar/${venta.vehiculo.id}`, autoActualizado, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json',
@@ -367,7 +367,7 @@
     
             if (token) {
                 try {
-                    const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+                    const response = await axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/fullAgentes", {
                         headers: { Authorization: `Bearer ${token}` },
                     });
     

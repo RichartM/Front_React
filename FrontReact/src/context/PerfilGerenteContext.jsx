@@ -33,7 +33,7 @@ export const PerfilGerenteProvider = ({ children }) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       
-      const response = await fetch("http://localhost:8080/api/auth/perfilGerente", {
+      const response = await fetch("https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/perfilGerente", {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

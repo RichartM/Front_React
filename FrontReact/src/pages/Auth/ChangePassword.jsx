@@ -127,7 +127,7 @@ const ChangePassword = () => {
             }
 
             await axios.post(
-                "http://localhost:8080/api/auth/change-password",
+                "https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/change-password",
                 { newPassword },
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );

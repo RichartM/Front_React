@@ -195,7 +195,7 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
   
       if (token) {
           try {
-              const response = await axios.get(`http://localhost:8080/clientes-agente/buscarClienteDelAgente?idAgente=${agente.id}`, {
+              const response = await axios.get(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/clientes-agente/buscarClienteDelAgente?idAgente=${agente.id}`, {
                   headers: { Authorization: `Bearer ${token}` },
               });
   
@@ -234,7 +234,7 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
   
           // 4. Hacemos la solicitud PUT al backend
           await axios.put(
-              `http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${age}&idCliente=${cli.id}`,
+              `https://bwubka276h.execute-api.us-east-1.amazonaws.com/clientes-agente/moverClienteAAgente?idNuevoAgente=${age}&idCliente=${cli.id}`,
               {},
               {
                   headers: {
@@ -280,7 +280,7 @@ function ClientesModal({ show, onHide, agente, agentes, onTransfer, onTransferAl
     const asociarGerenteClienteParaTodos = async (age, cli) => {
         try {
             await axios.put(
-                `http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${age}&idCliente=${cli}`,
+                `https://bwubka276h.execute-api.us-east-1.amazonaws.com/clientes-agente/moverClienteAAgente?idNuevoAgente=${age}&idCliente=${cli}`,
                 {},
                 {
                     headers: {
@@ -535,7 +535,7 @@ function AgenteVentas() {
 
       editedData.password = editedData.name;
 
-      axios.post('http://localhost:8080/api/auth/registerAgente', editedData, {
+      axios.post('https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/registerAgente', editedData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
@@ -604,7 +604,7 @@ function AgenteVentas() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:8080/clientes-agente/buscarClienteDelAgente?idAgente=${agente.id}`,
+        `https://bwubka276h.execute-api.us-east-1.amazonaws.com/clientes-agente/buscarClienteDelAgente?idAgente=${agente.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -779,7 +779,7 @@ function AgenteVentas() {
     const fromAgent = agentes.find(a => a.id === fromAgenteId);
     console.log("ahorita vamos a ver que chow con lo daos que deben estar por ahi.: ",cl)
     
-    axios.post(`http://localhost:8080/clientes-agente/transferAllClientes?idAgenteOrigen=${fromAgenteId}&idAgenteDestino=${toAgenteId}`, {}, {
+    axios.post(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/clientes-agente/transferAllClientes?idAgenteOrigen=${fromAgenteId}&idAgenteDestino=${toAgenteId}`, {}, {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(response => {
@@ -824,7 +824,7 @@ function AgenteVentas() {
     console.log("token: " + token)
 
     if (token) {
-      axios.get('http://localhost:8080/api/auth/fullAgentes', {
+      axios.get('https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/fullAgentes', {
         headers: {
           Authorization: `Bearer ${token}`  // Usar el token en el encabezado
         }

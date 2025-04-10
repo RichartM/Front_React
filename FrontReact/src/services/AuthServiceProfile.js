@@ -1,7 +1,7 @@
 import axios from "axios";
 import AuthServiceLogin from "./AuthServiceLogin";
 
-const API_URL = "http://localhost:8080/api/auth/";
+const API_URL = "https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/";
 
 const AuthServiceProfile = {
   // 📌 Obtener el perfil según el rol del usuario

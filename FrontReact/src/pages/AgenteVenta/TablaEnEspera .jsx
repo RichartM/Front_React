@@ -66,7 +66,7 @@ const [enEspera,setEnEspera] = useState(autos)
     };
     
     try {
-        await axios.put(`http://localhost:8080/vehiculo/actualizar/${au.vehiculo.id}`, autoActualizado, {
+        await axios.put(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/vehiculo/actualizar/${au.vehiculo.id}`, autoActualizado, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ const ventasHistorial = async () => {
   if (token) {
     try {
       const response = await axios.get(
-        `http://localhost:8080/ventas/obtenerTodas`,
+        `https://bwubka276h.execute-api.us-east-1.amazonaws.com/ventas/obtenerTodas`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setVentas(response.data);
@@ -112,7 +112,7 @@ const clientesSinAg = async () => {
   if (token) {
     try {
       const response = await axios.get(
-        `http://localhost:8080/cliente/null`,
+        `https://bwubka276h.execute-api.us-east-1.amazonaws.com/cliente/null`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setClientesSinAgente(response.data);

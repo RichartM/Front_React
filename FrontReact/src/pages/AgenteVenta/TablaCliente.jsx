@@ -183,7 +183,7 @@ export default function TablaCliente() {
     
         if (token) {
             try {
-                const response = await axios.get("http://localhost:8080/cliente/buscar", {
+                const response = await axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/cliente/buscar", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
     
@@ -302,7 +302,7 @@ export default function TablaCliente() {
 
         try {
             const response = await axios.put(
-                `http://localhost:8080/api/auth/updateCliente/${selectedItem.id}`,
+                `https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/updateCliente/${selectedItem.id}`,
                 clienteData,
                 {
                     headers: {
@@ -362,7 +362,7 @@ export default function TablaCliente() {
                     const token = localStorage.getItem('token');
     
                     const response = await axios.put(
-                        `http://localhost:8080/api/auth/updateCliente/${cliente.id}`,
+                        `https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/updateCliente/${cliente.id}`,
                         clienteDataa,
                         {
                             headers: {
@@ -432,7 +432,7 @@ export default function TablaCliente() {
 
         if (token) {
             try {
-                const response = await axios.get("http://localhost:8080/api/auth/fullAgentes", {
+                const response = await axios.get("https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/fullAgentes", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -527,7 +527,7 @@ const asociarGerenteCliente = async (cli) => {
 
         // 4. Hacemos la solicitud PUT al backend
         await axios.put(
-            `http://localhost:8080/clientes-agente/moverClienteAAgente?idNuevoAgente=${AgenteAgregadoAhorita.id}&idCliente=${clienteAMover.id}`,
+            `https://bwubka276h.execute-api.us-east-1.amazonaws.com/clientes-agente/moverClienteAAgente?idNuevoAgente=${AgenteAgregadoAhorita.id}&idCliente=${clienteAMover.id}`,
             {},
             {
                 headers: {
@@ -562,7 +562,7 @@ const fetchClientesEspecificos = async () => {
 
     if (token) {
         try {
-            const response = await axios.get(`http://localhost:8080/clientes-agente/buscarClienteDelAgente?idAgente=${AgenteAgregadoAhorita.id}`, {
+            const response = await axios.get(`https://bwubka276h.execute-api.us-east-1.amazonaws.com/clientes-agente/buscarClienteDelAgente?idAgente=${AgenteAgregadoAhorita.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -607,7 +607,7 @@ const fetchClientesEspecificos = async () => {
 
 
         try {
-            await axios.post('http://localhost:8080/api/auth/registerCliente', clienteData, {
+            await axios.post('https://bwubka276h.execute-api.us-east-1.amazonaws.com/api/auth/registerCliente', clienteData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json',
