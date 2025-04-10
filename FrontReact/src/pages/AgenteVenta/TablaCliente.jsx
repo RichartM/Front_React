@@ -223,9 +223,9 @@ export default function TablaCliente() {
     
 
 
-    useEffect(() => {
+    /*useEffect(() => {
         setFilteredClientes(clientes);
-    }, [clientes]);
+    }, [clientes]);*/
 
 
 
@@ -331,6 +331,7 @@ export default function TablaCliente() {
                 icon: "error",
                 confirmButtonColor: "#d33",
             });
+            console.log(error)
         }
     };
 
@@ -338,24 +339,64 @@ export default function TablaCliente() {
 
 
     const handleToggleStatus = (cliente) => {
+        const clienteDataa = {
+            ...cliente,
+            estadoCliente: !cliente.estadoCliente, // o usa === 1 ? 0 : 1 si es número
+        };
+    
+        console.log("🔄 Estado a cambiar:", clienteDataa);
+    
         Swal.fire({
-            title: `¿Estás seguro de ${cliente.estado === "ACTIVO" ? "desactivar" : "activar"} a ${cliente.nombre}?`,
+            title: `¿Estás seguro de ${cliente.estadoCliente === true ? "desactivar" : "activar"} a ${cliente.name}?`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Sí, confirmar",
             cancelButtonText: "Cancelar",
-            customClass: { confirmButton: 'btn-swal-confirmar', cancelButton: 'btn-swal-cancelar' },
-        }).then((result) => {
+            customClass: {
+                confirmButton: 'btn-swal-confirmar',
+                cancelButton: 'btn-swal-cancelar'
+            },
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                const updatedClientes = clientes.map(c =>
-                    c.id === cliente.id ? { ...c, estado: cliente.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO" } : c
-                );
-                setClientes(updatedClientes);
-                setFilteredClientes(updatedClientes);
-                Swal.fire("¡Hecho!", `El estado de ${cliente.nombre} ha sido cambiado.`, "success");
+                try {
+                    const token = localStorage.getItem('token');
+    
+                    const response = await axios.put(
+                        `http://localhost:8080/api/auth/updateCliente/${cliente.id}`,
+                        clienteDataa,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    );
+    
+                    console.log("✅ Respuesta del backend:", response.data);
+    
+                    setTimeout(async () => {
+                        await fetchClientes();
+                        setEditModal(false);
+                        Swal.fire({
+                            title: "¡Actualizado!",
+                            text: "El cliente ha sido actualizado con éxito.",
+                            icon: "success",
+                            confirmButtonColor: "#018180",
+                        });
+                    }, 500);
+                } catch (error) {
+                    Swal.fire({
+                        title: "Error",
+                        text: "No se pudo actualizar el cliente. Verifica tu sesión o permisos.",
+                        icon: "error",
+                        confirmButtonColor: "#d33",
+                    });
+                    console.log(error);
+                }
             }
         });
     };
+    
 
     const validateFields = () => {
        // console.log("📌 Validando campos, datos actuales:", editedData); // 🔍 Depuración
@@ -558,7 +599,8 @@ const fetchClientesEspecificos = async () => {
             username: editedData.correo,
             email: editedData.correo,
             password: editedData.nombre,  // ✅ La contraseña será el nombre del cliente
-            telephone: editedData.telefono
+            telephone: editedData.telefono,
+            estadoCliente:1
         };
 
 
@@ -618,6 +660,8 @@ const fetchClientesEspecificos = async () => {
         }
     }, [AgenteAgregadoAhorita,clienteAgregadoAhorita]); // ✅ Se ejecuta cuando el estado cambie
     
+
+    console.log("data de los clientes insanos: ",filteredClientes)
 
     
     return (
@@ -798,10 +842,10 @@ const fetchClientesEspecificos = async () => {
                                                 <td>{cliente.lastname}</td>
                                                 <td>{cliente.email}</td>
                                                 <td>{cliente.telephone}</td>
-                                                <td>{cliente.estado === "ACTIVO" ? "Activo" : "Desactivado"}</td>
+                                                <td>{cliente.estadoCliente === true ? "Activo" : "Desactivado"}</td>
                                                 <td>
                                                     <BsPencilSquare className="text-primary fs-2" onClick={() => handleEdit(cliente)} />
-                                                    {cliente.estado === "ACTIVO"
+                                                    {cliente.estadoCliente === true
                                                         ? <BsToggleOn className="text-success fs-1" onClick={() => handleToggleStatus(cliente)} />
                                                         : <BsToggleOff className="text-danger fs-1" onClick={() => handleToggleStatus(cliente)} />}
                                                 </td>
