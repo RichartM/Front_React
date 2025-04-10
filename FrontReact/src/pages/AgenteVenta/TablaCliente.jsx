@@ -341,7 +341,7 @@ export default function TablaCliente() {
     const handleToggleStatus = (cliente) => {
         const clienteDataa = {
             ...cliente,
-            estadoCliente: !cliente.estadoCliente, // o usa === 1 ? 0 : 1 si es número
+            estado: !cliente.estado, // o usa === 1 ? 0 : 1 si es número
         };
     
         console.log("🔄 Estado a cambiar:", clienteDataa);
@@ -650,9 +650,10 @@ const fetchClientesEspecificos = async () => {
     },[])*/
 
 
-    /*useEffect(() => {
+    useEffect(() => {
         fetchClientesEspecificos();
-    }, []);*/
+    }, [filteredClientes]);
+
     useEffect(() => {
         if (AgenteAgregadoAhorita && AgenteAgregadoAhorita.id) {
             console.log("Agente encontrado:", AgenteAgregadoAhorita);
