@@ -100,6 +100,7 @@ export default function HistorialVentas() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setHistorialVentas(response.data);
+        console.log("datos que ya no s even", response.data)
       } catch (error) {
         console.error("Error al obtener historial de ventas:", error);
       }
@@ -143,6 +144,7 @@ export default function HistorialVentas() {
             headers: { Authorization: `Bearer ${token}` },
           });
           setAgentes(response.data);
+          console.log("agentes que ya no se ven", response.data)
         } catch (error) {
           console.error("Error al obtener agentes:", error);
         }

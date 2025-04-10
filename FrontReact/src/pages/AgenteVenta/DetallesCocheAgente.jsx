@@ -508,7 +508,7 @@
           ActualizarEstadoDeUnAutoInsano();
         
           // Redireccionamos la pestaña actual
-          window.location.href = "http://localhost:5173/agente/tablaCliente";
+          window.location.href = "https://staging.d1eu6ctil42sgj.amplifyapp.com/agente/tablaCliente";
         }
         
          else {
